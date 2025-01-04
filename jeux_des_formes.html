@@ -51,7 +51,7 @@
 
         .dropzone {
             position: absolute;
-            border: 4px dashed #555;
+            border: 4px solid #333;
         }
 
         #circle-zone {
@@ -76,7 +76,7 @@
             height: 0;
             border-left: 30px solid transparent;
             border-right: 30px solid transparent;
-            border-top: 60px solid #555;
+            border-top: 60px solid #333;
         }
     </style>
 </head>
@@ -103,12 +103,16 @@
 
         function startDrag(event) {
             const shape = event.target;
-            let offsetX = event.clientX - shape.getBoundingClientRect().left;
-            let offsetY = event.clientY - shape.getBoundingClientRect().top;
+            let initialX = event.clientX;
+            let initialY = event.clientY;
+            let shapeX = parseInt(window.getComputedStyle(shape).left, 10) || 0;
+            let shapeY = parseInt(window.getComputedStyle(shape).top, 10) || 0;
 
             function onMouseMove(e) {
-                shape.style.left = `${e.pageX - offsetX}px`;
-                shape.style.top = `${e.pageY - offsetY}px`;
+                const deltaX = e.clientX - initialX;
+                const deltaY = e.clientY - initialY;
+                shape.style.left = `${shapeX + deltaX}px`;
+                shape.style.top = `${shapeY + deltaY}px`;
             }
 
             function onMouseUp() {
@@ -143,16 +147,16 @@
                             shape.style.backgroundColor = 'red';
                             setTimeout(() => {
                                 shape.style.backgroundColor = 'blue';
-                                shape.style.left = ''; // Revenir à la position initiale
-                                shape.style.top = '';
+                                shape.style.left = `${shapeX}px`;
+                                shape.style.top = `${shapeY}px`;
                             }, 3000);
                         }
                     }
                 });
 
                 if (!droppedInZone) {
-                    shape.style.left = ''; // Revenir à la position initiale
-                    shape.style.top = '';
+                    shape.style.left = `${shapeX}px`;
+                    shape.style.top = `${shapeY}px`;
                 }
             }
 
