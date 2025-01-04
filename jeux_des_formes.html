@@ -19,8 +19,8 @@
 
         #game-area {
             position: relative;
-            width: 600px;
-            height: 600px;
+            width: 800px;
+            height: 800px;
             border: 2px solid #000;
             background-color: #fff;
         }
@@ -52,31 +52,33 @@
         .dropzone {
             position: absolute;
             border: 4px solid #333;
+            background-color: white;
         }
 
         #circle-zone {
             top: 50px;
-            left: 200px;
-            width: 150px;
-            height: 150px;
+            left: 50px;
+            width: 200px;
+            height: 200px;
             border-radius: 50%;
         }
 
         #square-zone {
-            bottom: 50px;
-            left: 200px;
-            width: 150px;
-            height: 150px;
+            top: 50px;
+            right: 50px;
+            width: 200px;
+            height: 200px;
         }
 
         #triangle-zone {
-            top: 260px;
-            left: 100px;
+            bottom: 50px;
+            left: 300px;
             width: 0;
             height: 0;
-            border-left: 75px solid transparent;
-            border-right: 75px solid transparent;
-            border-bottom: 150px solid #333;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 200px solid #333;
+            background-color: white;
         }
     </style>
 </head>
@@ -94,20 +96,20 @@
             for (let i = 0; i < 5; i++) {
                 const circle = document.createElement("div");
                 circle.className = "shape circle";
-                circle.style.top = `${Math.random() * 500}px`;
-                circle.style.left = `${Math.random() * 500}px`;
+                circle.style.top = `${Math.random() * 700}px`;
+                circle.style.left = `${Math.random() * 700}px`;
                 gameArea.appendChild(circle);
 
                 const square = document.createElement("div");
                 square.className = "shape square";
-                square.style.top = `${Math.random() * 500}px`;
-                square.style.left = `${Math.random() * 500}px`;
+                square.style.top = `${Math.random() * 700}px`;
+                square.style.left = `${Math.random() * 700}px`;
                 gameArea.appendChild(square);
 
                 const triangle = document.createElement("div");
                 triangle.className = "shape triangle";
-                triangle.style.top = `${Math.random() * 500}px`;
-                triangle.style.left = `${Math.random() * 500}px`;
+                triangle.style.top = `${Math.random() * 700}px`;
+                triangle.style.left = `${Math.random() * 700}px`;
                 gameArea.appendChild(triangle);
             }
         </script>
@@ -159,8 +161,8 @@
                             (zone.id === 'square-zone' && shape.classList.contains('square')) ||
                             (zone.id === 'triangle-zone' && shape.classList.contains('triangle'))
                         ) {
-                            shape.style.left = `${zoneRect.left - gameArea.getBoundingClientRect().left}px`;
-                            shape.style.top = `${zoneRect.top - gameArea.getBoundingClientRect().top}px`;
+                            shape.style.left = `${parseInt(shape.style.left)}px`;
+                            shape.style.top = `${parseInt(shape.style.top)}px`;
                             shape.style.cursor = 'default';
                             shape.setAttribute('draggable', false);
                             shape.style.pointerEvents = 'none';
