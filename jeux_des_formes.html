@@ -57,16 +57,16 @@
         #circle-zone {
             top: 50px;
             left: 200px;
-            width: 60px;
-            height: 60px;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
         }
 
         #square-zone {
             bottom: 50px;
             left: 200px;
-            width: 60px;
-            height: 60px;
+            width: 150px;
+            height: 150px;
         }
 
         #triangle-zone {
@@ -74,9 +74,9 @@
             left: 100px;
             width: 0;
             height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-top: 60px solid #333;
+            border-left: 75px solid transparent;
+            border-right: 75px solid transparent;
+            border-bottom: 150px solid #333;
         }
     </style>
 </head>
@@ -87,15 +87,36 @@
         <div id="square-zone" class="dropzone"></div>
         <div id="triangle-zone" class="dropzone"></div>
 
-        <!-- Exemples de formes -->
-        <div class="shape circle" style="top: 100px; left: 100px;"></div>
-        <div class="shape square" style="top: 200px; left: 150px;"></div>
-        <div class="shape triangle" style="top: 300px; left: 200px;"></div>
+        <!-- Création de 5 formes de chaque type -->
+        <script>
+            const gameArea = document.getElementById("game-area");
+
+            for (let i = 0; i < 5; i++) {
+                const circle = document.createElement("div");
+                circle.className = "shape circle";
+                circle.style.top = `${Math.random() * 500}px`;
+                circle.style.left = `${Math.random() * 500}px`;
+                gameArea.appendChild(circle);
+
+                const square = document.createElement("div");
+                square.className = "shape square";
+                square.style.top = `${Math.random() * 500}px`;
+                square.style.left = `${Math.random() * 500}px`;
+                gameArea.appendChild(square);
+
+                const triangle = document.createElement("div");
+                triangle.className = "shape triangle";
+                triangle.style.top = `${Math.random() * 500}px`;
+                triangle.style.left = `${Math.random() * 500}px`;
+                gameArea.appendChild(triangle);
+            }
+        </script>
     </div>
 
     <script>
         const shapes = document.querySelectorAll('.shape');
         const dropzones = document.querySelectorAll('.dropzone');
+        let correctCount = 0;
 
         shapes.forEach(shape => {
             shape.addEventListener('mousedown', startDrag);
@@ -143,6 +164,12 @@
                             shape.style.cursor = 'default';
                             shape.setAttribute('draggable', false);
                             shape.style.pointerEvents = 'none';
+                            shape.style.backgroundColor = 'green';
+                            correctCount++;
+
+                            if (correctCount === 15) {
+                                setTimeout(() => alert("Bravo !"), 100);
+                            }
                         } else {
                             shape.style.backgroundColor = 'red';
                             setTimeout(() => {
