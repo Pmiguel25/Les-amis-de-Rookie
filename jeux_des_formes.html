@@ -162,43 +162,38 @@
                         droppedInZone = true;
 
                         if (
-    (zone.id === 'circle-zone' && shape.classList.contains('circle')) ||
-    (zone.id === 'square-zone' && shape.classList.contains('square')) ||
-    (zone.id === 'triangle-zone' && shape.classList.contains('triangle'))
-) {
-    shape.style.left = `${parseInt(shape.style.left)}px`;
-    shape.style.top = `${parseInt(shape.style.top)}px`;
-    shape.style.cursor = 'default';
-    shape.setAttribute('draggable', false);
-    shape.style.pointerEvents = 'none';
+                            (zone.id === 'circle-zone' && shape.classList.contains('circle')) ||
+                            (zone.id === 'square-zone' && shape.classList.contains('square')) ||
+                            (zone.id === 'triangle-zone' && shape.classList.contains('triangle'))
+                        ) {
+                            shape.style.left = `${parseInt(shape.style.left)}px`;
+                            shape.style.top = `${parseInt(shape.style.top)}px`;
+                            shape.style.cursor = 'default';
+                            shape.setAttribute('draggable', false);
+                            shape.style.pointerEvents = 'none';
+                            if (shape.classList.contains('triangle')) {
+                            shape.style.backgroundColor = 'green'; // Changer la couleur du triangle
+                            shape.style.borderLeftColor = 'transparent'; // Réinitialiser la bordure gauche
+                            shape.style.borderRightColor = 'transparent'; // Réinitialiser la bordure droite
+                            shape.style.borderBottomColor = 'green'; // Changer la couleur de la bordure du bas
+                        } else {
+                            shape.style.backgroundColor = 'green';
+                        }
+                            correctCount++;
 
-    // Ici, nous changeons la couleur de fond du triangle sans modifier la forme
-    if (shape.classList.contains('triangle')) {
-        shape.style.backgroundColor = 'green'; // Changer la couleur du triangle
-        shape.style.borderLeftColor = 'transparent'; // Réinitialiser la bordure gauche
-        shape.style.borderRightColor = 'transparent'; // Réinitialiser la bordure droite
-        shape.style.borderBottomColor = 'green'; // Changer la couleur de la bordure du bas
-    } else {
-        shape.style.backgroundColor = 'green';
-    }
-
-    correctCount++;
-
-    if (correctCount === 15) {
-        setTimeout(() => {
-            alert("Bravo !");
-            victorySound.play();
-        }, 100);
-    }
-} else {
-    shape.style.backgroundColor = 'red';
-    setTimeout(() => {
-        shape.style.backgroundColor = 'blue';
-        shape.style.left = `${shapeX}px`;
-        shape.style.top = `${shapeY}px`;
-    }, 3000);
-}
-
+                            if (correctCount === 15) {
+                                setTimeout(() => {
+                                    alert("Bravo !");
+                                    victorySound.play();
+                                }, 100);
+                            }
+                        } else {
+                            shape.style.backgroundColor = 'red';
+                            setTimeout(() => {
+                                shape.style.backgroundColor = 'blue';
+                                shape.style.left = `${shapeX}px`;
+                                shape.style.top = `${shapeY}px`;
+                            }, 3000);
                         }
                     }
                 });
