@@ -175,46 +175,10 @@
                             correctCount++;
 
                             if (correctCount === 15) {
-    setTimeout(() => {
-        // Créer une fenêtre modale de félicitations
-        const modal = document.createElement('div');
-        modal.style.position = 'fixed';
-        modal.style.top = '50%';
-        modal.style.left = '50%';
-        modal.style.transform = 'translate(-50%, -50%)';
-        modal.style.padding = '20px';
-        modal.style.backgroundColor = '#333';
-        modal.style.color = '#fff';
-        modal.style.borderRadius = '10px';
-        modal.style.textAlign = 'center';
-        modal.style.zIndex = '1000';
-
-        // Ajouter le message de félicitations
-        const message = document.createElement('p');
-        message.textContent = 'Bravo ! Vous avez complété le jeu.';
-        modal.appendChild(message);
-
-        // Ajouter le bouton "Rejouer"
-        const replayButton = document.createElement('button');
-        replayButton.textContent = 'Rejouer';
-        replayButton.style.marginTop = '10px';
-        replayButton.style.padding = '10px';
-        replayButton.style.fontSize = '16px';
-        replayButton.style.cursor = 'pointer';
-        
-        // Fonction pour recharger la page lorsque le bouton est cliqué
-        replayButton.onclick = function () {
-            location.reload(); // Recharger la page
-        };
-
-        modal.appendChild(replayButton);
-        document.body.appendChild(modal);
-
-        // Jouer le son de victoire
-        victorySound.play();
-    }, 100);
-}
-
+                                setTimeout(() => {
+                                    alert("Bravo !");
+                                    victorySound.play();
+                                }, 100);
                             }
                         } else {
                             shape.style.backgroundColor = 'red';
