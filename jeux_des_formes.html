@@ -13,7 +13,8 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            background-color: black;
+            color: white;
         }
 
         #game-area {
@@ -49,25 +50,33 @@
         }
 
         .dropzone {
-            width: 250px;
-            height: 80px;
             position: absolute;
-            border: 2px dashed #ccc;
+            border: 4px dashed #555;
         }
 
         #circle-zone {
-            top: 10px;
-            left: 175px;
+            top: 50px;
+            left: 200px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
         }
 
         #square-zone {
-            bottom: 10px;
-            left: 175px;
+            bottom: 50px;
+            left: 200px;
+            width: 60px;
+            height: 60px;
         }
 
         #triangle-zone {
             top: 260px;
-            left: 10px;
+            left: 100px;
+            width: 0;
+            height: 0;
+            border-left: 30px solid transparent;
+            border-right: 30px solid transparent;
+            border-top: 60px solid #555;
         }
     </style>
 </head>
@@ -94,8 +103,8 @@
 
         function startDrag(event) {
             const shape = event.target;
-            let offsetX = event.offsetX;
-            let offsetY = event.offsetY;
+            let offsetX = event.clientX - shape.getBoundingClientRect().left;
+            let offsetY = event.clientY - shape.getBoundingClientRect().top;
 
             function onMouseMove(e) {
                 shape.style.left = `${e.pageX - offsetX}px`;
@@ -125,11 +134,11 @@
                             (zone.id === 'square-zone' && shape.classList.contains('square')) ||
                             (zone.id === 'triangle-zone' && shape.classList.contains('triangle'))
                         ) {
-                            shape.style.left = `${zoneRect.left}px`;
-                            shape.style.top = `${zoneRect.top}px`;
+                            shape.style.left = `${zoneRect.left - gameArea.getBoundingClientRect().left}px`;
+                            shape.style.top = `${zoneRect.top - gameArea.getBoundingClientRect().top}px`;
                             shape.style.cursor = 'default';
                             shape.setAttribute('draggable', false);
-                            shape.style.pointerEvents = 'none'; // Empêche tout déplacement ultérieur
+                            shape.style.pointerEvents = 'none';
                         } else {
                             shape.style.backgroundColor = 'red';
                             setTimeout(() => {
