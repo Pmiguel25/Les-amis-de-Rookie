@@ -37,7 +37,7 @@
 
         .zone img.pictogram {
             margin: 10px;
-            width: 100px;
+            width: 200px; /* Deux fois plus grand qu'avant */
             height: auto;
         }
 
@@ -54,14 +54,17 @@
             width: 150px;
             height: auto;
             cursor: grab;
+            transition: all 0.3s;
         }
 
-        .zone.success {
-            border-color: green;
+        .object.success {
+            border: 5px solid green;
+            border-radius: 10px;
         }
 
-        .zone.error {
-            border-color: red;
+        .object.error {
+            border: 5px solid red;
+            border-radius: 10px;
         }
 
         #modal {
@@ -90,7 +93,7 @@
     <div id="game-area">
         <!-- Zone de gauche (Petits objets) -->
         <div id="small-zone" class="zone">
-            <img src=<a href="https://imgbb.com/"><img src="https://i.ibb.co/0rgtC91/petit.png" alt="petit" border="0"></a>>
+            <img src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit" class="pictogram">
         </div>
 
         <!-- Zone centrale -->
@@ -98,7 +101,7 @@
 
         <!-- Zone de droite (Grands objets) -->
         <div id="large-zone" class="zone">
-            <img src="https://static.arasaac.org/pictograms/7296/7296_300.png" alt="Grand" class="pictogram">
+            <img src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand" class="pictogram">
         </div>
     </div>
 
@@ -166,19 +169,19 @@
                     (target === largeZone && objectCategory === "grand")
                 ) {
                     // Bonne zone
-                    target.classList.add("success");
-                    setTimeout(() => target.classList.remove("success"), 1000);
+                    object.classList.add("success");
                     successCount++;
                     currentImageIndex++;
-                    loadNextImage();
-                } else if (target === smallZone || target === largeZone) {
-                    // Mauvaise zone
-                    target.classList.add("error");
-                    setTimeout(() => target.classList.remove("error"), 1000);
-                    object.style.transform = "translate(0, 0)";
+                    setTimeout(() => {
+                        loadNextImage();
+                    }, 1000);
                 } else {
-                    // Repositionner si pas déposé dans une zone
-                    object.style.transform = "translate(0, 0)";
+                    // Mauvaise zone
+                    object.classList.add("error");
+                    setTimeout(() => {
+                        object.classList.remove("error");
+                        object.style.transform = "translate(0, 0)";
+                    }, 1000);
                 }
 
                 document.removeEventListener("mousemove", onMouseMove);
