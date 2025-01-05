@@ -51,10 +51,18 @@
         }
 
         .center-zone img.object {
-            width: 150px;
-            height: auto;
             cursor: grab;
             transition: all 0.3s;
+        }
+
+        .object.small {
+            width: 200px; /* Taille pour les petits animaux */
+            height: auto;
+        }
+
+        .object.large {
+            width: 250px; /* Taille pour les grands animaux */
+            height: auto;
         }
 
         .object.success {
@@ -143,77 +151,25 @@
             { src: "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg", category: "grand" }
         ];
 
-        // Mélanger les images aléatoirement
         const shuffledImages = images.sort(() => 0.5 - Math.random());
-
         let currentImageIndex = 0;
-        let successCount = 0;
 
         function loadNextImage() {
             centerZone.innerHTML = "";
             if (currentImageIndex >= shuffledImages.length) {
-                // Afficher le message de réussite
                 modal.style.display = "block";
                 return;
             }
-
-            const imageData = shuffledImages[currentImageIndex];
+            const imgData = shuffledImages[currentImageIndex];
             const img = document.createElement("img");
-            img.src = imageData.src;
-            img.className = "object";
-            img.setAttribute("data-category", imageData.category);
+            img.src = imgData.src;
+            img.classList.add("object", imgData.category === "petit" ? "small" : "large");
+            img.dataset.category = imgData.category;
 
-            // Activer le glisser-déposer
             img.addEventListener("mousedown", startDrag);
             centerZone.appendChild(img);
         }
 
-        function startDrag(event) {
-            const object = event.target;
-            let initialX = event.clientX;
-            let initialY = event.clientY;
-            let offsetX = 0;
-            let offsetY = 0;
-
-            function onMouseMove(e) {
-                offsetX = e.clientX - initialX;
-                offsetY = e.clientY - initialY;
-                object.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-            }
-
-            function onMouseUp(e) {
-                const objectCategory = object.getAttribute("data-category");
-                const target = document.elementFromPoint(e.clientX, e.clientY);
-
-                if (
-                    (target === smallZone && objectCategory === "petit") ||
-                    (target === largeZone && objectCategory === "grand")
-                ) {
-                    // Bonne zone
-                    object.classList.add("success");
-                    successCount++;
-                    currentImageIndex++;
-                    setTimeout(() => {
-                        loadNextImage();
-                    }, 1000);
-                } else {
-                    // Mauvaise zone
-                    object.classList.add("error");
-                    setTimeout(() => {
-                        object.classList.remove("error");
-                        object.style.transform = "translate(0, 0)";
-                    }, 1000);
-                }
-
-                document.removeEventListener("mousemove", onMouseMove);
-                document.removeEventListener("mouseup", onMouseUp);
-            }
-
-            document.addEventListener("mousemove", onMouseMove);
-            document.addEventListener("mouseup", onMouseUp);
-        }
-
-        // Charger la première image
         loadNextImage();
     </script>
 </body>
