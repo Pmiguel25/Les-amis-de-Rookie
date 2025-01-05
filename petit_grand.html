@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tri : Grand ou Petit</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #game-area {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+            height: 100%;
+        }
+
+        .zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            border: 2px solid #333;
+            height: 100%;
+        }
+
+        .zone img.pictogram {
+            margin: 10px;
+            width: 100px;
+            height: auto;
+        }
+
+        .center-zone {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: #ffffff;
+        }
+
+        .center-zone img.object {
+            width: 150px;
+            height: auto;
+            cursor: grab;
+        }
+
+        .zone.success {
+            border-color: green;
+        }
+
+        .zone.error {
+            border-color: red;
+        }
+
+        #modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        #modal button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-area">
+        <!-- Zone de gauche (Petits objets) -->
+        <div id="small-zone" class="zone">
+            <img src="https://static.arasaac.org/pictograms/7298/7298_300.png" alt="Petit" class="pictogram">
+        </div>
+
+        <!-- Zone centrale -->
+        <div id="center-zone" class="center-zone"></div>
+
+        <!-- Zone de droite (Grands objets) -->
+        <div id="large-zone" class="zone">
+            <img src="https://static.arasaac.org/pictograms/7296/7296_300.png" alt="Grand" class="pictogram">
+        </div>
+    </div>
+
+    <div id="modal">
+        <p>Bravo ! Vous avez réussi !</p>
+        <button onclick="location.reload()">Rejouer</button>
+    </div>
+
+    <script>
+        const smallZone = document.getElementById("small-zone");
+        const largeZone = document.getElementById("large-zone");
+        const centerZone = document.getElementById("center-zone");
+        const modal = document.getElementById("modal");
+
+        // Liste d'images avec leur classification (petit ou grand)
+        const images = [
+            { src: "https://via.placeholder.com/150x100", category: "petit" },
+            { src: "https://via.placeholder.com/300x200", category: "grand" },
+            { src: "https://via.placeholder.com/120x80", category: "petit" },
+            { src: "https://via.placeholder.com/400x300", category: "grand" },
+            // Ajoute plus d'images ici
+        ];
+
+        let currentImageIndex = 0;
+        let successCount = 0;
+
+        function loadNextImage() {
+            centerZone.innerHTML = "";
+            if (currentImageIndex >= images.length) {
+                // Afficher le message de réussite
+                modal.style.display = "block";
+                return;
+            }
+
+            const imageData = images[currentImageIndex];
+            const img = document.createElement("img");
+            img.src = imageData.src;
+            img.className = "object";
+            img.setAttribute("data-category", imageData.category);
+
+            // Activer le glisser-déposer
+            img.addEventListener("mousedown", startDrag);
+            centerZone.appendChild(img);
+        }
+
+        function startDrag(event) {
+            const object = event.target;
+            let initialX = event.clientX;
+            let initialY = event.clientY;
+            let offsetX = 0;
+            let offsetY = 0;
+
+            function onMouseMove(e) {
+                offsetX = e.clientX - initialX;
+                offsetY = e.clientY - initialY;
+                object.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            }
+
+            function onMouseUp(e) {
+                const objectCategory = object.getAttribute("data-category");
+                const target = document.elementFromPoint(e.clientX, e.clientY);
+
+                if (
+                    (target === smallZone && objectCategory === "petit") ||
+                    (target === largeZone && objectCategory === "grand")
+                ) {
+                    // Bonne zone
+                    target.classList.add("success");
+                    setTimeout(() => target.classList.remove("success"), 1000);
+                    successCount++;
+                    currentImageIndex++;
+                    loadNextImage();
+                } else if (target === smallZone || target === largeZone) {
+                    // Mauvaise zone
+                    target.classList.add("error");
+                    setTimeout(() => target.classList.remove("error"), 1000);
+                    object.style.transform = "translate(0, 0)";
+                } else {
+                    // Repositionner si pas déposé dans une zone
+                    object.style.transform = "translate(0, 0)";
+                }
+
+                document.removeEventListener("mousemove", onMouseMove);
+                document.removeEventListener("mouseup", onMouseUp);
+            }
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
+        }
+
+        // Charger la première image
+        loadNextImage();
+    </script>
+</body>
+</html>
