@@ -153,25 +153,3 @@
         ];
 
         const shuffledImages = images.sort(() => 0.5 - Math.random());
-        let currentImageIndex = 0;
-
-        function loadNextImage() {
-            centerZone.innerHTML = "";
-            if (currentImageIndex >= shuffledImages.length) {
-                modal.style.display = "block";
-                return;
-            }
-            const imgData = shuffledImages[currentImageIndex];
-            const img = document.createElement("img");
-            img.src = imgData.src;
-            img.classList.add("object", imgData.category === "petit" ? "small" : "large");
-            img.dataset.category = imgData.category;
-
-            img.addEventListener("mousedown", startDrag);
-            centerZone.appendChild(img);
-        }
-
-        loadNextImage();
-    </script>
-</body>
-</html>
