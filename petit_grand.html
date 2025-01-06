@@ -159,7 +159,6 @@
                 modal.style.display = "block";
             }
         }
-
         // Rendre une image draggable
         function makeDraggable(img) {
             let offsetX, offsetY;
@@ -168,6 +167,7 @@
                 offsetX = e.offsetX;
                 offsetY = e.offsetY;
                 img.style.position = "absolute";
+                img.style.zIndex = "1000";
             });
 
             img.addEventListener("mousemove", (e) => {
