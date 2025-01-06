@@ -127,22 +127,28 @@
             { src: "https://s3.animalia.bio/animals/photos/full/original/OBdYWcqSUbP0fxx1xPGS.webp", category: "grand" },
             { src: "https://s3.animalia.bio/animals/photos/full/original/2560px-rothschild27s-giraffe-28751350316829.webp", category: "grand" },
             { src: "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg", category: "grand" }
+            { src: "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/6/66/Elephant_Botswana.jpg", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/3/3b/Tiger_in_Ranthambhore.jpg", category: "grand" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCHEkK9vQWjq6HAFHpgyO7Rz2KRVkQuYqB1g&s", category: "petit" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/5/50/Goldfish3.jpg", category: "petit" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Frog_%28cropped%29.jpg", category: "petit" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Domestic_dog_breeds.jpg", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/5/57/Siamese_cat.jpg", category: "petit" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/4/49/Domestic_goose.jpg", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/2/26/Blue_Morpho_Butterfly.jpg", category: "petit" }
         ];
 
-        // Mélanger les images aléatoirement
-        const shuffledImages = images.sort(() => 0.5 - Math.random());
+        // Mélanger toutes les images (ordre aléatoire)
+        const shuffledImages = [...images].sort(() => 0.5 - Math.random());
 
         let currentImageIndex = 0;
         let successCount = 0;
 
         function loadNextImage() {
             centerZone.innerHTML = "";
-            if (currentImageIndex >= shuffledImages.length) {
-                // Afficher le message de réussite si toutes les images ont été correctement triées
-                if (successCount === shuffledImages.length) {
-                    modal.style.display = "block";
-                }
+            if (successCount === shuffledImages.length) {
+                modal.style.display = "block"; // Fin du jeu
                 return;
             }
 
@@ -159,7 +165,6 @@
         }
 
         function startDrag(event) {
-            event.preventDefault();
             const object = event.target;
             const isTouchEvent = event.type === "touchstart";
             const initialX = isTouchEvent ? event.touches[0].clientX : event.clientX;
