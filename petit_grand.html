@@ -37,7 +37,7 @@
 
         .zone img.pictogram {
             margin: 10px;
-            width: 200px; /* Deux fois plus grand qu'avant */
+            width: 200px;
             height: auto;
         }
 
@@ -118,32 +118,11 @@
 
         // Liste d'images avec leur classification (petit ou grand)
         const images = [
-            // Petits animaux
             { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcdsTgaWbDX_pYae8qkk6mm3DzDd79_F9bg&s", category: "petit" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/koreahamsterjpg.webp", category: "petit" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/belinda.webp", category: "petit" },
-            { src: "https://images.pexels.com/photos/88512/mole-nature-animals-molehills-88512.jpeg", category: "petit" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Carcassonne_-_M%C3%A9sange_bleue.jpg", category: "petit" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6OteZ5gNDtrJYC6PS-EsIo2BUHwa7vpMYaw&s", category: "petit" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT29PhlyuuWbLXPyZtmre91bxyfYg7tPeJvFw&s", category: "petit" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCdN1VgbT4H3AdPky3NAhE79mM9FMg4HzZgQ&s", category: "petit" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/2560px-cepaea-nemoralis-28mad-max29.webp", category: "petit" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQL5efkmSxQLa8ZmyOUeApdE3nPiLGdLUR8sA&s", category: "petit" },
-
-            // Grands animaux
-            { src: "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg", category: "grand" },
-            { src: "https://reporterre.net/IMG/logo/arton31931.jpg?1718024954", category: "grand" },
-            { src: "https://images.pexels.com/photos/248337/pexels-photo-248337.jpeg", category: "grand" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7iT1-sbdO9An49RutBcxHGsrvqdVbD8VKwQ&s", category: "grand" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/OBdYWcqSUbP0fxx1xPGS.webp", category: "grand" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/2560px-rothschild27s-giraffe-28751350316829.webp", category: "grand" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVvUq_pxBUdqftu5TgjNPkx6tWEaEY9m8MXQ&s", category: "grand" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/1619px-002-the-lion-king-snyggve-in-the-serengeti-national-park-photo-by-giles-laurentjpg.webp", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg", category: "grand" }
+            { src: "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg", category: "grand" }
+            // Ajoutez d'autres images ici
         ];
 
-        // Mélanger les images aléatoirement
         const shuffledImages = images.sort(() => 0.5 - Math.random());
 
         let currentImageIndex = 0;
@@ -152,7 +131,6 @@
         function loadNextImage() {
             centerZone.innerHTML = "";
             if (currentImageIndex >= shuffledImages.length) {
-                // Afficher le message de réussite
                 modal.style.display = "block";
                 return;
             }
@@ -163,41 +141,44 @@
             img.className = "object";
             img.setAttribute("data-category", imageData.category);
 
-            // Activer le glisser-déposer
+            // Événements tactiles
+            img.addEventListener("touchstart", startDrag);
             img.addEventListener("mousedown", startDrag);
             centerZone.appendChild(img);
         }
 
         function startDrag(event) {
+            event.preventDefault();
             const object = event.target;
-            let initialX = event.clientX;
-            let initialY = event.clientY;
+            const isTouchEvent = event.type === "touchstart";
+            const initialX = isTouchEvent ? event.touches[0].clientX : event.clientX;
+            const initialY = isTouchEvent ? event.touches[0].clientY : event.clientY;
             let offsetX = 0;
             let offsetY = 0;
 
-            function onMouseMove(e) {
-                offsetX = e.clientX - initialX;
-                offsetY = e.clientY - initialY;
+            function onMove(e) {
+                const clientX = isTouchEvent ? e.touches[0].clientX : e.clientX;
+                const clientY = isTouchEvent ? e.touches[0].clientY : e.clientY;
+                offsetX = clientX - initialX;
+                offsetY = clientY - initialY;
                 object.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
             }
 
-            function onMouseUp(e) {
+            function onEnd(e) {
+                const clientX = isTouchEvent ? e.changedTouches[0].clientX : e.clientX;
+                const clientY = isTouchEvent ? e.changedTouches[0].clientY : e.clientY;
                 const objectCategory = object.getAttribute("data-category");
-                const target = document.elementFromPoint(e.clientX, e.clientY);
+                const target = document.elementFromPoint(clientX, clientY);
 
                 if (
                     (target === smallZone && objectCategory === "petit") ||
                     (target === largeZone && objectCategory === "grand")
                 ) {
-                    // Bonne zone
                     object.classList.add("success");
                     successCount++;
                     currentImageIndex++;
-                    setTimeout(() => {
-                        loadNextImage();
-                    }, 1000);
+                    setTimeout(loadNextImage, 1000);
                 } else {
-                    // Mauvaise zone
                     object.classList.add("error");
                     setTimeout(() => {
                         object.classList.remove("error");
@@ -205,15 +186,14 @@
                     }, 1000);
                 }
 
-                document.removeEventListener("mousemove", onMouseMove);
-                document.removeEventListener("mouseup", onMouseUp);
+                document.removeEventListener(isTouchEvent ? "touchmove" : "mousemove", onMove);
+                document.removeEventListener(isTouchEvent ? "touchend" : "mouseup", onEnd);
             }
 
-            document.addEventListener("mousemove", onMouseMove);
-            document.addEventListener("mouseup", onMouseUp);
+            document.addEventListener(isTouchEvent ? "touchmove" : "mousemove", onMove);
+            document.addEventListener(isTouchEvent ? "touchend" : "mouseup", onEnd);
         }
 
-        // Charger la première image
         loadNextImage();
     </script>
 </body>
