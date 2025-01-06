@@ -119,10 +119,18 @@
         // Liste d'images avec leur classification (petit ou grand)
         const images = [
             { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcdsTgaWbDX_pYae8qkk6mm3DzDd79_F9bg&s", category: "petit" },
-            { src: "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg", category: "grand" }
-            // Ajoutez d'autres images ici
+            { src: "https://s3.animalia.bio/animals/photos/full/original/koreahamsterjpg.webp", category: "petit" },
+            { src: "https://images.pexels.com/photos/88512/mole-nature-animals-molehills-88512.jpeg", category: "petit" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Carcassonne_-_M%C3%A9sange_bleue.jpg", category: "petit" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT29PhlyuuWbLXPyZtmre91bxyfYg7tPeJvFw&s", category: "petit" },
+            { src: "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg", category: "grand" },
+            { src: "https://s3.animalia.bio/animals/photos/full/original/OBdYWcqSUbP0fxx1xPGS.webp", category: "grand" },
+            { src: "https://s3.animalia.bio/animals/photos/full/original/2560px-rothschild27s-giraffe-28751350316829.webp", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg", category: "grand" }
         ];
 
+        // Mélanger les images aléatoirement
         const shuffledImages = images.sort(() => 0.5 - Math.random());
 
         let currentImageIndex = 0;
@@ -131,7 +139,10 @@
         function loadNextImage() {
             centerZone.innerHTML = "";
             if (currentImageIndex >= shuffledImages.length) {
-                modal.style.display = "block";
+                // Afficher le message de réussite si toutes les images ont été correctement triées
+                if (successCount === shuffledImages.length) {
+                    modal.style.display = "block";
+                }
                 return;
             }
 
@@ -141,9 +152,9 @@
             img.className = "object";
             img.setAttribute("data-category", imageData.category);
 
-            // Événements tactiles
-            img.addEventListener("touchstart", startDrag);
+            // Activer le glisser-déposer
             img.addEventListener("mousedown", startDrag);
+            img.addEventListener("touchstart", startDrag);
             centerZone.appendChild(img);
         }
 
@@ -194,6 +205,7 @@
             document.addEventListener(isTouchEvent ? "touchend" : "mouseup", onEnd);
         }
 
+        // Charger la première image
         loadNextImage();
     </script>
 </body>
