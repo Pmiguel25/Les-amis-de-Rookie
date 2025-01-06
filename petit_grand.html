@@ -33,12 +33,11 @@
             position: relative;
             border: 2px solid #333;
             height: 100%;
-            box-sizing: border-box;
         }
 
         .zone img.pictogram {
             margin: 10px;
-            width: 200px; /* Taille agrandie pour les pictogrammes */
+            width: 200px; /* Deux fois plus grand qu'avant */
             height: auto;
         }
 
@@ -52,18 +51,10 @@
         }
 
         .center-zone img.object {
+            width: 150px;
+            height: auto;
             cursor: grab;
             transition: all 0.3s;
-        }
-
-        .object.small {
-            width: 200px; /* Taille pour les petits animaux */
-            height: auto;
-        }
-
-        .object.large {
-            width: 250px; /* Taille pour les grands animaux */
-            height: auto;
         }
 
         .object.success {
@@ -133,95 +124,98 @@
             { src: "https://s3.animalia.bio/animals/photos/full/original/belinda.webp", category: "petit" },
             { src: "https://images.pexels.com/photos/88512/mole-nature-animals-molehills-88512.jpeg", category: "petit" },
             { src: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Carcassonne_-_M%C3%A9sange_bleue.jpg", category: "petit" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6OteZ5gNDtrJYC6PS-EsIo2BUHwa7vpMYaw&s", category: "petit" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT29PhlyuuWbLXPyZtmre91bxyfYg7tPeJvFw&s", category: "petit" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCdN1VgbT4H3AdPky3NAhE79mM9FMg4HzZgQ&s", category: "petit" },
+            { src: "https://s3.animalia.bio/animals/photos/full/original/2560px-cepaea-nemoralis-28mad-max29.webp", category: "petit" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQL5efkmSxQLa8ZmyOUeApdE3nPiLGdLUR8sA&s", category: "petit" },
 
             // Grands animaux
             { src: "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg", category: "grand" },
             { src: "https://reporterre.net/IMG/logo/arton31931.jpg?1718024954", category: "grand" },
             { src: "https://images.pexels.com/photos/248337/pexels-photo-248337.jpeg", category: "grand" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7iT1-sbdO9An49RutBcxHGsrvqdVbD8VKwQ&s", category: "grand" },
             { src: "https://s3.animalia.bio/animals/photos/full/original/OBdYWcqSUbP0fxx1xPGS.webp", category: "grand" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/1619px-002-the-lion-king-snyggve-in-the-serengeti-national-park-photo-by-giles-laurentjpg.webp", category: "grand" }
+            { src: "https://s3.animalia.bio/animals/photos/full/original/2560px-rothschild27s-giraffe-28751350316829.webp", category: "grand" },
+            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVvUq_pxBUdqftu5TgjNPkx6tWEaEY9m8MXQ&s", category: "grand" },
+            { src: "https://s3.animalia.bio/animals/photos/full/original/1619px-002-the-lion-king-snyggve-in-the-serengeti-national-park-photo-by-giles-laurentjpg.webp", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg", category: "grand" },
+            { src: "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg", category: "grand" }
         ];
 
-        let currentIndex = 0;
+        // Mélanger les images aléatoirement
+        const shuffledImages = images.sort(() => 0.5 - Math.random());
 
-        // Fonction pour afficher une image dans la zone centrale
-        function showImage() {
-            centerZone.innerHTML = ""; // Supprime l'image précédente
-            if (currentIndex < images.length) {
-                const img = document.createElement("img");
-                img.src = images[currentIndex].src;
-                img.classList.add("object");
-                img.classList.add(images[currentIndex].category === "petit" ? "small" : "large");
-                centerZone.appendChild(img);
+        let currentImageIndex = 0;
+        let successCount = 0;
 
-                makeDraggable(img);
-            } else {
+        function loadNextImage() {
+            centerZone.innerHTML = "";
+            if (currentImageIndex >= shuffledImages.length) {
+                // Afficher le message de réussite
                 modal.style.display = "block";
+                return;
             }
+
+            const imageData = shuffledImages[currentImageIndex];
+            const img = document.createElement("img");
+            img.src = imageData.src;
+            img.className = "object";
+            img.setAttribute("data-category", imageData.category);
+
+            // Activer le glisser-déposer
+            img.addEventListener("mousedown", startDrag);
+            centerZone.appendChild(img);
         }
-        // Rendre une image draggable
-        function makeDraggable(img) {
-            let offsetX, offsetY;
 
-            img.addEventListener("mousedown", (e) => {
-                offsetX = e.offsetX;
-                offsetY = e.offsetY;
-                img.style.position = "absolute";
-                img.style.zIndex = "1000";
-            });
+        function startDrag(event) {
+            const object = event.target;
+            let initialX = event.clientX;
+            let initialY = event.clientY;
+            let offsetX = 0;
+            let offsetY = 0;
 
-            img.addEventListener("mousemove", (e) => {
-                if (e.buttons === 1) {
-                    img.style.left = e.pageX - offsetX + "px";
-                    img.style.top = e.pageY - offsetY + "px";
+            function onMouseMove(e) {
+                offsetX = e.clientX - initialX;
+                offsetY = e.clientY - initialY;
+                object.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+            }
+
+            function onMouseUp(e) {
+                const objectCategory = object.getAttribute("data-category");
+                const target = document.elementFromPoint(e.clientX, e.clientY);
+
+                if (
+                    (target === smallZone && objectCategory === "petit") ||
+                    (target === largeZone && objectCategory === "grand")
+                ) {
+                    // Bonne zone
+                    object.classList.add("success");
+                    successCount++;
+                    currentImageIndex++;
+                    setTimeout(() => {
+                        loadNextImage();
+                    }, 1000);
+                } else {
+                    // Mauvaise zone
+                    object.classList.add("error");
+                    setTimeout(() => {
+                        object.classList.remove("error");
+                        object.style.transform = "translate(0, 0)";
+                    }, 1000);
                 }
-            });
 
-            img.addEventListener("mouseup", () => checkDrop(img));
-        }
-
-        // Vérification de la zone de dépôt
-        function checkDrop(img) {
-            const rectSmall = smallZone.getBoundingClientRect();
-            const rectLarge = largeZone.getBoundingClientRect();
-            const imgRect = img.getBoundingClientRect();
-
-            if (
-                imgRect.left >= rectSmall.left &&
-                imgRect.right <= rectSmall.right &&
-                imgRect.top >= rectSmall.top &&
-                imgRect.bottom <= rectSmall.bottom &&
-                images[currentIndex].category === "petit"
-            ) {
-                img.classList.add("success");
-                setTimeout(() => {
-                    currentIndex++;
-                    showImage();
-                }, 1000);
-            } else if (
-                imgRect.left >= rectLarge.left &&
-                imgRect.right <= rectLarge.right &&
-                imgRect.top >= rectLarge.top &&
-                imgRect.bottom <= rectLarge.bottom &&
-                images[currentIndex].category === "grand"
-            ) {
-                img.classList.add("success");
-                setTimeout(() => {
-                    currentIndex++;
-                    showImage();
-                }, 1000);
-            } else {
-                img.classList.add("error");
-                setTimeout(() => {
-                    img.classList.remove("error");
-                    img.style.left = "";
-                    img.style.top = "";
-                }, 1000);
+                document.removeEventListener("mousemove", onMouseMove);
+                document.removeEventListener("mouseup", onMouseUp);
             }
+
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp);
         }
 
-        // Initialisation
-        showImage();
+        // Charger la première image
+        loadNextImage();
     </script>
 </body>
 </html>
+
