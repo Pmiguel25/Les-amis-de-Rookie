@@ -81,7 +81,7 @@
         }
 
         .draggable {
-            cursor: grab;
+            touch-action: none;
         }
 
         .droppable.valid {
@@ -171,32 +171,55 @@
         let completed = 0;
 
         draggables.forEach(draggable => {
-            draggable.addEventListener('dragstart', event => {
-                event.dataTransfer.setData('color', draggable.getAttribute('data-color'));
-                event.dataTransfer.setData('shape', draggable.getAttribute('data-shape'));
-            });
-        });
-
-        droppables.forEach(droppable => {
-            droppable.addEventListener('dragover', event => {
-                event.preventDefault();
+            draggable.addEventListener('touchstart', event => {
+                event.target.classList.add('dragging');
             });
 
-            droppable.addEventListener('drop', event => {
-                const color = event.dataTransfer.getData('color');
-                const shape = event.dataTransfer.getData('shape');
+            draggable.addEventListener('touchmove', event => {
+                const touch = event.touches[0];
+                const dragging = document.querySelector('.dragging');
+                if (dragging) {
+                    dragging.style.position = 'absolute';
+                    dragging.style.left = `${touch.pageX - 25}px`;
+                    dragging.style.top = `${touch.pageY - 25}px`;
+                }
+            });
 
-                if (
-                    droppable.getAttribute('data-color') === color &&
-                    droppable.getAttribute('data-shape') === shape
-                ) {
-                    droppable.classList.add('valid');
-                    droppable.appendChild(document.querySelector(`.draggable[data-color="${color}"][data-shape="${shape}"]`));
-                    completed++;
+            draggable.addEventListener('touchend', event => {
+                const dragging = document.querySelector('.dragging');
+                if (dragging) {
+                    dragging.style.position = '';
+                    dragging.style.left = '';
+                    dragging.style.top = '';
+                    dragging.classList.remove('dragging');
 
-                    if (completed === draggables.length) {
-                        message.style.display = 'block';
-                    }
+                    droppables.forEach(droppable => {
+                        const rect = droppable.getBoundingClientRect();
+                        const touch = event.changedTouches[0];
+
+                        if (
+                            touch.pageX >= rect.left &&
+                            touch.pageX <= rect.right &&
+                            touch.pageY >= rect.top &&
+                            touch.pageY <= rect.bottom
+                        ) {
+                            const color = dragging.getAttribute('data-color');
+                            const shape = dragging.getAttribute('data-shape');
+
+                            if (
+                                droppable.getAttribute('data-color') === color &&
+                                droppable.getAttribute('data-shape') === shape
+                            ) {
+                                droppable.classList.add('valid');
+                                droppable.appendChild(dragging);
+                                completed++;
+
+                                if (completed === draggables.length) {
+                                    message.style.display = 'block';
+                                }
+                            }
+                        }
+                    });
                 }
             });
         });
