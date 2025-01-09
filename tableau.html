@@ -175,11 +175,19 @@
         const droppables = document.querySelectorAll('.droppable');
 
         draggables.forEach(draggable => {
-            draggable.addEventListener('touchstart', () => {
+            draggable.addEventListener('dragstart', () => {
                 draggable.classList.add('dragging');
             });
 
-            draggable.addEventListener('touchend', () => {
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+            });
+
+            draggable.addEventListener('touchstart', (e) => {
+                draggable.classList.add('dragging');
+            });
+
+            draggable.addEventListener('touchend', (e) => {
                 draggable.classList.remove('dragging');
             });
         });
@@ -190,29 +198,37 @@
             });
 
             droppable.addEventListener('drop', (e) => {
+                e.preventDefault();
                 const draggedElement = document.querySelector('.dragging');
-                const type = draggedElement.getAttribute('data-type');
-                const color = draggedElement.getAttribute('data-color');
+                if (draggedElement) {
+                    const type = draggedElement.getAttribute('data-type');
+                    const color = draggedElement.getAttribute('data-color');
 
-                if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
-                    droppable.classList.add('highlight');
-                    droppable.appendChild(draggedElement);
+                    if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
+                        droppable.classList.add('highlight');
+                        draggedElement.remove(); // Remove from shapes area
+                        droppable.appendChild(draggedElement);
+                    }
                 }
             });
 
             droppable.addEventListener('touchmove', (e) => {
                 e.preventDefault();
                 const draggedElement = document.querySelector('.dragging');
-                const type = draggedElement.getAttribute('data-type');
-                const color = draggedElement.getAttribute('data-color');
+                if (draggedElement) {
+                    const type = draggedElement.getAttribute('data-type');
+                    const color = draggedElement.getAttribute('data-color');
 
-                if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
-                    droppable.classList.add('highlight');
-                    droppable.appendChild(draggedElement);
+                    if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
+                        droppable.classList.add('highlight');
+                        draggedElement.remove(); // Remove from shapes area
+                        droppable.appendChild(draggedElement);
+                    }
                 }
             });
         });
     </script>
 </body>
 </html>
+
 
