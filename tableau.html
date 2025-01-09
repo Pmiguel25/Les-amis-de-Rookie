@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activité tactile</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #tableau {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-template-rows: repeat(4, 100px);
+            gap: 5px;
+            margin: 20px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            border: 2px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .header {
+            font-weight: bold;
+            background-color: #f0f0f0;
+        }
+
+        .droppable {
+            background-color: white;
+        }
+
+        .highlight {
+            border-color: green;
+        }
+
+        #shapes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .draggable {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid black;
+            border-radius: 50%;
+            cursor: grab;
+        }
+
+        .carré {
+            border-radius: 0;
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 40px solid transparent;
+            border-right: 40px solid transparent;
+            border-bottom: 80px solid;
+            border-radius: 0;
+        }
+
+        .bleu {
+            background-color: blue;
+            border-bottom-color: blue;
+        }
+
+        .rouge {
+            background-color: red;
+            border-bottom-color: red;
+        }
+
+        .vert {
+            background-color: green;
+            border-bottom-color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Activité tactile - Associer les formes</h1>
+
+    <div id="tableau">
+        <div class="cell header"></div>
+        <div class="cell header">Carré</div>
+        <div class="cell header">Triangle</div>
+        <div class="cell header">Rond</div>
+
+        <div class="cell header">Bleu</div>
+        <div class="cell droppable" data-type="carré" data-color="bleu"></div>
+        <div class="cell droppable" data-type="triangle" data-color="bleu"></div>
+        <div class="cell droppable" data-type="rond" data-color="bleu"></div>
+
+        <div class="cell header">Vert</div>
+        <div class="cell droppable" data-type="carré" data-color="vert"></div>
+        <div class="cell droppable" data-type="triangle" data-color="vert"></div>
+        <div class="cell droppable" data-type="rond" data-color="vert"></div>
+
+        <div class="cell header">Rouge</div>
+        <div class="cell droppable" data-type="carré" data-color="rouge"></div>
+        <div class="cell droppable" data-type="triangle" data-color="rouge"></div>
+        <div class="cell droppable" data-type="rond" data-color="rouge"></div>
+    </div>
+
+    <div id="shapes">
+        <div class="draggable carré bleu" draggable="true" data-type="carré" data-color="bleu"></div>
+        <div class="draggable carré rouge" draggable="true" data-type="carré" data-color="rouge"></div>
+        <div class="draggable carré vert" draggable="true" data-type="carré" data-color="vert"></div>
+
+        <div class="draggable triangle bleu" draggable="true" data-type="triangle" data-color="bleu"></div>
+        <div class="draggable triangle rouge" draggable="true" data-type="triangle" data-color="rouge"></div>
+        <div class="draggable triangle vert" draggable="true" data-type="triangle" data-color="vert"></div>
+
+        <div class="draggable rond bleu" draggable="true" data-type="rond" data-color="bleu"></div>
+        <div class="draggable rond rouge" draggable="true" data-type="rond" data-color="rouge"></div>
+        <div class="draggable rond vert" draggable="true" data-type="rond" data-color="vert"></div>
+    </div>
+
+    <script>
+        const draggables = document.querySelectorAll('.draggable');
+        const droppables = document.querySelectorAll('.droppable');
+
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', () => {
+                draggable.classList.add('dragging');
+            });
+
+            draggable.addEventListener('dragend', () => {
+                draggable.classList.remove('dragging');
+            });
+        });
+
+        droppables.forEach(droppable => {
+            droppable.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            droppable.addEventListener('drop', (e) => {
+                const draggedElement = document.querySelector('.dragging');
+                const type = draggedElement.getAttribute('data-type');
+                const color = draggedElement.getAttribute('data-color');
+
+                if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
+                    droppable.classList.add('highlight');
+                    droppable.appendChild(draggedElement);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
