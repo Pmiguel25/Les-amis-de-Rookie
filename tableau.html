@@ -35,12 +35,53 @@
             background-color: #f0f0f0;
         }
 
+        .shape-header {
+            background-color: transparent;
+        }
+
+        .shape-header.carré {
+            width: 50px;
+            height: 50px;
+            border: 2px solid black;
+        }
+
+        .shape-header.triangle {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid black;
+        }
+
+        .shape-header.rond {
+            width: 50px;
+            height: 50px;
+            border: 2px solid black;
+            border-radius: 50%;
+        }
+
         .droppable {
             background-color: white;
         }
 
         .highlight {
             border-color: green;
+        }
+
+        .color-header {
+            background-color: white;
+        }
+
+        .color-header.bleu {
+            background-color: blue;
+        }
+
+        .color-header.vert {
+            background-color: green;
+        }
+
+        .color-header.rouge {
+            background-color: red;
         }
 
         #shapes {
@@ -95,21 +136,21 @@
 
     <div id="tableau">
         <div class="cell header"></div>
-        <div class="cell header">Carré</div>
-        <div class="cell header">Triangle</div>
-        <div class="cell header">Rond</div>
+        <div class="cell header shape-header carré"></div>
+        <div class="cell header shape-header triangle"></div>
+        <div class="cell header shape-header rond"></div>
 
-        <div class="cell header">Bleu</div>
+        <div class="cell header color-header bleu"></div>
         <div class="cell droppable" data-type="carré" data-color="bleu"></div>
         <div class="cell droppable" data-type="triangle" data-color="bleu"></div>
         <div class="cell droppable" data-type="rond" data-color="bleu"></div>
 
-        <div class="cell header">Vert</div>
+        <div class="cell header color-header vert"></div>
         <div class="cell droppable" data-type="carré" data-color="vert"></div>
         <div class="cell droppable" data-type="triangle" data-color="vert"></div>
         <div class="cell droppable" data-type="rond" data-color="vert"></div>
 
-        <div class="cell header">Rouge</div>
+        <div class="cell header color-header rouge"></div>
         <div class="cell droppable" data-type="carré" data-color="rouge"></div>
         <div class="cell droppable" data-type="triangle" data-color="rouge"></div>
         <div class="cell droppable" data-type="rond" data-color="rouge"></div>
@@ -134,11 +175,11 @@
         const droppables = document.querySelectorAll('.droppable');
 
         draggables.forEach(draggable => {
-            draggable.addEventListener('dragstart', () => {
+            draggable.addEventListener('touchstart', () => {
                 draggable.classList.add('dragging');
             });
 
-            draggable.addEventListener('dragend', () => {
+            draggable.addEventListener('touchend', () => {
                 draggable.classList.remove('dragging');
             });
         });
@@ -158,7 +199,20 @@
                     droppable.appendChild(draggedElement);
                 }
             });
+
+            droppable.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const draggedElement = document.querySelector('.dragging');
+                const type = draggedElement.getAttribute('data-type');
+                const color = draggedElement.getAttribute('data-color');
+
+                if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
+                    droppable.classList.add('highlight');
+                    droppable.appendChild(draggedElement);
+                }
+            });
         });
     </script>
 </body>
 </html>
+
