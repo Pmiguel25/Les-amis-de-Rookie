@@ -189,12 +189,34 @@
             zone.addEventListener('drop', (e) => {
                 const { type, id } = JSON.parse(e.dataTransfer.getData('text/plain'));
                 const dropped = document.querySelector(`.forme[data-id="${id}"]`);
+
                 if (dropped && zone.dataset.type === type) {
-                    dropped.style.backgroundColor = 'green';
-                    dropped.setAttribute('draggable', false);
-                    dropped.style.left = `${e.clientX - 50}px`;
-                    dropped.style.top = `${e.clientY - 50}px`;
-                    dropped.classList.add('placed');
+                    const newForme = document.createElement('div');
+                    if (type === 'triangle') {
+                        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                        svg.setAttribute('viewBox', '0 0 100 100');
+                        svg.setAttribute('class', 'forme triangle');
+
+                        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                        polygon.setAttribute('points', '50,0 100,100 0,100');
+                        polygon.setAttribute('fill', 'green');
+
+                        svg.appendChild(polygon);
+                        newForme.appendChild(svg);
+                        newForme.classList.add('forme', 'triangle');
+                    } else {
+                        newForme.classList.add('forme', type);
+                        newForme.style.backgroundColor = 'green';
+                    }
+
+                    newForme.style.position = 'absolute';
+                    newForme.style.left = `${e.clientX - 50}px`;
+                    newForme.style.top = `${e.clientY - 50}px`;
+                    newForme.style.width = dropped.style.width;
+                    newForme.style.height = dropped.style.height;
+
+                    document.body.appendChild(newForme);
+                    dropped.remove();
                     placed++;
 
                     if (placed === formes.length) {
