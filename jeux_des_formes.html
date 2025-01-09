@@ -71,16 +71,13 @@
         }
 
         #triangle-zone {
-    bottom: 50px;
-    left: 300px;
-    width: 0;
-    height: 0;
-    border-left: 100px solid transparent;
-    border-right: 100px solid transparent;
-    border-bottom: 200px solid #333; 
-}
-}
-
+            bottom: 50px;
+            left: 300px;
+            width: 0;
+            height: 0;
+            border-left: 100px solid transparent;
+            border-right: 100px solid transparent;
+            border-bottom: 200px solid #333; 
         }
     </style>
 </head>
@@ -95,24 +92,42 @@
         <script>
             const gameArea = document.getElementById("game-area");
 
+            // Fonction pour éviter que les formes apparaissent dans une zone cible
+            function isInDropzone(x, y, dropzones) {
+                for (const zone of dropzones) {
+                    const zoneRect = zone.getBoundingClientRect();
+                    if (
+                        x >= zoneRect.left - gameArea.offsetLeft &&
+                        x <= zoneRect.right - gameArea.offsetLeft &&
+                        y >= zoneRect.top - gameArea.offsetTop &&
+                        y <= zoneRect.bottom - gameArea.offsetTop
+                    ) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            // Crée les formes avec vérification des positions
+            const dropzones = document.querySelectorAll('.dropzone');
             for (let i = 0; i < 5; i++) {
-                const circle = document.createElement("div");
-                circle.className = "shape circle";
-                circle.style.top = `${Math.random() * 700}px`;
-                circle.style.left = `${Math.random() * 700}px`;
-                gameArea.appendChild(circle);
+                const createShape = (className) => {
+                    let x, y;
+                    do {
+                        x = Math.random() * 750;
+                        y = Math.random() * 750;
+                    } while (isInDropzone(x, y, dropzones));
 
-                const square = document.createElement("div");
-                square.className = "shape square";
-                square.style.top = `${Math.random() * 700}px`;
-                square.style.left = `${Math.random() * 700}px`;
-                gameArea.appendChild(square);
+                    const shape = document.createElement("div");
+                    shape.className = `shape ${className}`;
+                    shape.style.left = `${x}px`;
+                    shape.style.top = `${y}px`;
+                    gameArea.appendChild(shape);
+                };
 
-                const triangle = document.createElement("div");
-                triangle.className = "shape triangle";
-                triangle.style.top = `${Math.random() * 700}px`;
-                triangle.style.left = `${Math.random() * 700}px`;
-                gameArea.appendChild(triangle);
+                createShape('circle');
+                createShape('square');
+                createShape('triangle');
             }
         </script>
     </div>
@@ -127,25 +142,32 @@
 
         shapes.forEach(shape => {
             shape.addEventListener('mousedown', startDrag);
+            shape.addEventListener('touchstart', startDragTouch, { passive: false });
         });
 
         function startDrag(event) {
+            event.preventDefault();
+
             const shape = event.target;
-            let initialX = event.clientX;
-            let initialY = event.clientY;
+            let initialX = event.clientX || event.touches[0].clientX;
+            let initialY = event.clientY || event.touches[0].clientY;
             let shapeX = parseInt(window.getComputedStyle(shape).left, 10) || 0;
             let shapeY = parseInt(window.getComputedStyle(shape).top, 10) || 0;
 
-            function onMouseMove(e) {
-                const deltaX = e.clientX - initialX;
-                const deltaY = e.clientY - initialY;
+            function onMove(e) {
+                const x = e.clientX || e.touches[0].clientX;
+                const y = e.clientY || e.touches[0].clientY;
+                const deltaX = x - initialX;
+                const deltaY = y - initialY;
                 shape.style.left = `${shapeX + deltaX}px`;
                 shape.style.top = `${shapeY + deltaY}px`;
             }
 
-            function onMouseUp() {
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
+            function onEnd() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onEnd);
+                document.removeEventListener('touchmove', onMove);
+                document.removeEventListener('touchend', onEnd);
 
                 let droppedInZone = false;
 
@@ -171,14 +193,13 @@
                             shape.style.cursor = 'default';
                             shape.setAttribute('draggable', false);
                             shape.style.pointerEvents = 'none';
+
                             if (shape.classList.contains('triangle')) {
-                            shape.style.backgroundColor = 'green'; // Changer la couleur du triangle
-                            shape.style.borderLeftColor = 'transparent'; // Réinitialiser la bordure gauche
-                            shape.style.borderRightColor = 'transparent'; // Réinitialiser la bordure droite
-                            shape.style.borderBottomColor = 'green'; // Changer la couleur de la bordure du bas
-                        } else {
-                            shape.style.backgroundColor = 'green';
-                        }
+                                shape.style.borderBottomColor = 'green'; // Changer la bordure du bas pour les triangles
+                            } else {
+                                shape.style.backgroundColor = 'green'; // Autres formes
+                            }
+
                             correctCount++;
 
                             if (correctCount === 15) {
@@ -188,11 +209,8 @@
                                 }, 100);
                             }
                         } else {
-                            shape.style.backgroundColor = 'red';
                             setTimeout(() => {
                                 shape.style.backgroundColor = 'blue';
-                                shape.style.left = `${shapeX}px`;
-                                shape.style.top = `${shapeY}px`;
                             }, 3000);
                         }
                     }
@@ -204,8 +222,14 @@
                 }
             }
 
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onEnd);
+        }
+
+        function startDragTouch(event) {
+            startDrag(event);
         }
     </script>
 </body>
