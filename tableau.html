@@ -3,69 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau Tactile</title>
+    <title>Activité Tactile</title>
     <style>
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             font-family: Arial, sans-serif;
-            margin: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
         }
 
         .container {
             display: flex;
-            gap: 50px;
+            gap: 20px;
         }
 
-        .table {
+        .grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            grid-template-rows: 1fr 1fr 1fr 1fr;
-            border: 1px solid black;
-        }
-
-        .header-cell {
-            text-align: center;
-            font-weight: bold;
-            border: 1px solid black;
+            grid-template-columns: 50px repeat(3, 100px);
+            grid-template-rows: 50px repeat(3, 100px);
+            gap: 5px;
         }
 
         .cell {
+            border: 2px solid black;
             width: 100px;
             height: 100px;
-            border: 1px solid black;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
-        .cell.correct {
-            border: 2px solid green;
+        .row-label {
+            background-color: blue;
+            width: 100px;
+            height: 100px;
         }
 
-        .shapes {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            width: 120px;
+        .row-label:nth-child(2) {
+            background-color: green;
         }
 
-        .shape {
+        .row-label:nth-child(3) {
+            background-color: red;
+        }
+
+        .col-label {
             width: 50px;
             height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: grab;
+            display: inline-block;
+            background-color: white;
         }
 
         .circle {
             border-radius: 50%;
-        }
-
-        .square {
-            background-color: white;
+            width: 50px;
+            height: 50px;
+            border: 2px solid black;
         }
 
         .triangle {
@@ -73,97 +69,93 @@
             height: 0;
             border-left: 25px solid transparent;
             border-right: 25px solid transparent;
+            border-bottom: 50px solid;
         }
 
-        .blue {
-            background-color: blue;
+        .draggable {
+            cursor: grab;
         }
 
-        .red {
-            background-color: red;
+        .droppable.valid {
+            border-color: green;
         }
 
-        .green {
-            background-color: green;
-        }
-
-        .triangle.blue {
-            border-bottom: 50px solid blue;
-        }
-
-        .triangle.red {
-            border-bottom: 50px solid red;
-        }
-
-        .triangle.green {
-            border-bottom: 50px solid green;
+        .shapes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Activité Tactile</h1>
     <div class="container">
-        <div class="table">
-            <div class="header-cell"></div>
-            <div class="header-cell square">Carré</div>
-            <div class="header-cell triangle">Triangle</div>
-            <div class="header-cell circle">Rond</div>
+        <!-- Tableau -->
+        <div class="grid">
+            <!-- Labels colonnes -->
+            <div></div>
+            <div><div class="col-label" style="border: 2px solid black;"></div></div>
+            <div><div class="col-label triangle" style="border-bottom-color: black;"></div></div>
+            <div><div class="col-label circle"></div></div>
 
-            <div class="header-cell blue"></div>
-            <div class="cell" data-type="square" data-color="blue"></div>
-            <div class="cell" data-type="triangle" data-color="blue"></div>
-            <div class="cell" data-type="circle" data-color="blue"></div>
+            <!-- Labels lignes -->
+            <div class="row-label" style="background-color: blue;"></div>
+            <div class="cell droppable" data-color="blue" data-shape="square"></div>
+            <div class="cell droppable" data-color="blue" data-shape="triangle"></div>
+            <div class="cell droppable" data-color="blue" data-shape="circle"></div>
 
-            <div class="header-cell green"></div>
-            <div class="cell" data-type="square" data-color="green"></div>
-            <div class="cell" data-type="triangle" data-color="green"></div>
-            <div class="cell" data-type="circle" data-color="green"></div>
+            <div class="row-label" style="background-color: green;"></div>
+            <div class="cell droppable" data-color="green" data-shape="square"></div>
+            <div class="cell droppable" data-color="green" data-shape="triangle"></div>
+            <div class="cell droppable" data-color="green" data-shape="circle"></div>
 
-            <div class="header-cell red"></div>
-            <div class="cell" data-type="square" data-color="red"></div>
-            <div class="cell" data-type="triangle" data-color="red"></div>
-            <div class="cell" data-type="circle" data-color="red"></div>
+            <div class="row-label" style="background-color: red;"></div>
+            <div class="cell droppable" data-color="red" data-shape="square"></div>
+            <div class="cell droppable" data-color="red" data-shape="triangle"></div>
+            <div class="cell droppable" data-color="red" data-shape="circle"></div>
         </div>
 
+        <!-- Formes -->
         <div class="shapes">
-            <div class="shape circle blue" draggable="true" data-type="circle" data-color="blue"></div>
-            <div class="shape circle red" draggable="true" data-type="circle" data-color="red"></div>
-            <div class="shape circle green" draggable="true" data-type="circle" data-color="green"></div>
+            <div class="circle draggable" style="background-color: blue;" draggable="true" data-color="blue" data-shape="circle"></div>
+            <div class="circle draggable" style="background-color: red;" draggable="true" data-color="red" data-shape="circle"></div>
+            <div class="circle draggable" style="background-color: green;" draggable="true" data-color="green" data-shape="circle"></div>
 
-            <div class="shape square blue" draggable="true" data-type="square" data-color="blue"></div>
-            <div class="shape square red" draggable="true" data-type="square" data-color="red"></div>
-            <div class="shape square green" draggable="true" data-type="square" data-color="green"></div>
+            <div class="col-label draggable" style="background-color: blue;" draggable="true" data-color="blue" data-shape="square"></div>
+            <div class="col-label draggable" style="background-color: red;" draggable="true" data-color="red" data-shape="square"></div>
+            <div class="col-label draggable" style="background-color: green;" draggable="true" data-color="green" data-shape="square"></div>
 
-            <div class="shape triangle blue" draggable="true" data-type="triangle" data-color="blue"></div>
-            <div class="shape triangle red" draggable="true" data-type="triangle" data-color="red"></div>
-            <div class="shape triangle green" draggable="true" data-type="triangle" data-color="green"></div>
+            <div class="triangle draggable" style="border-bottom-color: blue;" draggable="true" data-color="blue" data-shape="triangle"></div>
+            <div class="triangle draggable" style="border-bottom-color: red;" draggable="true" data-color="red" data-shape="triangle"></div>
+            <div class="triangle draggable" style="border-bottom-color: green;" draggable="true" data-color="green" data-shape="triangle"></div>
         </div>
     </div>
 
     <script>
-        const shapes = document.querySelectorAll('.shape');
-        const cells = document.querySelectorAll('.cell');
+        const draggables = document.querySelectorAll('.draggable');
+        const droppables = document.querySelectorAll('.droppable');
 
-        shapes.forEach(shape => {
-            shape.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('type', shape.dataset.type);
-                e.dataTransfer.setData('color', shape.dataset.color);
+        draggables.forEach(draggable => {
+            draggable.addEventListener('dragstart', event => {
+                event.dataTransfer.setData('color', draggable.getAttribute('data-color'));
+                event.dataTransfer.setData('shape', draggable.getAttribute('data-shape'));
             });
         });
 
-        cells.forEach(cell => {
-            cell.addEventListener('dragover', (e) => {
-                e.preventDefault();
+        droppables.forEach(droppable => {
+            droppable.addEventListener('dragover', event => {
+                event.preventDefault();
             });
 
-            cell.addEventListener('drop', (e) => {
-                const type = e.dataTransfer.getData('type');
-                const color = e.dataTransfer.getData('color');
+            droppable.addEventListener('drop', event => {
+                const color = event.dataTransfer.getData('color');
+                const shape = event.dataTransfer.getData('shape');
 
-                if (cell.dataset.type === type && cell.dataset.color === color) {
-                    cell.classList.add('correct');
-                    const shape = document.querySelector(`.shape[data-type="${type}"][data-color="${color}"]`);
-                    if (shape) shape.style.display = 'none';
+                if (
+                    droppable.getAttribute('data-color') === color &&
+                    droppable.getAttribute('data-shape') === shape
+                ) {
+                    droppable.classList.add('valid');
+                    droppable.appendChild(document.querySelector(`.draggable[data-color="${color}"][data-shape="${shape}"]`));
                 }
             });
         });
