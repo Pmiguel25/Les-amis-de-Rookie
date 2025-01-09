@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jeu des Formes</title>
+    <title>Jeux des Formes</title>
     <style>
         body {
             display: flex;
@@ -71,13 +71,16 @@
         }
 
         #triangle-zone {
-            bottom: 50px;
-            left: 300px;
-            width: 0;
-            height: 0;
-            border-left: 100px solid transparent;
-            border-right: 100px solid transparent;
-            border-bottom: 200px solid #333;
+    bottom: 50px;
+    left: 300px;
+    width: 0;
+    height: 0;
+    border-left: 100px solid transparent;
+    border-right: 100px solid transparent;
+    border-bottom: 200px solid #333; 
+}
+}
+
         }
     </style>
 </head>
@@ -88,119 +91,64 @@
         <div id="square-zone" class="dropzone"></div>
         <div id="triangle-zone" class="dropzone"></div>
 
+        <!-- Création de 5 formes de chaque type -->
         <script>
             const gameArea = document.getElementById("game-area");
-            const dropzones = document.querySelectorAll('.dropzone');
-            let correctCount = 0;
 
-            // Vérifie si une position donnée est dans une zone cible
-            function isInDropzone(x, y, dropzones) {
-                return Array.from(dropzones).some(zone => {
-                    const zoneRect = zone.getBoundingClientRect();
-                    const gameAreaRect = gameArea.getBoundingClientRect();
-                    const adjustedZoneRect = {
-                        top: zoneRect.top - gameAreaRect.top,
-                        left: zoneRect.left - gameAreaRect.left,
-                        right: zoneRect.right - gameAreaRect.left,
-                        bottom: zoneRect.bottom - gameAreaRect.top
-                    };
+            for (let i = 0; i < 5; i++) {
+                const circle = document.createElement("div");
+                circle.className = "shape circle";
+                circle.style.top = ${Math.random() * 700}px;
+                circle.style.left = ${Math.random() * 700}px;
+                gameArea.appendChild(circle);
 
-                    return (
-                        x >= adjustedZoneRect.left &&
-                        x <= adjustedZoneRect.right &&
-                        y >= adjustedZoneRect.top &&
-                        y <= adjustedZoneRect.bottom
-                    );
-                });
+                const square = document.createElement("div");
+                square.className = "shape square";
+                square.style.top = ${Math.random() * 700}px;
+                square.style.left = ${Math.random() * 700}px;
+                gameArea.appendChild(square);
+
+                const triangle = document.createElement("div");
+                triangle.className = "shape triangle";
+                triangle.style.top = ${Math.random() * 700}px;
+                triangle.style.left = ${Math.random() * 700}px;
+                gameArea.appendChild(triangle);
+            }
+        </script>
+    </div>
+
+    <audio id="victory-sound" src="https://example.com/victory.mp3" preload="auto"></audio>
+
+    <script>
+        const shapes = document.querySelectorAll('.shape');
+        const dropzones = document.querySelectorAll('.dropzone');
+        const victorySound = document.getElementById('victory-sound');
+        let correctCount = 0;
+
+        shapes.forEach(shape => {
+            shape.addEventListener('mousedown', startDrag);
+        });
+
+        function startDrag(event) {
+            const shape = event.target;
+            let initialX = event.clientX;
+            let initialY = event.clientY;
+            let shapeX = parseInt(window.getComputedStyle(shape).left, 10) || 0;
+            let shapeY = parseInt(window.getComputedStyle(shape).top, 10) || 0;
+
+            function onMouseMove(e) {
+                const deltaX = e.clientX - initialX;
+                const deltaY = e.clientY - initialY;
+                shape.style.left = ${shapeX + deltaX}px;
+                shape.style.top = ${shapeY + deltaY}px;
             }
 
-            // Crée les formes et vérifie qu'elles n'apparaissent pas dans les zones cibles
-            function createShapes() {
-                for (let i = 0; i < 5; i++) {
-                    ['circle', 'square', 'triangle'].forEach(shapeType => {
-                        let x, y;
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
 
-                        do {
-                            x = Math.random() * (gameArea.clientWidth - 50);
-                            y = Math.random() * (gameArea.clientHeight - 50);
-                        } while (isInDropzone(x, y, dropzones));
+                let droppedInZone = false;
 
-                        const shape = document.createElement('div');
-                        shape.className = `shape ${shapeType}`;
-                        shape.style.left = `${x}px`;
-                        shape.style.top = `${y}px`;
-                        gameArea.appendChild(shape);
-
-                        // Ajout des événements de déplacement
-                        shape.addEventListener('mousedown', startDrag);
-                        shape.addEventListener('touchstart', startDragTouch, { passive: false });
-                    });
-                }
-            }
-
-            // Gestion du drag (souris)
-            function startDrag(event) {
-                const shape = event.target;
-                let initialX = event.clientX;
-                let initialY = event.clientY;
-                let shapeX = parseInt(shape.style.left, 10);
-                let shapeY = parseInt(shape.style.top, 10);
-
-                function onMouseMove(e) {
-                    const deltaX = e.clientX - initialX;
-                    const deltaY = e.clientY - initialY;
-
-                    const newX = shapeX + deltaX;
-                    const newY = shapeY + deltaY;
-
-                    // Empêcher les formes de sortir de la zone de jeu
-                    shape.style.left = `${Math.max(0, Math.min(newX, gameArea.clientWidth - 50))}px`;
-                    shape.style.top = `${Math.max(0, Math.min(newY, gameArea.clientHeight - 50))}px`;
-                }
-
-                function onMouseUp() {
-                    document.removeEventListener('mousemove', onMouseMove);
-                    document.removeEventListener('mouseup', onMouseUp);
-                    checkDrop(shape);
-                }
-
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
-            }
-
-            // Gestion du drag (tactile)
-            function startDragTouch(event) {
-                event.preventDefault();
-                const shape = event.target;
-                let initialX = event.touches[0].clientX;
-                let initialY = event.touches[0].clientY;
-                let shapeX = parseInt(shape.style.left, 10);
-                let shapeY = parseInt(shape.style.top, 10);
-
-                function onTouchMove(e) {
-                    const deltaX = e.touches[0].clientX - initialX;
-                    const deltaY = e.touches[0].clientY - initialY;
-
-                    const newX = shapeX + deltaX;
-                    const newY = shapeY + deltaY;
-
-                    // Empêcher les formes de sortir de la zone de jeu
-                    shape.style.left = `${Math.max(0, Math.min(newX, gameArea.clientWidth - 50))}px`;
-                    shape.style.top = `${Math.max(0, Math.min(newY, gameArea.clientHeight - 50))}px`;
-                }
-
-                function onTouchEnd() {
-                    document.removeEventListener('touchmove', onTouchMove);
-                    document.removeEventListener('touchend', onTouchEnd);
-                    checkDrop(shape);
-                }
-
-                document.addEventListener('touchmove', onTouchMove);
-                document.addEventListener('touchend', onTouchEnd);
-            }
-
-            // Vérifie si une forme est bien déposée dans une zone cible
-            function checkDrop(shape) {
                 dropzones.forEach(zone => {
                     const zoneRect = zone.getBoundingClientRect();
                     const shapeRect = shape.getBoundingClientRect();
@@ -211,32 +159,54 @@
                         shapeRect.top >= zoneRect.top &&
                         shapeRect.bottom <= zoneRect.bottom
                     ) {
+                        droppedInZone = true;
+
                         if (
                             (zone.id === 'circle-zone' && shape.classList.contains('circle')) ||
                             (zone.id === 'square-zone' && shape.classList.contains('square')) ||
                             (zone.id === 'triangle-zone' && shape.classList.contains('triangle'))
                         ) {
-                            if (shape.classList.contains('triangle')) {
-                                shape.style.borderBottomColor = 'green';
-                            } else {
-                                shape.style.backgroundColor = 'green';
-                            }
-
+                            shape.style.left = ${parseInt(shape.style.left)}px;
+                            shape.style.top = ${parseInt(shape.style.top)}px;
+                            shape.style.cursor = 'default';
+                            shape.setAttribute('draggable', false);
                             shape.style.pointerEvents = 'none';
+                            if (shape.classList.contains('triangle')) {
+                            shape.style.backgroundColor = 'green'; // Changer la couleur du triangle
+                            shape.style.borderLeftColor = 'transparent'; // Réinitialiser la bordure gauche
+                            shape.style.borderRightColor = 'transparent'; // Réinitialiser la bordure droite
+                            shape.style.borderBottomColor = 'green'; // Changer la couleur de la bordure du bas
+                        } else {
+                            shape.style.backgroundColor = 'green';
+                        }
                             correctCount++;
 
                             if (correctCount === 15) {
-                                setTimeout(() => alert('Bravo ! Vous avez terminé !'), 100);
+                                setTimeout(() => {
+                                    alert("Bravo !");
+                                    victorySound.play();
+                                }, 100);
                             }
+                        } else {
+                            shape.style.backgroundColor = 'red';
+                            setTimeout(() => {
+                                shape.style.backgroundColor = 'blue';
+                                shape.style.left = ${shapeX}px;
+                                shape.style.top = ${shapeY}px;
+                            }, 3000);
                         }
                     }
                 });
+
+                if (!droppedInZone) {
+                    shape.style.left = ${shapeX}px;
+                    shape.style.top = ${shapeY}px;
+                }
             }
 
-            // Initialisation du jeu
-            createShapes();
-        </script>
-    </div>
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+    </script>
 </body>
 </html>
-
