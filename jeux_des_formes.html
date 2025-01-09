@@ -152,6 +152,7 @@
             forme.style.top = `${Math.random() * 70 + 10}vh`;
             forme.style.left = `${Math.random() * 70 + 10}vw`;
             forme.dataset.type = type;
+            forme.dataset.id = index;
             forme.setAttribute('draggable', true);
 
             document.body.appendChild(forme);
@@ -187,12 +188,13 @@
 
             zone.addEventListener('drop', (e) => {
                 const { type, id } = JSON.parse(e.dataTransfer.getData('text/plain'));
-                const dropped = document.querySelector(`.forme[data-type="${type}"]`);
+                const dropped = document.querySelector(`.forme[data-id="${id}"]`);
                 if (dropped && zone.dataset.type === type) {
                     dropped.style.backgroundColor = 'green';
                     dropped.setAttribute('draggable', false);
                     dropped.style.left = `${e.clientX - 50}px`;
                     dropped.style.top = `${e.clientY - 50}px`;
+                    dropped.classList.add('placed');
                     placed++;
 
                     if (placed === formes.length) {
