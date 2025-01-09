@@ -23,6 +23,9 @@
             width: 300px;
             height: 300px;
             border: 10px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .zone.cercle {
@@ -39,11 +42,12 @@
         .zone.triangle {
             bottom: 20px;
             left: 20px;
-            width: 0;
-            height: 0;
-            border-left: 150px solid transparent;
-            border-right: 150px solid transparent;
-            border-bottom: 260px solid white;
+            background: none;
+        }
+
+        .zone.triangle svg {
+            width: 300px;
+            height: 300px;
         }
 
         .forme {
@@ -68,6 +72,11 @@
 
         .forme.carre {
             /* no special styles needed */
+        }
+
+        .forme.triangle svg {
+            width: 100px;
+            height: 100px;
         }
 
         #message {
@@ -95,7 +104,11 @@
 <body>
     <div class="zone cercle" data-type="cercle"></div>
     <div class="zone carre" data-type="carre"></div>
-    <div class="zone triangle" data-type="triangle"></div>
+    <div class="zone triangle" data-type="triangle">
+        <svg viewBox="0 0 100 100">
+            <polygon points="50,0 100,100 0,100" fill="white" stroke="black" stroke-width="5"></polygon>
+        </svg>
+    </div>
 
     <div id="message">
         <p>Félicitations, vous avez réussi !</p>
@@ -193,4 +206,3 @@
     </script>
 </body>
 </html>
-
