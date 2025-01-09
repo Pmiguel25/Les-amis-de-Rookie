@@ -143,38 +143,34 @@
                 forme.classList.add('forme', type);
             }
 
-            forme.setAttribute('draggable', 'true');
-            forme.style.top = `${Math.random() * 80 + 10}vh`;
-            forme.style.left = `${Math.random() * 80 + 10}vw`;
+            forme.style.position = 'absolute';
+            forme.style.top = `${Math.random() * 70 + 10}vh`;
+            forme.style.left = `${Math.random() * 70 + 10}vw`;
             forme.dataset.type = type;
 
             document.body.appendChild(forme);
 
             forme.addEventListener('touchstart', (e) => {
-                e.target.dataset.dragging = true;
-                e.target.dataset.offsetX = e.touches[0].clientX - e.target.getBoundingClientRect().left;
-                e.target.dataset.offsetY = e.touches[0].clientY - e.target.getBoundingClientRect().top;
+                const touch = e.touches[0];
+                forme.dataset.dragging = true;
+                forme.dataset.offsetX = touch.clientX - forme.getBoundingClientRect().left;
+                forme.dataset.offsetY = touch.clientY - forme.getBoundingClientRect().top;
             });
 
             forme.addEventListener('touchmove', (e) => {
-                if (e.target.dataset.dragging) {
-                    e.target.style.left = `${e.touches[0].clientX - e.target.dataset.offsetX}px`;
-                    e.target.style.top = `${e.touches[0].clientY - e.target.dataset.offsetY}px`;
+                if (forme.dataset.dragging) {
+                    const touch = e.touches[0];
+                    forme.style.left = `${touch.clientX - forme.dataset.offsetX}px`;
+                    forme.style.top = `${touch.clientY - forme.dataset.offsetY}px`;
                 }
             });
 
-            forme.addEventListener('touchend', (e) => {
-                e.target.dataset.dragging = false;
-                handleDrop(e.target, e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+            forme.addEventListener('touchend', () => {
+                forme.dataset.dragging = false;
             });
 
             forme.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', e.target.dataset.type);
-                forme.dataset.dragging = true;
-            });
-
-            forme.addEventListener('dragend', (e) => {
-                forme.dataset.dragging = false;
+                e.dataTransfer.setData('text/plain', type);
             });
         });
 
@@ -185,33 +181,25 @@
 
             zone.addEventListener('drop', (e) => {
                 const type = e.dataTransfer.getData('text/plain');
-                const dragged = document.querySelector(`.forme[data-type="${type}"][data-dragging="true"]`);
-                handleDrop(dragged, e.clientX, e.clientY, zone);
+                const dropped = document.querySelector(`.forme[data-type="${type}"]`);
+                if (dropped && zone.dataset.type === type) {
+                    dropped.style.backgroundColor = 'green';
+                    dropped.setAttribute('draggable', false);
+                    dropped.style.left = `${e.clientX - 50}px`;
+                    dropped.style.top = `${e.clientY - 50}px`;
+                    placed++;
+
+                    if (placed === formes.length) {
+                        message.style.display = 'block';
+                    }
+                } else {
+                    dropped.style.backgroundColor = 'red';
+                    setTimeout(() => {
+                        dropped.style.backgroundColor = 'blue';
+                    }, 1500);
+                }
             });
         });
-
-        function handleDrop(dragged, x, y, zone = null) {
-            const rect = zone ? zone.getBoundingClientRect() : null;
-
-            if (zone && rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom && zone.dataset.type === dragged.dataset.type) {
-                dragged.style.backgroundColor = 'green';
-                dragged.setAttribute('draggable', 'false');
-                dragged.style.position = 'absolute';
-                dragged.style.left = `${x - rect.left - dragged.offsetWidth / 2}px`;
-                dragged.style.top = `${y - rect.top - dragged.offsetHeight / 2}px`;
-                zone.appendChild(dragged);
-                placed++;
-
-                if (placed === formes.length) {
-                    message.style.display = 'block';
-                }
-            } else {
-                dragged.style.backgroundColor = 'red';
-                setTimeout(() => {
-                    dragged.style.backgroundColor = 'blue';
-                }, 2000);
-            }
-        }
 
         rejouerBtn.addEventListener('click', () => {
             location.reload();
