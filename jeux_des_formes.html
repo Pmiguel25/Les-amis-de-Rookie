@@ -22,19 +22,20 @@
             position: absolute;
             width: 300px;
             height: 300px;
-            border: 10px solid black;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         .zone.cercle {
+            border: 10px solid black;
             border-radius: 50%;
             top: 20px;
             left: 20px;
         }
 
         .zone.carre {
+            border: 10px solid black;
             top: 20px;
             right: 20px;
         }
@@ -42,7 +43,6 @@
         .zone.triangle {
             bottom: 20px;
             left: 20px;
-            background: none;
         }
 
         .zone.triangle svg {
@@ -52,31 +52,29 @@
 
         .forme {
             position: absolute;
-            width: 100px;
-            height: 100px;
-            background-color: blue;
             cursor: pointer;
         }
 
         .forme.cercle {
+            width: 100px;
+            height: 100px;
+            background-color: blue;
             border-radius: 50%;
         }
 
-        .forme.triangle {
-            width: 0;
-            height: 0;
-            border-left: 50px solid transparent;
-            border-right: 50px solid transparent;
-            border-bottom: 100px solid blue;
-        }
-
         .forme.carre {
-            /* no special styles needed */
+            width: 100px;
+            height: 100px;
+            background-color: blue;
         }
 
         .forme.triangle svg {
             width: 100px;
             height: 100px;
+        }
+
+        .forme.triangle polygon {
+            fill: blue;
         }
 
         #message {
@@ -129,7 +127,22 @@
 
         formes.forEach((type, index) => {
             const forme = document.createElement('div');
-            forme.classList.add('forme', type);
+
+            if (type === 'triangle') {
+                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('viewBox', '0 0 100 100');
+                svg.setAttribute('class', 'forme triangle');
+
+                const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                polygon.setAttribute('points', '50,0 100,100 0,100');
+                polygon.setAttribute('fill', 'blue');
+
+                svg.appendChild(polygon);
+                forme.appendChild(svg);
+            } else {
+                forme.classList.add('forme', type);
+            }
+
             forme.setAttribute('draggable', 'true');
             forme.style.top = `${Math.random() * 80 + 10}vh`;
             forme.style.left = `${Math.random() * 80 + 10}vw`;
