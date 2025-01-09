@@ -1,234 +1,173 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activité tactile</title>
+    <title>Tableau Tactile</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             font-family: Arial, sans-serif;
+            margin: 20px;
         }
 
-        #tableau {
+        .container {
+            display: flex;
+            gap: 50px;
+        }
+
+        .table {
             display: grid;
-            grid-template-columns: repeat(4, 100px);
-            grid-template-rows: repeat(4, 100px);
-            gap: 5px;
-            margin: 20px;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr 1fr;
+            border: 1px solid black;
+        }
+
+        .header-cell {
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid black;
         }
 
         .cell {
             width: 100px;
             height: 100px;
-            border: 2px solid black;
+            border: 1px solid black;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
 
-        .header {
-            font-weight: bold;
-            background-color: #f0f0f0;
+        .cell.correct {
+            border: 2px solid green;
         }
 
-        .shape-header {
-            background-color: transparent;
-        }
-
-        .shape-header.carré {
-            width: 50px;
-            height: 50px;
-            border: 2px solid black;
-        }
-
-        .shape-header.triangle {
-            width: 0;
-            height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-bottom: 50px solid black;
-        }
-
-        .shape-header.rond {
-            width: 50px;
-            height: 50px;
-            border: 2px solid black;
-            border-radius: 50%;
-        }
-
-        .droppable {
-            background-color: white;
-        }
-
-        .highlight {
-            border-color: green;
-        }
-
-        .color-header {
-            background-color: white;
-        }
-
-        .color-header.bleu {
-            background-color: blue;
-        }
-
-        .color-header.vert {
-            background-color: green;
-        }
-
-        .color-header.rouge {
-            background-color: red;
-        }
-
-        #shapes {
+        .shapes {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-top: 20px;
+            width: 120px;
         }
 
-        .draggable {
-            width: 80px;
-            height: 80px;
+        .shape {
+            width: 50px;
+            height: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid black;
-            border-radius: 50%;
             cursor: grab;
         }
 
-        .carré {
-            border-radius: 0;
+        .circle {
+            border-radius: 50%;
+        }
+
+        .square {
+            background-color: white;
         }
 
         .triangle {
             width: 0;
             height: 0;
-            border-left: 40px solid transparent;
-            border-right: 40px solid transparent;
-            border-bottom: 80px solid;
-            border-radius: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
         }
 
-        .bleu {
+        .blue {
             background-color: blue;
-            border-bottom-color: blue;
         }
 
-        .rouge {
+        .red {
             background-color: red;
-            border-bottom-color: red;
         }
 
-        .vert {
+        .green {
             background-color: green;
-            border-bottom-color: green;
+        }
+
+        .triangle.blue {
+            border-bottom: 50px solid blue;
+        }
+
+        .triangle.red {
+            border-bottom: 50px solid red;
+        }
+
+        .triangle.green {
+            border-bottom: 50px solid green;
         }
     </style>
 </head>
 <body>
-    <h1>Activité tactile - Associer les formes</h1>
+    <h1>Activité Tactile</h1>
+    <div class="container">
+        <div class="table">
+            <div class="header-cell"></div>
+            <div class="header-cell square">Carré</div>
+            <div class="header-cell triangle">Triangle</div>
+            <div class="header-cell circle">Rond</div>
 
-    <div id="tableau">
-        <div class="cell header"></div>
-        <div class="cell header shape-header carré"></div>
-        <div class="cell header shape-header triangle"></div>
-        <div class="cell header shape-header rond"></div>
+            <div class="header-cell blue"></div>
+            <div class="cell" data-type="square" data-color="blue"></div>
+            <div class="cell" data-type="triangle" data-color="blue"></div>
+            <div class="cell" data-type="circle" data-color="blue"></div>
 
-        <div class="cell header color-header bleu"></div>
-        <div class="cell droppable" data-type="carré" data-color="bleu"></div>
-        <div class="cell droppable" data-type="triangle" data-color="bleu"></div>
-        <div class="cell droppable" data-type="rond" data-color="bleu"></div>
+            <div class="header-cell green"></div>
+            <div class="cell" data-type="square" data-color="green"></div>
+            <div class="cell" data-type="triangle" data-color="green"></div>
+            <div class="cell" data-type="circle" data-color="green"></div>
 
-        <div class="cell header color-header vert"></div>
-        <div class="cell droppable" data-type="carré" data-color="vert"></div>
-        <div class="cell droppable" data-type="triangle" data-color="vert"></div>
-        <div class="cell droppable" data-type="rond" data-color="vert"></div>
+            <div class="header-cell red"></div>
+            <div class="cell" data-type="square" data-color="red"></div>
+            <div class="cell" data-type="triangle" data-color="red"></div>
+            <div class="cell" data-type="circle" data-color="red"></div>
+        </div>
 
-        <div class="cell header color-header rouge"></div>
-        <div class="cell droppable" data-type="carré" data-color="rouge"></div>
-        <div class="cell droppable" data-type="triangle" data-color="rouge"></div>
-        <div class="cell droppable" data-type="rond" data-color="rouge"></div>
-    </div>
+        <div class="shapes">
+            <div class="shape circle blue" draggable="true" data-type="circle" data-color="blue"></div>
+            <div class="shape circle red" draggable="true" data-type="circle" data-color="red"></div>
+            <div class="shape circle green" draggable="true" data-type="circle" data-color="green"></div>
 
-    <div id="shapes">
-        <div class="draggable carré bleu" draggable="true" data-type="carré" data-color="bleu"></div>
-        <div class="draggable carré rouge" draggable="true" data-type="carré" data-color="rouge"></div>
-        <div class="draggable carré vert" draggable="true" data-type="carré" data-color="vert"></div>
+            <div class="shape square blue" draggable="true" data-type="square" data-color="blue"></div>
+            <div class="shape square red" draggable="true" data-type="square" data-color="red"></div>
+            <div class="shape square green" draggable="true" data-type="square" data-color="green"></div>
 
-        <div class="draggable triangle bleu" draggable="true" data-type="triangle" data-color="bleu"></div>
-        <div class="draggable triangle rouge" draggable="true" data-type="triangle" data-color="rouge"></div>
-        <div class="draggable triangle vert" draggable="true" data-type="triangle" data-color="vert"></div>
-
-        <div class="draggable rond bleu" draggable="true" data-type="rond" data-color="bleu"></div>
-        <div class="draggable rond rouge" draggable="true" data-type="rond" data-color="rouge"></div>
-        <div class="draggable rond vert" draggable="true" data-type="rond" data-color="vert"></div>
+            <div class="shape triangle blue" draggable="true" data-type="triangle" data-color="blue"></div>
+            <div class="shape triangle red" draggable="true" data-type="triangle" data-color="red"></div>
+            <div class="shape triangle green" draggable="true" data-type="triangle" data-color="green"></div>
+        </div>
     </div>
 
     <script>
-        const draggables = document.querySelectorAll('.draggable');
-        const droppables = document.querySelectorAll('.droppable');
+        const shapes = document.querySelectorAll('.shape');
+        const cells = document.querySelectorAll('.cell');
 
-        draggables.forEach(draggable => {
-            draggable.addEventListener('dragstart', () => {
-                draggable.classList.add('dragging');
-            });
-
-            draggable.addEventListener('dragend', () => {
-                draggable.classList.remove('dragging');
-            });
-
-            draggable.addEventListener('touchstart', (e) => {
-                draggable.classList.add('dragging');
-            });
-
-            draggable.addEventListener('touchend', (e) => {
-                draggable.classList.remove('dragging');
+        shapes.forEach(shape => {
+            shape.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('type', shape.dataset.type);
+                e.dataTransfer.setData('color', shape.dataset.color);
             });
         });
 
-        droppables.forEach(droppable => {
-            droppable.addEventListener('dragover', (e) => {
+        cells.forEach(cell => {
+            cell.addEventListener('dragover', (e) => {
                 e.preventDefault();
             });
 
-            droppable.addEventListener('drop', (e) => {
-                e.preventDefault();
-                const draggedElement = document.querySelector('.dragging');
-                if (draggedElement) {
-                    const type = draggedElement.getAttribute('data-type');
-                    const color = draggedElement.getAttribute('data-color');
+            cell.addEventListener('drop', (e) => {
+                const type = e.dataTransfer.getData('type');
+                const color = e.dataTransfer.getData('color');
 
-                    if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
-                        droppable.classList.add('highlight');
-                        draggedElement.remove(); // Remove from shapes area
-                        droppable.appendChild(draggedElement);
-                    }
-                }
-            });
-
-            droppable.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                const draggedElement = document.querySelector('.dragging');
-                if (draggedElement) {
-                    const type = draggedElement.getAttribute('data-type');
-                    const color = draggedElement.getAttribute('data-color');
-
-                    if (droppable.getAttribute('data-type') === type && droppable.getAttribute('data-color') === color) {
-                        droppable.classList.add('highlight');
-                        draggedElement.remove(); // Remove from shapes area
-                        droppable.appendChild(draggedElement);
-                    }
+                if (cell.dataset.type === type && cell.dataset.color === color) {
+                    cell.classList.add('correct');
+                    const shape = document.querySelector(`.shape[data-type="${type}"][data-color="${color}"]`);
+                    if (shape) shape.style.display = 'none';
                 }
             });
         });
     </script>
 </body>
 </html>
-
 
