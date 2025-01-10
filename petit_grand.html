@@ -31,15 +31,13 @@
             overflow-y: auto;
         }
         .column img {
-            width: 50px;
-            height: auto;
             margin: 5px;
         }
         .small {
-            width: 50px;
+            width: 100px;
         }
         .large {
-            width: 100px;
+            width: 200px;
         }
         .symbol {
             margin: 10px;
@@ -71,11 +69,11 @@
     </div>
     <div class="container" id="activity">
         <div class="column" id="left">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
         </div>
         <div class="column" id="center"></div>
         <div class="column" id="right">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
         </div>
     </div>
 
@@ -157,15 +155,14 @@
             if (!img) return;
 
             const isCorrect =
-                (column === leftColumn && img.classList.contains("small")) ||
-                (column === rightColumn && img.classList.contains("large"));
+                (column === leftColumn && img.classList.contains("large")) ||
+                (column === rightColumn && img.classList.contains("small"));
 
             img.classList.add("highlight", isCorrect ? "success" : "error");
 
-            setTimeout(() => {
-                img.classList.remove("highlight", "success", "error");
-
-                if (isCorrect) {
+            if (isCorrect) {
+                column.appendChild(img);
+                setTimeout(() => {
                     img.remove();
                     correctCount++;
                     currentImageIndex++;
@@ -175,10 +172,13 @@
                     } else {
                         displayNextImage();
                     }
-                } else {
+                }, 3000);
+            } else {
+                setTimeout(() => {
+                    img.classList.remove("highlight", "success", "error");
                     displayNextImage();
-                }
-            }, 3000);
+                }, 3000);
+            }
         }
 
         function restartGame() {
