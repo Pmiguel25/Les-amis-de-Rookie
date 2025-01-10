@@ -1,218 +1,190 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tri : Grand ou Petit</title>
+    <title>Animal Sorting Activity</title>
     <style>
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
             height: 100vh;
-            background-color: #f0f0f0;
         }
-
-        #game-area {
+        .container {
             display: flex;
-            flex-direction: row;
-            justify-content: space-between;
             width: 100%;
-            height: 100%;
+            height: 80vh;
+            box-sizing: border-box;
         }
-
-        .zone {
+        .column {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            position: relative;
-            border: 2px solid #333;
-            height: 100%;
+            border: 1px solid #ccc;
+            overflow-y: auto;
         }
-
-        .zone img.pictogram {
+        .column img {
+            width: 50px;
+            height: auto;
+            margin: 5px;
+        }
+        .small {
+            width: 50px;
+        }
+        .large {
+            width: 100px;
+        }
+        .symbol {
             margin: 10px;
-            width: 200px;
+            width: 70px;
             height: auto;
         }
-
-        .center-zone {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background-color: #ffffff;
-        }
-
-        .center-zone img.object {
-            width: 150px;
-            height: auto;
+        #center img {
             cursor: grab;
-            transition: all 0.3s;
         }
-
-        .object.success {
-            border: 5px solid green;
-            border-radius: 10px;
-        }
-
-        .object.error {
-            border: 5px solid red;
-            border-radius: 10px;
-        }
-
-        #modal {
+        #message {
             display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: #333;
-            color: #fff;
-            padding: 20px;
-            border-radius: 10px;
             text-align: center;
-            z-index: 1000;
         }
-
-        #modal button {
-            margin-top: 10px;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
+        .highlight {
+            border: 5px solid;
+        }
+        .success {
+            border-color: green;
+        }
+        .error {
+            border-color: red;
         }
     </style>
 </head>
 <body>
-    <div id="game-area">
-        <!-- Zone de gauche (Petits animaux) -->
-        <div id="small-zone" class="zone">
-            <img src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit" class="pictogram">
-        </div>
-
-        <!-- Zone centrale -->
-        <div id="center-zone" class="center-zone"></div>
-
-        <!-- Zone de droite (Grands animaux) -->
-        <div id="large-zone" class="zone">
-            <img src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand" class="pictogram">
-        </div>
+    <div id="message">
+        <h1>Félicitations !</h1>
+        <button onclick="restartGame()">Rejouer</button>
     </div>
-
-    <div id="modal">
-        <p>Bravo ! Vous avez réussi !</p>
-        <button onclick="location.reload()">Rejouer</button>
+    <div class="container" id="activity">
+        <div class="column" id="left">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
+        </div>
+        <div class="column" id="center"></div>
+        <div class="column" id="right">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
+        </div>
     </div>
 
     <script>
-        const smallZone = document.getElementById("small-zone");
-        const largeZone = document.getElementById("large-zone");
-        const centerZone = document.getElementById("center-zone");
-        const modal = document.getElementById("modal");
-
-        // Liste d'images avec leur classification (petit ou grand)
-        const images = [
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcdsTgaWbDX_pYae8qkk6mm3DzDd79_F9bg&s", category: "petit" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/koreahamsterjpg.webp", category: "petit" },
-            { src: "https://images.pexels.com/photos/88512/mole-nature-animals-molehills-88512.jpeg", category: "petit" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/c/c8/Carcassonne_-_M%C3%A9sange_bleue.jpg", category: "petit" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT29PhlyuuWbLXPyZtmre91bxyfYg7tPeJvFw&s", category: "petit" },
-            { src: "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg", category: "grand" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/OBdYWcqSUbP0fxx1xPGS.webp", category: "grand" },
-            { src: "https://s3.animalia.bio/animals/photos/full/original/2560px-rothschild27s-giraffe-28751350316829.webp", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/6/66/Elephant_Botswana.jpg", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/3/3b/Tiger_in_Ranthambhore.jpg", category: "grand" },
-            { src: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCHEkK9vQWjq6HAFHpgyO7Rz2KRVkQuYqB1g&s", category: "petit" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/5/50/Goldfish3.jpg", category: "petit" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Frog_%28cropped%29.jpg", category: "petit" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/e/e7/Domestic_dog_breeds.jpg", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/5/57/Siamese_cat.jpg", category: "petit" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/4/49/Domestic_goose.jpg", category: "grand" },
-            { src: "https://upload.wikimedia.org/wikipedia/commons/2/26/Blue_Morpho_Butterfly.jpg", category: "petit" }
+        const smallAnimals = [
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcdsTgaWbDX_pYae8qkk6mm3DzDd79_F9bg&s",
+            "https://s3.animalia.bio/animals/photos/full/original/koreahamsterjpg.webp",
+            "https://s3.animalia.bio/animals/photos/full/original/belinda.webp",
+            "https://images.pexels.com/photos/88512/mole-nature-animals-molehills-88512.jpeg",
+            "https://upload.wikimedia.org/wikipedia/commons/c/c8/Carcassonne_-_M%C3%A9sange_bleue.jpg",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6OteZ5gNDtrJYC6PS-EsIo2BUHwa7vpMYaw&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT29PhlyuuWbLXPyZtmre91bxyfYg7tPeJvFw&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCdN1VgbT4H3AdPky3NAhE79mM9FMg4HzZgQ&s",
+            "https://s3.animalia.bio/animals/photos/full/original/2560px-cepaea-nemoralis-28mad-max29.webp",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQL5efkmSxQLa8ZmyOUeApdE3nPiLGdLUR8sA&s"
+        ];
+        const largeAnimals = [
+            "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg",
+            "https://reporterre.net/IMG/logo/arton31931.jpg?1718024954",
+            "https://images.pexels.com/photos/248337/pexels-photo-248337.jpeg",
+            "https://s3.animalia.bio/animals/photos/full/original/OBdYWcqSUbP0fxx1xPGS.webp",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7iT1-sbdO9An49RutBcxHGsrvqdVbD8VKwQ&s",
+            "https://s3.animalia.bio/animals/photos/full/original/2560px-rothschild27s-giraffe-28751350316829.webp",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVvUq_pxBUdqftu5TgjNPkx6tWEaEY9m8MXQ&s",
+            "https://s3.animalia.bio/animals/photos/full/original/1619px-002-the-lion-king-snyggve-in-the-serengeti-national-park-photo-by-giles-laurentjpg.webp",
+            "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg"
         ];
 
-        // Mélanger toutes les images (ordre aléatoire)
-        const shuffledImages = [...images].sort(() => 0.5 - Math.random());
+        const centerColumn = document.getElementById("center");
+        const leftColumn = document.getElementById("left");
+        const rightColumn = document.getElementById("right");
+        const messageBox = document.getElementById("message");
+        const activity = document.getElementById("activity");
 
-        let currentImageIndex = 0;
-        let successCount = 0;
+        let allImages = [];
+        let correctCount = 0;
 
-        function loadNextImage() {
-            centerZone.innerHTML = "";
-            if (successCount === shuffledImages.length) {
-                modal.style.display = "block"; // Fin du jeu
-                return;
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
+        }
 
-            const imageData = shuffledImages[currentImageIndex];
+        function createImageElement(src, className) {
             const img = document.createElement("img");
-            img.src = imageData.src;
-            img.className = "object";
-            img.setAttribute("data-category", imageData.category);
-
-            // Activer le glisser-déposer
-            img.addEventListener("mousedown", startDrag);
-            img.addEventListener("touchstart", startDrag);
-            centerZone.appendChild(img);
+            img.src = src;
+            img.className = className;
+            img.draggable = true;
+            img.ondragstart = (e) => {
+                e.dataTransfer.setData("text/plain", src);
+                img.classList.add("dragging");
+            };
+            img.ondragend = () => img.classList.remove("dragging");
+            return img;
         }
 
-        function startDrag(event) {
-            const object = event.target;
-            const isTouchEvent = event.type === "touchstart";
-            const initialX = isTouchEvent ? event.touches[0].clientX : event.clientX;
-            const initialY = isTouchEvent ? event.touches[0].clientY : event.clientY;
-            let offsetX = 0;
-            let offsetY = 0;
+        function setupGame() {
+            allImages = smallAnimals.map(src => createImageElement(src, "small"))
+                .concat(largeAnimals.map(src => createImageElement(src, "large")));
+            shuffle(allImages);
+            allImages.forEach(img => centerColumn.appendChild(img));
+        }
 
-            function onMove(e) {
-                const clientX = isTouchEvent ? e.touches[0].clientX : e.clientX;
-                const clientY = isTouchEvent ? e.touches[0].clientY : e.clientY;
-                offsetX = clientX - initialX;
-                offsetY = clientY - initialY;
-                object.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-            }
+        function handleDrop(e, column) {
+            e.preventDefault();
+            const src = e.dataTransfer.getData("text/plain");
+            const img = [...centerColumn.children].find(img => img.src === src);
 
-            function onEnd(e) {
-                const clientX = isTouchEvent ? e.changedTouches[0].clientX : e.clientX;
-                const clientY = isTouchEvent ? e.changedTouches[0].clientY : e.clientY;
-                const objectCategory = object.getAttribute("data-category");
-                const target = document.elementFromPoint(clientX, clientY);
+            if (!img) return;
 
-                if (
-                    (target === smallZone && objectCategory === "petit") ||
-                    (target === largeZone && objectCategory === "grand")
-                ) {
-                    object.classList.add("success");
-                    successCount++;
-                    currentImageIndex++;
-                    setTimeout(loadNextImage, 1000);
+            const isCorrect =
+                (column === leftColumn && img.classList.contains("small")) ||
+                (column === rightColumn && img.classList.contains("large"));
+
+            img.classList.add("highlight", isCorrect ? "success" : "error");
+
+            setTimeout(() => {
+                img.classList.remove("highlight", "success", "error");
+
+                if (isCorrect) {
+                    img.remove();
+                    correctCount++;
+                    if (correctCount === allImages.length) {
+                        activity.style.display = "none";
+                        messageBox.style.display = "block";
+                    }
                 } else {
-                    object.classList.add("error");
-                    setTimeout(() => {
-                        object.classList.remove("error");
-                        object.style.transform = "translate(0, 0)";
-                    }, 1000);
+                    centerColumn.appendChild(img);
                 }
-
-                document.removeEventListener(isTouchEvent ? "touchmove" : "mousemove", onMove);
-                document.removeEventListener(isTouchEvent ? "touchend" : "mouseup", onEnd);
-            }
-
-            document.addEventListener(isTouchEvent ? "touchmove" : "mousemove", onMove);
-            document.addEventListener(isTouchEvent ? "touchend" : "mouseup", onEnd);
+            }, 3000);
         }
 
-        // Charger la première image
-        loadNextImage();
+        function restartGame() {
+            centerColumn.innerHTML = "";
+            leftColumn.innerHTML = '<img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">';
+            rightColumn.innerHTML = '<img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">';
+            messageBox.style.display = "none";
+            activity.style.display = "flex";
+            correctCount = 0;
+            setupGame();
+        }
+
+        leftColumn.ondragover = rightColumn.ondragover = (e) => e.preventDefault();
+        leftColumn.ondrop = (e) => handleDrop(e, leftColumn);
+        rightColumn.ondrop = (e) => handleDrop(e, rightColumn);
+
+        setupGame();
     </script>
 </body>
 </html>
-
