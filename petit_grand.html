@@ -71,11 +71,11 @@
     </div>
     <div class="container" id="activity">
         <div class="column" id="left">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
         </div>
         <div class="column" id="center"></div>
         <div class="column" id="right">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
         </div>
     </div>
 
@@ -113,6 +113,7 @@
 
         let allImages = [];
         let correctCount = 0;
+        let currentImageIndex = 0;
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -138,7 +139,14 @@
             allImages = smallAnimals.map(src => createImageElement(src, "small"))
                 .concat(largeAnimals.map(src => createImageElement(src, "large")));
             shuffle(allImages);
-            allImages.forEach(img => centerColumn.appendChild(img));
+            displayNextImage();
+        }
+
+        function displayNextImage() {
+            centerColumn.innerHTML = "";
+            if (currentImageIndex < allImages.length) {
+                centerColumn.appendChild(allImages[currentImageIndex]);
+            }
         }
 
         function handleDrop(e, column) {
@@ -160,23 +168,24 @@
                 if (isCorrect) {
                     img.remove();
                     correctCount++;
+                    currentImageIndex++;
                     if (correctCount === allImages.length) {
                         activity.style.display = "none";
                         messageBox.style.display = "block";
+                    } else {
+                        displayNextImage();
                     }
                 } else {
-                    centerColumn.appendChild(img);
+                    displayNextImage();
                 }
             }, 3000);
         }
 
         function restartGame() {
-            centerColumn.innerHTML = "";
-            leftColumn.innerHTML = '<img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">';
-            rightColumn.innerHTML = '<img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">';
+            currentImageIndex = 0;
+            correctCount = 0;
             messageBox.style.display = "none";
             activity.style.display = "flex";
-            correctCount = 0;
             setupGame();
         }
 
