@@ -34,14 +34,14 @@
             margin: 10px;
         }
         .small {
-            width: 150px;
+            width: 200px;
         }
         .large {
-            width: 300px;
+            width: 350px;
         }
         .symbol {
             margin: 10px;
-            width: 100px;
+            width: 150px;
             height: auto;
         }
         #center img {
@@ -69,11 +69,11 @@
     </div>
     <div class="container" id="activity">
         <div class="column" id="left">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
         </div>
         <div class="column" id="center"></div>
         <div class="column" id="right">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
         </div>
     </div>
 
@@ -133,9 +133,8 @@
 
             // Touch support
             img.ontouchstart = (e) => {
-                e.target.classList.add("dragging");
-                e.dataTransfer = { setData: (type, data) => img.dataset.dragSrc = data };
-                e.dataTransfer.setData("text/plain", src);
+                img.dataset.dragSrc = src;
+                img.classList.add("dragging");
             };
             img.ontouchend = () => img.classList.remove("dragging");
 
@@ -164,8 +163,8 @@
             if (!img) return;
 
             const isCorrect =
-                (column === leftColumn && img.classList.contains("small")) ||
-                (column === rightColumn && img.classList.contains("large"));
+                (column === leftColumn && img.classList.contains("large")) ||
+                (column === rightColumn && img.classList.contains("small"));
 
             img.classList.add("highlight", isCorrect ? "success" : "error");
 
@@ -181,12 +180,12 @@
                     } else {
                         displayNextImage();
                     }
-                }, 3000);
+                }, 2000);
             } else {
                 setTimeout(() => {
                     img.classList.remove("highlight", "success", "error");
                     displayNextImage();
-                }, 3000);
+                }, 2000);
             }
         }
 
