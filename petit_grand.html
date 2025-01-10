@@ -31,17 +31,17 @@
             overflow-y: auto;
         }
         .column img {
-            margin: 5px;
+            margin: 10px;
         }
         .small {
-            width: 100px;
+            width: 150px;
         }
         .large {
-            width: 200px;
+            width: 300px;
         }
         .symbol {
             margin: 10px;
-            width: 70px;
+            width: 100px;
             height: auto;
         }
         #center img {
@@ -69,11 +69,11 @@
     </div>
     <div class="container" id="activity">
         <div class="column" id="left">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
         </div>
         <div class="column" id="center"></div>
         <div class="column" id="right">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
         </div>
     </div>
 
@@ -130,6 +130,15 @@
                 img.classList.add("dragging");
             };
             img.ondragend = () => img.classList.remove("dragging");
+
+            // Touch support
+            img.ontouchstart = (e) => {
+                e.target.classList.add("dragging");
+                e.dataTransfer = { setData: (type, data) => img.dataset.dragSrc = data };
+                e.dataTransfer.setData("text/plain", src);
+            };
+            img.ontouchend = () => img.classList.remove("dragging");
+
             return img;
         }
 
@@ -149,14 +158,14 @@
 
         function handleDrop(e, column) {
             e.preventDefault();
-            const src = e.dataTransfer.getData("text/plain");
+            const src = e.dataTransfer?.getData("text/plain") || e.target.dataset.dragSrc;
             const img = [...centerColumn.children].find(img => img.src === src);
 
             if (!img) return;
 
             const isCorrect =
-                (column === leftColumn && img.classList.contains("large")) ||
-                (column === rightColumn && img.classList.contains("small"));
+                (column === leftColumn && img.classList.contains("small")) ||
+                (column === rightColumn && img.classList.contains("large"));
 
             img.classList.add("highlight", isCorrect ? "success" : "error");
 
