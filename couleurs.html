@@ -104,12 +104,18 @@
     <script>
         const colors = ['blue', 'red', 'green', 'yellow'];
         let correctCount = 0;
+        let lastColor = null;
         const shape = document.getElementById('shape');
         const gameContainer = document.getElementById('game-container');
         const endMessage = document.getElementById('end-message');
 
         function getRandomColor() {
-            return colors[Math.floor(Math.random() * colors.length)];
+            let newColor;
+            do {
+                newColor = colors[Math.floor(Math.random() * colors.length)];
+            } while (newColor === lastColor);
+            lastColor = newColor;
+            return newColor;
         }
 
         function placeShape() {
@@ -191,5 +197,3 @@
     </script>
 </body>
 </html>
-
-
