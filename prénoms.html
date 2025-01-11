@@ -137,10 +137,12 @@
 
         // Create the model letters (non-draggable)
         selectedWord.forEach((letter, index) => {
-            if (letter === ' ') {
-                // Skip creating a letter-box for space
+            if (letter === ' ' && currentWord === 'MERVE NUR') {
+                // Create a space (black gap between E and N) but no letter-box
                 const spaceElement = document.createElement('div');
-                spaceElement.className = 'letter-box';
+                spaceElement.style.width = '50px';
+                spaceElement.style.height = '50px';
+                spaceElement.style.backgroundColor = 'black';
                 document.getElementById('letter-container').appendChild(spaceElement);
             } else {
                 const letterElement = document.createElement('div');
@@ -163,9 +165,9 @@
             document.getElementById('random-letters').appendChild(letterElement);
         });
 
-        // Create drop boxes
+        // Create drop boxes for letters
         selectedWord.forEach((letter, index) => {
-            if (letter !== ' ') {
+            if (letter !== ' ' || currentWord !== 'MERVE NUR') {
                 const boxElement = document.createElement('div');
                 boxElement.className = 'letter-box';
                 boxElement.setAttribute('id', 'box-' + index);
