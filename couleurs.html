@@ -26,7 +26,7 @@
             display: grid;
             grid-template-rows: 1fr 1fr;
             grid-template-columns: 1fr 1fr;
-            gap: 50px;
+            gap: 100px; /* Increased gap */
         }
 
         .zone {
@@ -119,10 +119,10 @@
             shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
             shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
 
-            // Clear zones after 2 seconds
+            // Clear zones after 5 seconds
             setTimeout(() => {
                 document.querySelectorAll('.zone').forEach(zone => zone.innerHTML = '');
-            }, 2000);
+            }, 5000);
         }
 
         function showEndMessage() {
@@ -191,3 +191,4 @@
     </script>
 </body>
 </html>
+
