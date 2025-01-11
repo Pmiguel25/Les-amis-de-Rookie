@@ -24,9 +24,11 @@
             max-height: 700px;
             background-color: black;
             display: grid;
-            grid-template-rows: 1fr 2fr 1fr; /* Adjusted rows for spacing */
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 150px; /* Increased gap for more spacing */
+            grid-template-areas: 
+                "blue red green"
+                ". center ."
+                "yellow orange purple";
+            gap: 100px; /* Adjusted gap for central area */
         }
 
         .zone {
@@ -38,29 +40,37 @@
             font-size: 40px;
             font-weight: bold;
             color: white;
+            width: 100px;
+            height: 100px;
         }
 
         .zone.blue {
+            grid-area: blue;
             background-color: blue;
         }
 
         .zone.red {
+            grid-area: red;
             background-color: red;
         }
 
         .zone.green {
+            grid-area: green;
             background-color: green;
         }
 
         .zone.yellow {
+            grid-area: yellow;
             background-color: yellow;
         }
 
         .zone.orange {
+            grid-area: orange;
             background-color: #cc5500; /* Darker orange for contrast */
         }
 
         .zone.purple {
+            grid-area: purple;
             background-color: purple;
         }
 
@@ -207,4 +217,5 @@
     </script>
 </body>
 </html>
+
 
