@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activité Tactile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f4f4f4;
+        }
+
+        .label-selection {
+            margin-top: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .label {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .game-area {
+            display: none;
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .letter-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .letter-box {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #000;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 5px;
+        }
+
+        .letter {
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            background-color: lightgray;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .letter.dragging {
+            opacity: 0.5;
+        }
+
+        .success-message {
+            display: none;
+            margin-top: 30px;
+            font-size: 24px;
+            color: green;
+        }
+
+        .restart-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="label-selection">
+    <div class="label" onclick="startGame('CHIARA')">CHIARA</div>
+    <div class="label" onclick="startGame('FLEUR')">FLEUR</div>
+    <div class="label" onclick="startGame('JAYDEN')">JAYDEN</div>
+    <div class="label" onclick="startGame('MAELYNE')">MAELYNE</div>
+    <div class="label" onclick="startGame('MERVE NUR')">MERVE NUR</div>
+    <div class="label" onclick="startGame('ZYAD')">ZYAD</div>
+</div>
+
+<div class="game-area">
+    <div class="letter-container" id="letter-container"></div>
+    <div class="letter-container" id="box-container"></div>
+    <div class="success-message" id="success-message">Félicitations !</div>
+    <button class="restart-button" onclick="restartGame()">Rejouer</button>
+</div>
+
+<script>
+    let currentWord = '';
+    let selectedWord = '';
+    let letters = [];
+    let boxElements = [];
+    let draggedLetter = null;
+
+    function startGame(word) {
+        currentWord = word;
+        selectedWord = word.split('');
+        letters = [...selectedWord];
+        
+        // Clear previous game
+        document.getElementById('letter-container').innerHTML = '';
+        document.getElementById('box-container').innerHTML = '';
+        document.getElementById('success-message').style.display = 'none';
+        
+        // Create draggable letters
+        letters.forEach((letter, index) => {
+            const letterElement = document.createElement('div');
+            letterElement.className = 'letter';
+            letterElement.innerText = letter;
+            letterElement.setAttribute('draggable', 'true');
+            letterElement.setAttribute('id', 'letter-' + index);
+            letterElement.addEventListener('dragstart', (e) => onDragStart(e));
+            letterElement.addEventListener('dragend', (e) => onDragEnd(e));
+            document.getElementById('letter-container').appendChild(letterElement);
+        });
+
+        // Create drop boxes
+        selectedWord.forEach((letter, index) => {
+            const boxElement = document.createElement('div');
+            boxElement.className = 'letter-box';
+            boxElement.setAttribute('id', 'box-' + index);
+            boxElement.setAttribute('data-letter', letter);
+            boxElement.addEventListener('dragover', (e) => onDragOver(e));
+            boxElement.addEventListener('drop', (e) => onDrop(e));
+            document.getElementById('box-container').appendChild(boxElement);
+            boxElements.push(boxElement);
+        });
+
+        document.querySelector('.label-selection').style.display = 'none';
+        document.querySelector('.game-area').style.display = 'block';
+    }
+
+    function onDragStart(e) {
+        draggedLetter = e.target;
+        setTimeout(() => {
+            draggedLetter.classList.add('dragging');
+        }, 0);
+    }
+
+    function onDragEnd(e) {
+        draggedLetter.classList.remove('dragging');
+        draggedLetter = null;
+        checkWin();
+    }
+
+    function onDragOver(e) {
+        e.preventDefault();
+    }
+
+    function onDrop(e) {
+        e.preventDefault();
+        const targetBox = e.target;
+        if (targetBox.classList.contains('letter-box') && targetBox.innerHTML === '') {
+            targetBox.innerHTML = draggedLetter.innerText;
+            targetBox.style.backgroundColor = '#e0e0e0';
+            draggedLetter.style.display = 'none';
+            checkWin();
+        }
+    }
+
+    function checkWin() {
+        let allCorrect = true;
+        for (let i = 0; i < boxElements.length; i++) {
+            if (boxElements[i].innerText !== boxElements[i].getAttribute('data-letter')) {
+                allCorrect = false;
+                break;
+            }
+        }
+        if (allCorrect) {
+            document.getElementById('success-message').style.display = 'block';
+        }
+    }
+
+    function restartGame() {
+        document.querySelector('.label-selection').style.display = 'flex';
+        document.querySelector('.game-area').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
