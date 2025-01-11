@@ -26,7 +26,7 @@
             display: grid;
             grid-template-rows: 1fr 1fr;
             grid-template-columns: 1fr 1fr;
-            gap: 0;
+            gap: 50px;
         }
 
         .zone {
@@ -35,6 +35,9 @@
             justify-content: center;
             align-items: center;
             border: 1px solid #ccc;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
         }
 
         .zone.blue {
@@ -115,6 +118,11 @@
             shape.dataset.color = color;
             shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
             shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
+
+            // Clear zones after 2 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.zone').forEach(zone => zone.innerHTML = '');
+            }, 2000);
         }
 
         function showEndMessage() {
