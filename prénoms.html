@@ -126,8 +126,8 @@
 
     function startGame(word) {
         currentWord = word;
-        selectedWord = word.split('');
-        letters = [...selectedWord];
+        selectedWord = word.split(' ');
+        letters = [...selectedWord[0], ...selectedWord[1]];  // Merge letters of both words (MERVE and NUR)
 
         // Clear previous game
         document.getElementById('letter-container').innerHTML = '';
@@ -136,24 +136,26 @@
         document.getElementById('success-message').style.display = 'none';
 
         // Create the model letters (non-draggable)
-        selectedWord.forEach((letter, index) => {
-            if (letter === ' ' && currentWord === 'MERVE NUR') {
-                // Skip creating a case for space between E and N
-                const spaceElement = document.createElement('div');
-                spaceElement.style.width = '50px';
-                spaceElement.style.height = '50px';
-                spaceElement.style.backgroundColor = 'black';
-                document.getElementById('letter-container').appendChild(spaceElement);
-            } else {
+        selectedWord.forEach((word, wordIndex) => {
+            word.split('').forEach((letter, index) => {
                 const letterElement = document.createElement('div');
                 letterElement.className = 'letter-box';
                 letterElement.innerText = letter;
                 document.getElementById('letter-container').appendChild(letterElement);
-            }
+
+                if (wordIndex === 0 && index === 4) {
+                    // Add space between MERVE and NUR (no case or letter mobile for the space)
+                    const spaceElement = document.createElement('div');
+                    spaceElement.style.width = '50px';
+                    spaceElement.style.height = '50px';
+                    spaceElement.style.backgroundColor = 'black';
+                    document.getElementById('letter-container').appendChild(spaceElement);
+                }
+            });
         });
 
         // Generate random letters for draggable options
-        const randomLetters = generateRandomLetters(selectedWord);
+        const randomLetters = generateRandomLetters(letters);
         randomLetters.forEach((letter, index) => {
             const letterElement = document.createElement('div');
             letterElement.className = 'letter';
@@ -165,24 +167,18 @@
             document.getElementById('random-letters').appendChild(letterElement);
         });
 
-        // Create drop boxes for letters (except the space between E and N)
-        selectedWord.forEach((letter, index) => {
-            if (letter !== ' ' || currentWord !== 'MERVE NUR') {
-                const boxElement = document.createElement('div');
-                boxElement.className = 'letter-box';
-                boxElement.setAttribute('id', 'box-' + index);
-                boxElement.setAttribute('data-letter', letter);
-                boxElement.addEventListener('dragover', (e) => onDragOver(e));
-                boxElement.addEventListener('drop', (e) => onDrop(e));
-                document.getElementById('box-container').appendChild(boxElement);
-                boxElements.push(boxElement);
-            } else {
-                // Skip creating a box for the space
-                const spaceElement = document.createElement('div');
-                spaceElement.className = 'letter-box';
-                document.getElementById('box-container').appendChild(spaceElement);
-            }
-        });
+        // Create drop boxes for letters
+        const totalLetters = selectedWord[0].length + selectedWord[1].length;
+        for (let i = 0; i < totalLetters; i++) {
+            const boxElement = document.createElement('div');
+            boxElement.className = 'letter-box';
+            boxElement.setAttribute('id', 'box-' + i);
+            boxElement.setAttribute('data-letter', letters[i]);
+            boxElement.addEventListener('dragover', (e) => onDragOver(e));
+            boxElement.addEventListener('drop', (e) => onDrop(e));
+            document.getElementById('box-container').appendChild(boxElement);
+            boxElements.push(boxElement);
+        }
 
         document.querySelector('.label-selection').style.display = 'none';
         document.querySelector('.game-area').style.display = 'block';
