@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu Tactile</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            background-color: black;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 700px;
+            max-height: 700px;
+            background-color: black;
+            display: grid;
+            grid-template-rows: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 150px; /* Increased gap for more spacing */
+        }
+
+        .zone {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ccc;
+            font-size: 40px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .zone.blue {
+            background-color: blue;
+        }
+
+        .zone.red {
+            background-color: red;
+        }
+
+        .zone.green {
+            background-color: green;
+        }
+
+        .zone.yellow {
+            background-color: yellow;
+        }
+
+        .zone.orange {
+            background-color: orange;
+        }
+
+        .zone.purple {
+            background-color: purple;
+        }
+
+        #shape {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            touch-action: none;
+        }
+
+        #end-message {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #end-message button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="zone blue" data-color="blue"></div>
+        <div class="zone red" data-color="red"></div>
+        <div class="zone green" data-color="green"></div>
+        <div class="zone yellow" data-color="yellow"></div>
+        <div class="zone orange" data-color="orange"></div>
+        <div class="zone purple" data-color="purple"></div>
+        <div id="shape"></div>
+    </div>
+
+    <div id="end-message">
+        <p>Félicitations ! Vous avez terminé l'activité !</p>
+        <button onclick="restartGame()">Rejouer</button>
+    </div>
+
+    <script>
+        const colors = ['blue', 'red', 'green', 'yellow', 'orange', 'purple'];
+        let correctCount = 0;
+        let lastColor = null;
+        const shape = document.getElementById('shape');
+        const gameContainer = document.getElementById('game-container');
+        const endMessage = document.getElementById('end-message');
+
+        function getRandomColor() {
+            let newColor;
+            do {
+                newColor = colors[Math.floor(Math.random() * colors.length)];
+            } while (newColor === lastColor);
+            lastColor = newColor;
+            return newColor;
+        }
+
+        function placeShape() {
+            const color = getRandomColor();
+            shape.style.backgroundColor = color;
+            shape.dataset.color = color;
+            shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
+            shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
+
+            // Clear zones after 5 seconds
+            setTimeout(() => {
+                document.querySelectorAll('.zone').forEach(zone => zone.innerHTML = '');
+            }, 5000);
+        }
+
+        function showEndMessage() {
+            endMessage.style.display = 'flex';
+        }
+
+        function restartGame() {
+            correctCount = 0;
+            endMessage.style.display = 'none';
+            placeShape();
+        }
+
+        shape.addEventListener('pointerdown', (e) => {
+            let offsetX = e.clientX - shape.offsetLeft;
+            let offsetY = e.clientY - shape.offsetTop;
+
+            function moveShape(event) {
+                shape.style.left = `${event.clientX - offsetX}px`;
+                shape.style.top = `${event.clientY - offsetY}px`;
+            }
+
+            function dropShape() {
+                document.removeEventListener('pointermove', moveShape);
+                document.removeEventListener('pointerup', dropShape);
+
+                const shapeRect = shape.getBoundingClientRect();
+                const zones = document.querySelectorAll('.zone');
+
+                let placedCorrectly = false;
+
+                zones.forEach(zone => {
+                    const zoneRect = zone.getBoundingClientRect();
+
+                    if (
+                        shapeRect.left >= zoneRect.left &&
+                        shapeRect.right <= zoneRect.right &&
+                        shapeRect.top >= zoneRect.top &&
+                        shapeRect.bottom <= zoneRect.bottom
+                    ) {
+                        if (zone.dataset.color === shape.dataset.color) {
+                            placedCorrectly = true;
+                            correctCount++;
+                            zone.innerHTML = '&#10003;';
+                        } else {
+                            zone.innerHTML = '&#10007;';
+                        }
+                    }
+                });
+
+                if (placedCorrectly) {
+                    if (correctCount >= 20) {
+                        showEndMessage();
+                    } else {
+                        placeShape();
+                    }
+                } else {
+                    placeShape();
+                }
+            }
+
+            document.addEventListener('pointermove', moveShape);
+            document.addEventListener('pointerup', dropShape);
+        });
+
+        placeShape();
+    </script>
+</body>
+</html>
