@@ -137,10 +137,17 @@
 
         // Create the model letters (non-draggable)
         selectedWord.forEach((letter, index) => {
-            const letterElement = document.createElement('div');
-            letterElement.className = 'letter-box';
-            letterElement.innerText = letter;
-            document.getElementById('letter-container').appendChild(letterElement);
+            if (letter === ' ') {
+                // Skip creating a letter-box for space
+                const spaceElement = document.createElement('div');
+                spaceElement.className = 'letter-box';
+                document.getElementById('letter-container').appendChild(spaceElement);
+            } else {
+                const letterElement = document.createElement('div');
+                letterElement.className = 'letter-box';
+                letterElement.innerText = letter;
+                document.getElementById('letter-container').appendChild(letterElement);
+            }
         });
 
         // Generate random letters for draggable options
@@ -158,14 +165,21 @@
 
         // Create drop boxes
         selectedWord.forEach((letter, index) => {
-            const boxElement = document.createElement('div');
-            boxElement.className = 'letter-box';
-            boxElement.setAttribute('id', 'box-' + index);
-            boxElement.setAttribute('data-letter', letter);
-            boxElement.addEventListener('dragover', (e) => onDragOver(e));
-            boxElement.addEventListener('drop', (e) => onDrop(e));
-            document.getElementById('box-container').appendChild(boxElement);
-            boxElements.push(boxElement);
+            if (letter !== ' ') {
+                const boxElement = document.createElement('div');
+                boxElement.className = 'letter-box';
+                boxElement.setAttribute('id', 'box-' + index);
+                boxElement.setAttribute('data-letter', letter);
+                boxElement.addEventListener('dragover', (e) => onDragOver(e));
+                boxElement.addEventListener('drop', (e) => onDrop(e));
+                document.getElementById('box-container').appendChild(boxElement);
+                boxElements.push(boxElement);
+            } else {
+                // For space, just add an empty box with no draggable area
+                const spaceElement = document.createElement('div');
+                spaceElement.className = 'letter-box';
+                document.getElementById('box-container').appendChild(spaceElement);
+            }
         });
 
         document.querySelector('.label-selection').style.display = 'none';
@@ -241,4 +255,3 @@
 
 </body>
 </html>
-
