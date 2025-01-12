@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activité des Jours de la Semaine</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f2f2f2;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .labels, .targets {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .label, .target {
+            width: 200px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .target {
+            border: 2px solid #333;
+            background-color: #e0e0e0;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+
+        .replay-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .replay-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="labels" id="labels">
+            <!-- Les étiquettes seront insérées ici -->
+        </div>
+        <div class="targets" id="targets">
+            <!-- Les zones cibles seront insérées ici -->
+        </div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.11/dist/interact.min.js"></script>
+    <script>
+        const daysOfWeek = [
+            { name: 'Lundi', color: 'purple', correctPos: 0 },
+            { name: 'Mardi', color: 'yellow', correctPos: 1 },
+            { name: 'Mercredi', color: 'green', correctPos: 2 },
+            { name: 'Jeudi', color: 'darkorange', correctPos: 3 },
+            { name: 'Vendredi', color: 'blue', correctPos: 4 },
+            { name: 'Samedi', color: 'pink', correctPos: 5 },
+            { name: 'Dimanche', color: 'darkred', correctPos: 6 }
+        ];
+
+        let shuffledDays = [...daysOfWeek];
+        shuffledDays.sort(() => Math.random() - 0.5);
+
+        function createDayLabel(day, index) {
+            const label = document.createElement('div');
+            label.classList.add('label');
+            label.textContent = day.name;
+            label.style.backgroundColor = day.color;
+            label.dataset.index = index;
+            label.setAttribute('draggable', 'true');
+            return label;
+        }
+
+        function createTargetZone(index) {
+            const target = document.createElement('div');
+            target.classList.add('target');
+            target.dataset.index = index;
+            return target;
+        }
+
+        function initialize() {
+            const labelsContainer = document.getElementById('labels');
+            const targetsContainer = document.getElementById('targets');
+            const messageContainer = document.getElementById('message');
+
+            labelsContainer.innerHTML = '';
+            targetsContainer.innerHTML = '';
+            messageContainer.textContent = '';
+
+            shuffledDays.forEach((day, index) => {
+                labelsContainer.appendChild(createDayLabel(day, index));
+            });
+
+            for (let i = 0; i < daysOfWeek.length; i++) {
+                targetsContainer.appendChild(createTargetZone(i));
+            }
+
+            // Initializing interact.js for draggable functionality
+            interact('.label').draggable({
+                onmove(event) {
+                    const target = event.target;
+                    target.style.transform = `translate(${event.pageX - target.offsetWidth / 2}px, ${event.pageY - target.offsetHeight / 2}px)`;
+                },
+                onend(event) {
+                    const target = event.target;
+                    const targetIndex = parseInt(target.dataset.index);
+                    const targetElement = document.querySelector(`.target[data-index="${targetIndex}"]`);
+
+                    // Check if it's placed correctly
+                    if (event.pageY > targetElement.offsetTop && event.pageY < targetElement.offsetTop + targetElement.offsetHeight) {
+                        targetElement.style.backgroundColor = target.style.backgroundColor;
+                        target.style.transform = `translate(0, 0)`;
+                        target.setAttribute('draggable', 'false');
+                        target.style.pointerEvents = 'none';
+                    } else {
+                        target.style.transform = `translate(0, 0)`;
+                    }
+
+                    checkCompletion();
+                }
+            });
+        }
+
+        function checkCompletion() {
+            const labels = document.querySelectorAll('.label');
+            const targets = document.querySelectorAll('.target');
+            let completed = true;
+
+            labels.forEach((label, index) => {
+                const target = targets[index];
+                if (label.style.transform !== 'translate(0px, 0px)' || target.style.backgroundColor !== label.style.backgroundColor) {
+                    completed = false;
+                }
+            });
+
+            if (completed) {
+                const messageContainer = document.getElementById('message');
+                messageContainer.textContent = 'Félicitations, vous avez bien placé tous les jours !';
+                const replayButton = document.createElement('button');
+                replayButton.textContent = 'Rejouer';
+                replayButton.classList.add('replay-btn');
+                replayButton.onclick = () => location.reload();
+                messageContainer.appendChild(replayButton);
+            }
+        }
+
+        window.onload = initialize;
+    </script>
+</body>
+</html>
