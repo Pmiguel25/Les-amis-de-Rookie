@@ -113,6 +113,8 @@
             label.dataset.correctPos = day.correctPos; // Lier l'étiquette à sa zone correcte
             label.dataset.index = index;
             label.style.position = 'absolute'; // Pour garantir un positionnement correct
+            label.style.left = '10px';
+            label.style.top = `${index * 60}px`; // Positionner les étiquettes initialement sur le côté gauche
             return label;
         }
 
@@ -135,8 +137,6 @@
             // Placer les étiquettes dans un ordre aléatoire
             shuffledDays.forEach((day, index) => {
                 const label = createDayLabel(day, index);
-                label.style.left = '10px';
-                label.style.top = `${index * 60}px`; // Positionner les étiquettes initialement sur le côté gauche
                 labelsContainer.appendChild(label);
             });
 
@@ -217,3 +217,4 @@
     </script>
 </body>
 </html>
+
