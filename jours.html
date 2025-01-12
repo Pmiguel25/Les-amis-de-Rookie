@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -144,16 +143,21 @@
 
             // Initialiser interact.js pour les fonctionnalités de déplacement
             interact('.label').draggable({
-                // Assurer que l'étiquette reste sous le curseur
+                // Fixer la position de l'étiquette sous le curseur
                 onstart(event) {
                     const label = event.target;
+                    const rect = label.getBoundingClientRect();
+                    // Calculer le décalage du curseur par rapport à l'étiquette
+                    label.dataset.offsetX = event.clientX - rect.left;
+                    label.dataset.offsetY = event.clientY - rect.top;
                     label.style.position = 'absolute';
                     label.style.zIndex = 1000;
                 },
                 onmove(event) {
                     const label = event.target;
-                    const x = event.pageX - label.offsetWidth / 2;
-                    const y = event.pageY - label.offsetHeight / 2;
+                    // Calculer la nouvelle position en tenant compte du décalage
+                    const x = event.clientX - label.dataset.offsetX;
+                    const y = event.clientY - label.dataset.offsetY;
                     label.style.transform = `translate(${x}px, ${y}px)`;
                 },
                 onend(event) {
@@ -163,7 +167,7 @@
 
                     // Vérifier si l'étiquette est placée dans la bonne zone cible
                     const targetRect = targetElement.getBoundingClientRect();
-                    if (event.pageY >= targetRect.top && event.pageY <= targetRect.bottom) {
+                    if (event.clientY >= targetRect.top && event.clientY <= targetRect.bottom) {
                         if (parseInt(target.dataset.correctPos) === parseInt(targetElement.dataset.index)) {
                             targetElement.style.backgroundColor = target.style.backgroundColor;
                             target.style.transform = `translate(0, 0)`;
