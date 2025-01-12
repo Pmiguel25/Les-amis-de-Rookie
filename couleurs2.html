@@ -158,9 +158,7 @@
         function restartGame() {
             correctCount = 0;
             endMessage.style.display = 'none';
-            document.addEventListener('DOMContentLoaded', () => {
-            placeShape();
-        });
+            
         }
 
         shape.addEventListener('pointerdown', (e) => {
@@ -204,7 +202,9 @@
                     if (correctCount >= 20) {
                         showEndMessage();
                     } else {
-                        placeShape();
+                        document.addEventListener('DOMContentLoaded', () => {
+            placeShape();
+        });
                     }
                 } else {
                     shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
@@ -223,4 +223,5 @@
     </script>
 </body>
 </html>
+
 
