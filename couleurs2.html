@@ -158,7 +158,9 @@
         function restartGame() {
             correctCount = 0;
             endMessage.style.display = 'none';
+            document.addEventListener('DOMContentLoaded', () => {
             placeShape();
+        });
         }
 
         shape.addEventListener('pointerdown', (e) => {
@@ -221,3 +223,4 @@
     </script>
 </body>
 </html>
+
