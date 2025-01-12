@@ -12,7 +12,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #f2f2f2;
+            background-color: #000000;
         }
 
         .container {
@@ -50,6 +50,7 @@
             text-align: center;
             font-size: 24px;
             margin-top: 20px;
+            color: white;
         }
 
         .replay-btn {
@@ -91,9 +92,6 @@
             { name: 'Dimanche', color: 'darkred', correctPos: 6 }
         ];
 
-        let shuffledDays = [...daysOfWeek];
-        shuffledDays.sort(() => Math.random() - 0.5);
-
         function createDayLabel(day, index) {
             const label = document.createElement('div');
             label.classList.add('label');
@@ -120,15 +118,17 @@
             targetsContainer.innerHTML = '';
             messageContainer.textContent = '';
 
-            shuffledDays.forEach((day, index) => {
+            // Placer les étiquettes dans l'ordre des jours de la semaine
+            daysOfWeek.forEach((day, index) => {
                 labelsContainer.appendChild(createDayLabel(day, index));
             });
 
+            // Créer les zones cibles dans l'ordre des jours de la semaine
             for (let i = 0; i < daysOfWeek.length; i++) {
                 targetsContainer.appendChild(createTargetZone(i));
             }
 
-            // Initializing interact.js for draggable functionality
+            // Initialiser interact.js pour les fonctionnalités de déplacement
             interact('.label').draggable({
                 onmove(event) {
                     const target = event.target;
@@ -136,11 +136,12 @@
                 },
                 onend(event) {
                     const target = event.target;
-                    const targetIndex = parseInt(target.dataset.index);
-                    const targetElement = document.querySelector(`.target[data-index="${targetIndex}"]`);
+                    const labelIndex = parseInt(target.dataset.index);
+                    const targetElement = document.querySelector(`.target[data-index="${labelIndex}"]`);
 
-                    // Check if it's placed correctly
-                    if (event.pageY > targetElement.offsetTop && event.pageY < targetElement.offsetTop + targetElement.offsetHeight) {
+                    // Vérifier si l'étiquette est placée correctement
+                    const targetRect = targetElement.getBoundingClientRect();
+                    if (event.pageY >= targetRect.top && event.pageY <= targetRect.bottom) {
                         targetElement.style.backgroundColor = target.style.backgroundColor;
                         target.style.transform = `translate(0, 0)`;
                         target.setAttribute('draggable', 'false');
