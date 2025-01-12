@@ -23,16 +23,25 @@
             max-width: 700px;
             max-height: 700px;
             background-color: black;
-            display: grid;
-            grid-template-areas: 
-                "blue red green"
-                ". center ."
-                "yellow orange purple";
-            gap: 100px; /* Adjusted gap for central area */
+        }
+
+        .zone-row {
+            position: absolute;
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 0 50px;
+        }
+
+        .zone-row.top {
+            top: 50px;
+        }
+
+        .zone-row.bottom {
+            bottom: 50px;
         }
 
         .zone {
-            position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -45,32 +54,26 @@
         }
 
         .zone.blue {
-            grid-area: blue;
             background-color: blue;
         }
 
         .zone.red {
-            grid-area: red;
             background-color: red;
         }
 
         .zone.green {
-            grid-area: green;
             background-color: green;
         }
 
         .zone.yellow {
-            grid-area: yellow;
             background-color: yellow;
         }
 
         .zone.orange {
-            grid-area: orange;
-            background-color: #cc5500; /* Darker orange for contrast */
+            background-color: #cc5500; /* Darker orange */
         }
 
         .zone.purple {
-            grid-area: purple;
             background-color: purple;
         }
 
@@ -107,16 +110,20 @@
 </head>
 <body>
     <div id="game-container">
-        <div class="zone blue" data-color="blue"></div>
-        <div class="zone red" data-color="red"></div>
-        <div class="zone green" data-color="green"></div>
-        <div class="zone yellow" data-color="yellow"></div>
-        <div class="zone orange" data-color="orange"></div>
-        <div class="zone purple" data-color="purple"></div>
+        <div class="zone-row top">
+            <div class="zone blue" data-color="blue"></div>
+            <div class="zone red" data-color="red"></div>
+            <div class="zone green" data-color="green"></div>
+        </div>
+        <div class="zone-row bottom">
+            <div class="zone yellow" data-color="yellow"></div>
+            <div class="zone orange" data-color="orange"></div>
+            <div class="zone purple" data-color="purple"></div>
+        </div>
         <div id="shape"></div>
     </div>
 
-    <div id="end-message" style="display: none;">
+    <div id="end-message">
         <p>Félicitations ! Vous avez terminé l'activité !</p>
         <button onclick="restartGame()">Rejouer</button>
     </div>
@@ -140,15 +147,10 @@
 
         function placeShape() {
             const color = getRandomColor();
-            shape.style.backgroundColor = color === 'orange' ? '#cc5500' : color;
+            shape.style.backgroundColor = color;
             shape.dataset.color = color;
             shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
             shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
-
-            // Clear zones after 5 seconds
-            setTimeout(() => {
-                document.querySelectorAll('.zone').forEach(zone => zone.innerHTML = '');
-            }, 5000);
         }
 
         function showEndMessage() {
@@ -158,7 +160,7 @@
         function restartGame() {
             correctCount = 0;
             endMessage.style.display = 'none';
-            
+            placeShape();
         }
 
         shape.addEventListener('pointerdown', (e) => {
@@ -191,26 +193,16 @@
                         if (zone.dataset.color === shape.dataset.color) {
                             placedCorrectly = true;
                             correctCount++;
-                            zone.innerHTML = '&#10003;';
-                        } else {
-                            zone.innerHTML = '&#10007;';
+                            if (correctCount >= 20) {
+                                showEndMessage();
+                            } else {
+                                placeShape();
+                            }
                         }
                     }
                 });
 
-                if (placedCorrectly) {
-                    if (correctCount >= 20) {
-                        showEndMessage();
-                    } else {
-                        document.addEventListener('DOMContentLoaded', () => {
-            placeShape();
-        });
-                    }
-                } else {
-                    shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
-                    shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
-                }
-                } else {
+                if (!placedCorrectly) {
                     placeShape();
                 }
             }
@@ -223,5 +215,4 @@
     </script>
 </body>
 </html>
-
 
