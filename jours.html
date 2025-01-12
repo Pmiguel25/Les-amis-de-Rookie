@@ -180,10 +180,13 @@
 
         function checkCompletion() {
             const labels = document.querySelectorAll('.label');
+            const targets = document.querySelectorAll('.target');
             const messageContainer = document.getElementById('message');
+            let completed = true;
 
-            // Si toutes les étiquettes ont été placées (aucune étiquette visible à gauche)
-            if (labels.length === 0) {
+            // Vérifier si toutes les étiquettes ont été placées
+            if (labels.length === 0 || Array.from(targets).every(target => target.textContent !== '')) {
+                // Si toutes les zones cibles sont remplies ou s'il n'y a plus d'étiquettes disponibles
                 messageContainer.textContent = 'Félicitations, vous avez bien placé tous les jours !';
                 const replayButton = document.createElement('button');
                 replayButton.textContent = 'Rejouer';
@@ -197,3 +200,4 @@
     </script>
 </body>
 </html>
+
