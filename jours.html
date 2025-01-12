@@ -185,20 +185,18 @@
 
                             checkCompletion();
                         } else {
-                            // Si l'étiquette est mal placée, la remettre à sa position initiale
-                            target.style.left = '0px';
-                            target.style.top = '0px';
-
-                            // Réinsérer l'étiquette dans la liste des étiquettes disponibles
+                            // Si l'étiquette est mal placée, recréer une nouvelle étiquette identique
                             const labelsContainer = document.getElementById('labels');
-                            target.style.display = 'block';
-                            labelsContainer.appendChild(target);
+                            labelsContainer.appendChild(createDayLabel(daysOfWeek[labelCorrectPos]));
                         }
                     } else {
-                        // Si l'étiquette est mal placée, la remettre à sa position initiale
-                        target.style.left = '0px';
-                        target.style.top = '0px';
+                        // Si l'étiquette est mal placée, recréer une nouvelle étiquette identique
+                        const labelsContainer = document.getElementById('labels');
+                        labelsContainer.appendChild(createDayLabel(daysOfWeek[labelCorrectPos]));
                     }
+
+                    // Masquer l'étiquette actuelle (ne doit pas rester affichée après la fin du déplacement)
+                    target.style.display = 'none';
                 }
             });
         }
@@ -225,3 +223,4 @@
     </script>
 </body>
 </html>
+
