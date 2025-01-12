@@ -160,7 +160,8 @@
         function restartGame() {
             correctCount = 0;
             endMessage.style.display = 'none';
-            placeShape();
+            shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
+    shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
         }
 
         shape.addEventListener('pointerdown', (e) => {
