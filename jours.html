@@ -110,7 +110,7 @@
             label.classList.add('label');
             label.textContent = day.name.toUpperCase(); // Affichage en majuscules
             label.style.backgroundColor = day.color;
-            label.dataset.index = index;
+            label.dataset.correctPos = day.correctPos; // Lier l'étiquette à sa zone correcte
             label.setAttribute('draggable', 'true');
             return label;
         }
@@ -132,8 +132,8 @@
             messageContainer.textContent = '';
 
             // Placer les étiquettes dans un ordre aléatoire
-            shuffledDays.forEach((day, index) => {
-                labelsContainer.appendChild(createDayLabel(day, index));
+            shuffledDays.forEach((day) => {
+                labelsContainer.appendChild(createDayLabel(day));
             });
 
             // Créer les zones cibles dans l'ordre des jours de la semaine
@@ -149,19 +149,23 @@
                 },
                 onend(event) {
                     const target = event.target;
-                    const labelIndex = parseInt(target.dataset.index);
-                    const targetElement = document.querySelector(`.target[data-index="${daysOfWeek[labelIndex].correctPos}"]`);
+                    const labelCorrectPos = parseInt(target.dataset.correctPos);
+                    const targetElement = document.querySelector(`.target[data-index="${labelCorrectPos}"]`);
 
-                    // Vérifier si l'étiquette est placée correctement
+                    // Vérifier si l'étiquette est placée dans la bonne zone cible
                     const targetRect = targetElement.getBoundingClientRect();
                     if (event.pageY >= targetRect.top && event.pageY <= targetRect.bottom) {
-                        targetElement.style.backgroundColor = target.style.backgroundColor;
-                        target.style.transform = `translate(0, 0)`;
-                        target.setAttribute('draggable', 'false');
-                        target.style.pointerEvents = 'none';
-                        target.classList.add('correct');
-                        targetElement.classList.add('correct');
-                        targetElement.textContent = daysOfWeek[labelIndex].name.toUpperCase(); // Afficher le nom dans la zone cible
+                        if (parseInt(target.dataset.correctPos) === parseInt(targetElement.dataset.index)) {
+                            targetElement.style.backgroundColor = target.style.backgroundColor;
+                            target.style.transform = `translate(0, 0)`;
+                            target.setAttribute('draggable', 'false');
+                            target.style.pointerEvents = 'none';
+                            target.classList.add('correct');
+                            targetElement.classList.add('correct');
+                            targetElement.textContent = daysOfWeek[labelCorrectPos].name.toUpperCase(); // Afficher le nom dans la zone cible
+                        } else {
+                            target.style.transform = `translate(0, 0)`;
+                        }
                     } else {
                         target.style.transform = `translate(0, 0)`;
                     }
@@ -198,3 +202,4 @@
     </script>
 </body>
 </html>
+
