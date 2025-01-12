@@ -105,13 +105,16 @@
         let shuffledDays = [...daysOfWeek];
         shuffledDays.sort(() => Math.random() - 0.5);
 
-        function createDayLabel(day) {
+        function createDayLabel(day, index) {
             const label = document.createElement('div');
             label.classList.add('label');
             label.textContent = day.name.toUpperCase(); // Affichage en majuscules
             label.style.backgroundColor = day.color;
             label.dataset.correctPos = day.correctPos; // Lier l'étiquette à sa zone correcte
-            label.setAttribute('draggable', 'true');
+            label.dataset.index = index;
+            label.style.position = 'absolute'; // Pour garantir un positionnement correct
+            label.style.left = '10px';
+            label.style.top = `${index * 60}px`; // Positionner les étiquettes initialement sur le côté gauche
             return label;
         }
 
@@ -132,8 +135,8 @@
             messageContainer.textContent = '';
 
             // Placer les étiquettes dans un ordre aléatoire
-            shuffledDays.forEach((day) => {
-                labelsContainer.appendChild(createDayLabel(day));
+            shuffledDays.forEach((day, index) => {
+                labelsContainer.appendChild(createDayLabel(day, index));
             });
 
             // Créer les zones cibles dans l'ordre des jours de la semaine
@@ -143,68 +146,57 @@
 
             // Initialiser interact.js pour les fonctionnalités de déplacement
             interact('.label').draggable({
-                // Fixer la position de l'étiquette sous le curseur
                 onstart(event) {
                     const label = event.target;
                     const rect = label.getBoundingClientRect();
-                    // Calculer le décalage du curseur par rapport à l'étiquette
                     label.dataset.offsetX = event.clientX - rect.left;
                     label.dataset.offsetY = event.clientY - rect.top;
-                    label.style.position = 'absolute';
                     label.style.zIndex = 1000;
-                    label.style.pointerEvents = 'none';  // Empêcher d'interagir avec d'autres éléments pendant le déplacement
+                    label.style.pointerEvents = 'none'; // Empêcher d'interagir avec d'autres éléments pendant le déplacement
                 },
                 onmove(event) {
                     const label = event.target;
-                    // Calculer la nouvelle position en tenant compte du décalage
                     const x = event.clientX - label.dataset.offsetX;
                     const y = event.clientY - label.dataset.offsetY;
                     label.style.left = `${x}px`;
                     label.style.top = `${y}px`;
                 },
                 onend(event) {
-                    const target = event.target;
-                    const labelCorrectPos = parseInt(target.dataset.correctPos);
+                    const label = event.target;
+                    const labelCorrectPos = parseInt(label.dataset.correctPos);
                     const targetElement = document.querySelector(`.target[data-index="${labelCorrectPos}"]`);
 
                     // Vérifier si l'étiquette est placée dans la bonne zone cible
                     const targetRect = targetElement.getBoundingClientRect();
                     if (event.clientY >= targetRect.top && event.clientY <= targetRect.bottom) {
-                        if (parseInt(target.dataset.correctPos) === parseInt(targetElement.dataset.index)) {
-                            targetElement.style.backgroundColor = target.style.backgroundColor;
-                            target.style.left = `${targetElement.offsetLeft}px`;
-                            target.style.top = `${targetElement.offsetTop}px`;
-                            target.setAttribute('draggable', 'false');
-                            target.style.pointerEvents = 'none';
-                            target.classList.add('correct');
+                        if (parseInt(label.dataset.correctPos) === parseInt(targetElement.dataset.index)) {
+                            targetElement.style.backgroundColor = label.style.backgroundColor;
+                            label.style.left = `${targetElement.offsetLeft}px`;
+                            label.style.top = `${targetElement.offsetTop}px`;
+                            label.setAttribute('draggable', 'false');
+                            label.style.pointerEvents = 'none';
+                            label.classList.add('correct');
                             targetElement.classList.add('correct');
                             targetElement.textContent = daysOfWeek[labelCorrectPos].name.toUpperCase(); // Afficher le nom dans la zone cible
-
-                            // Retirer l'étiquette de la liste des étiquettes disponibles
-                            target.style.display = 'none';
-
                             checkCompletion();
-                        } else {
-                            target.style.left = '0px';
-                            target.style.top = '0px';
                         }
                     } else {
-                        target.style.left = '0px';
-                        target.style.top = '0px';
+                        // Si l'étiquette est mal placée, la réinitialiser
+                        setTimeout(() => {
+                            label.style.left = '10px';
+                            label.style.top = `${label.dataset.index * 60}px`;
+                            labelsContainer.appendChild(label); // La remettre dans la liste
+                            label.style.pointerEvents = 'auto'; // Rendre à nouveau l'étiquette déplaçable
+                        }, 500); // Retarder la remise de l'étiquette pour un effet visuel
                     }
                 }
             });
         }
 
         function checkCompletion() {
-            const labels = document.querySelectorAll('.label');
             const targets = document.querySelectorAll('.target');
             const messageContainer = document.getElementById('message');
-            let completed = true;
-
-            // Vérifier si toutes les étiquettes ont été placées
-            if (labels.length === 0 || Array.from(targets).every(target => target.textContent !== '')) {
-                // Si toutes les zones cibles sont remplies ou s'il n'y a plus d'étiquettes disponibles
+            if (Array.from(targets).every(target => target.textContent !== '')) {
                 messageContainer.textContent = 'Félicitations, vous avez bien placé tous les jours !';
                 const replayButton = document.createElement('button');
                 replayButton.textContent = 'Rejouer';
