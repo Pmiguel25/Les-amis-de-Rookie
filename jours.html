@@ -112,7 +112,7 @@
             label.style.backgroundColor = day.color;
             label.dataset.correctPos = day.correctPos; // Lier l'étiquette à sa zone correcte
             label.dataset.index = index;
-            label.setAttribute('draggable', 'true');
+            label.style.position = 'absolute'; // Pour garantir un positionnement correct
             return label;
         }
 
@@ -134,7 +134,10 @@
 
             // Placer les étiquettes dans un ordre aléatoire
             shuffledDays.forEach((day, index) => {
-                labelsContainer.appendChild(createDayLabel(day, index));
+                const label = createDayLabel(day, index);
+                label.style.left = '10px';
+                label.style.top = `${index * 60}px`; // Positionner les étiquettes initialement sur le côté gauche
+                labelsContainer.appendChild(label);
             });
 
             // Créer les zones cibles dans l'ordre des jours de la semaine
@@ -151,7 +154,6 @@
                     // Calculer le décalage du curseur par rapport à l'étiquette
                     label.dataset.offsetX = event.clientX - rect.left;
                     label.dataset.offsetY = event.clientY - rect.top;
-                    label.style.position = 'absolute';
                     label.style.zIndex = 1000;
                     label.style.pointerEvents = 'none';  // Empêcher d'interagir avec d'autres éléments pendant le déplacement
                 },
@@ -187,6 +189,7 @@
                         const initialLabel = document.querySelector(`.label[data-index="${label.dataset.index}"]`);
                         label.style.left = `${initialLabel.offsetLeft}px`;
                         label.style.top = `${initialLabel.offsetTop}px`;
+                        label.setAttribute('draggable', 'true'); // La rendre à nouveau déplaçable
                     }
                 }
             });
@@ -199,8 +202,8 @@
             let completed = true;
 
             // Vérifier si toutes les étiquettes ont été placées
-            if (labels.length === 0 || Array.from(targets).every(target => target.textContent !== '')) {
-                // Si toutes les zones cibles sont remplies ou s'il n'y a plus d'étiquettes disponibles
+            if (Array.from(targets).every(target => target.textContent !== '')) {
+                // Si toutes les zones cibles sont remplies
                 messageContainer.textContent = 'Félicitations, vous avez bien placé tous les jours !';
                 const replayButton = document.createElement('button');
                 replayButton.textContent = 'Rejouer';
