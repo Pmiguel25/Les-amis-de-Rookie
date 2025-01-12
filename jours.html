@@ -66,6 +66,11 @@
         .replay-btn:hover {
             background-color: #45a049;
         }
+
+        .label.correct {
+            pointer-events: none;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
@@ -92,10 +97,14 @@
             { name: 'Dimanche', color: 'darkred', correctPos: 6 }
         ];
 
+        // Mélanger les étiquettes de manière aléatoire
+        let shuffledDays = [...daysOfWeek];
+        shuffledDays.sort(() => Math.random() - 0.5);
+
         function createDayLabel(day, index) {
             const label = document.createElement('div');
             label.classList.add('label');
-            label.textContent = day.name;
+            label.textContent = day.name.toUpperCase(); // Affichage en majuscules
             label.style.backgroundColor = day.color;
             label.dataset.index = index;
             label.setAttribute('draggable', 'true');
@@ -106,6 +115,7 @@
             const target = document.createElement('div');
             target.classList.add('target');
             target.dataset.index = index;
+            target.textContent = daysOfWeek[index].name.toUpperCase(); // Afficher les noms des jours dans les zones cibles
             return target;
         }
 
@@ -118,8 +128,8 @@
             targetsContainer.innerHTML = '';
             messageContainer.textContent = '';
 
-            // Placer les étiquettes dans l'ordre des jours de la semaine
-            daysOfWeek.forEach((day, index) => {
+            // Placer les étiquettes dans un ordre aléatoire
+            shuffledDays.forEach((day, index) => {
                 labelsContainer.appendChild(createDayLabel(day, index));
             });
 
@@ -146,6 +156,7 @@
                         target.style.transform = `translate(0, 0)`;
                         target.setAttribute('draggable', 'false');
                         target.style.pointerEvents = 'none';
+                        target.classList.add('correct');
                     } else {
                         target.style.transform = `translate(0, 0)`;
                     }
@@ -162,7 +173,7 @@
 
             labels.forEach((label, index) => {
                 const target = targets[index];
-                if (label.style.transform !== 'translate(0px, 0px)' || target.style.backgroundColor !== label.style.backgroundColor) {
+                if (!label.classList.contains('correct') || target.style.backgroundColor !== label.style.backgroundColor) {
                     completed = false;
                 }
             });
