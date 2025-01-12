@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activité des Mois de l'Année</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000000;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 80%;
+            max-width: 1000px;
+        }
+
+        .labels, .targets {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .label, .target {
+            width: 200px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .target {
+            border: 2px solid #333;
+            background-color: #e0e0e0;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 24px;
+            margin-top: 20px;
+            color: white;
+        }
+
+        .replay-btn {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .replay-btn:hover {
+            background-color: #45a049;
+        }
+
+        .label.correct {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .target.correct {
+            background-color: #cccccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="labels" id="labels">
+            <!-- Les étiquettes seront insérées ici -->
+        </div>
+        <div class="targets" id="targets">
+            <!-- Les zones cibles seront insérées ici -->
+        </div>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.11/dist/interact.min.js"></script>
+    <script>
+        const monthsOfYear = [
+            { name: 'Janvier', color: 'blue', correctPos: 0 },
+            { name: 'Février', color: 'blue', correctPos: 1 },
+            { name: 'Mars', color: 'blue', correctPos: 2 },
+            { name: 'Avril', color: 'green', correctPos: 3 },
+            { name: 'Mai', color: 'green', correctPos: 4 },
+            { name: 'Juin', color: 'green', correctPos: 5 },
+            { name: 'Juillet', color: 'yellow', correctPos: 6 },
+            { name: 'Août', color: 'yellow', correctPos: 7 },
+            { name: 'Septembre', color: 'yellow', correctPos: 8 },
+            { name: 'Octobre', color: 'darkorange', correctPos: 9 },
+            { name: 'Novembre', color: 'darkorange', correctPos: 10 },
+            { name: 'Décembre', color: 'darkorange', correctPos: 11 }
+        ];
+
+        // Mélanger les étiquettes de manière aléatoire
+        let shuffledMonths = [...monthsOfYear];
+        shuffledMonths.sort(() => Math.random() - 0.5);
+
+        function createMonthLabel(month) {
+            const label = document.createElement('div');
+            label.classList.add('label');
+            label.textContent = month.name.toUpperCase(); // Affichage en majuscules
+            label.style.backgroundColor = month.color;
+            label.dataset.correctPos = month.correctPos; // Lier l'étiquette à sa zone correcte
+            label.setAttribute('draggable', 'true');
+            return label;
+        }
+
+        function createTargetZone(index) {
+            const target = document.createElement('div');
+            target.classList.add('target');
+            target.dataset.index = index;
+            return target;
+        }
+
+        function initialize() {
+            const labelsContainer = document.getElementById('labels');
+            const targetsContainer = document.getElementById('targets');
+            const messageContainer = document.getElementById('message');
+
+            labelsContainer.innerHTML = '';
+            targetsContainer.innerHTML = '';
+            messageContainer.textContent = '';
+
+            // Placer les étiquettes dans un ordre aléatoire
+            shuffledMonths.forEach((month) => {
+                labelsContainer.appendChild(createMonthLabel(month));
+            });
+
+            // Créer les zones cibles dans l'ordre des mois de l'année
+            for (let i = 0; i < monthsOfYear.length; i++) {
+                targetsContainer.appendChild(createTargetZone(i));
+            }
+
+            // Initialiser interact.js pour les fonctionnalités de déplacement
+            interact('.label').draggable({
+                // Fixer la position de l'étiquette sous le curseur
+                onstart(event) {
+                    const label = event.target;
+                    const rect = label.getBoundingClientRect();
+                    // Calculer le décalage du curseur par rapport à l'étiquette
+                    label.dataset.offsetX = event.clientX - rect.left;
+                    label.dataset.offsetY = event.clientY - rect.top;
+                    label.style.position = 'absolute';
+                    label.style.zIndex = 1000;
+                    label.style.pointerEvents = 'none';  // Empêcher d'interagir avec d'autres éléments pendant le déplacement
+                },
+                onmove(event) {
+                    const label = event.target;
+                    // Calculer la nouvelle position en tenant compte du décalage
+                    const x = event.clientX - label.dataset.offsetX;
+                    const y = event.clientY - label.dataset.offsetY;
+                    label.style.left = `${x}px`;
+                    label.style.top = `${y}px`;
+                },
+                onend(event) {
+                    const target = event.target;
+                    const labelCorrectPos = parseInt(target.dataset.correctPos);
+                    const targetElement = document.querySelector(`.target[data-index="${labelCorrectPos}"]`);
+
+                    // Vérifier si l'étiquette est placée dans la bonne zone cible
+                    const targetRect = targetElement.getBoundingClientRect();
+                    if (event.clientY >= targetRect.top && event.clientY <= targetRect.bottom) {
+                        if (parseInt(target.dataset.correctPos) === parseInt(targetElement.dataset.index)) {
+                            targetElement.style.backgroundColor = target.style.backgroundColor;
+                            target.style.left = `${targetElement.offsetLeft}px`;
+                            target.style.top = `${targetElement.offsetTop}px`;
+                            target.setAttribute('draggable', 'false');
+                            target.style.pointerEvents = 'none';
+                            target.classList.add('correct');
+                            targetElement.classList.add('correct');
+                            targetElement.textContent = monthsOfYear[labelCorrectPos].name.toUpperCase(); // Afficher le nom dans la zone cible
+
+                            // Retirer l'étiquette de la liste des étiquettes disponibles
+                            target.style.display = 'none';
+
+                            checkCompletion();
+                        } else {
+                            // Si l'étiquette est mal placée, recréer une nouvelle étiquette identique
+                            const labelsContainer = document.getElementById('labels');
+                            labelsContainer.appendChild(createMonthLabel(monthsOfYear[labelCorrectPos]));
+                        }
+                    } else {
+                        // Si l'étiquette est mal placée, recréer une nouvelle étiquette identique
+                        const labelsContainer = document.getElementById('labels');
+                        labelsContainer.appendChild(createMonthLabel(monthsOfYear[labelCorrectPos]));
+                    }
+
+                    // Masquer l'étiquette actuelle (ne doit pas rester affichée après la fin du déplacement)
+                    target.style.display = 'none';
+                }
+            });
+        }
+
+        function checkCompletion() {
+            const labels = document.querySelectorAll('.label');
+            const targets = document.querySelectorAll('.target');
+            const messageContainer = document.getElementById('message');
+            let completed = true;
+
+            // Vérifier si toutes les étiquettes ont été placées
+            if (labels.length === 0 || Array.from(targets).every(target => target.textContent !== '')) {
+                // Si toutes les zones cibles sont remplies ou s'il n'y a plus d'étiquettes disponibles
+                messageContainer.textContent = 'Félicitations, vous avez bien placé tous les mois !';
+                const replayButton = document.createElement('button');
+                replayButton.textContent = 'Rejouer';
+                replayButton.classList.add('replay-btn');
+                replayButton.onclick = () => location.reload();
+                messageContainer.appendChild(replayButton);
+            }
+        }
+
+        window.onload = initialize;
+    </script>
+</body>
+</html>
