@@ -105,12 +105,13 @@
         let shuffledDays = [...daysOfWeek];
         shuffledDays.sort(() => Math.random() - 0.5);
 
-        function createDayLabel(day) {
+        function createDayLabel(day, index) {
             const label = document.createElement('div');
             label.classList.add('label');
             label.textContent = day.name.toUpperCase(); // Affichage en majuscules
             label.style.backgroundColor = day.color;
             label.dataset.correctPos = day.correctPos; // Lier l'étiquette à sa zone correcte
+            label.dataset.index = index;
             label.setAttribute('draggable', 'true');
             return label;
         }
@@ -132,8 +133,8 @@
             messageContainer.textContent = '';
 
             // Placer les étiquettes dans un ordre aléatoire
-            shuffledDays.forEach((day) => {
-                labelsContainer.appendChild(createDayLabel(day));
+            shuffledDays.forEach((day, index) => {
+                labelsContainer.appendChild(createDayLabel(day, index));
             });
 
             // Créer les zones cibles dans l'ordre des jours de la semaine
@@ -163,34 +164,29 @@
                     label.style.top = `${y}px`;
                 },
                 onend(event) {
-                    const target = event.target;
-                    const labelCorrectPos = parseInt(target.dataset.correctPos);
+                    const label = event.target;
+                    const labelCorrectPos = parseInt(label.dataset.correctPos);
                     const targetElement = document.querySelector(`.target[data-index="${labelCorrectPos}"]`);
 
                     // Vérifier si l'étiquette est placée dans la bonne zone cible
                     const targetRect = targetElement.getBoundingClientRect();
                     if (event.clientY >= targetRect.top && event.clientY <= targetRect.bottom) {
-                        if (parseInt(target.dataset.correctPos) === parseInt(targetElement.dataset.index)) {
-                            targetElement.style.backgroundColor = target.style.backgroundColor;
-                            target.style.left = `${targetElement.offsetLeft}px`;
-                            target.style.top = `${targetElement.offsetTop}px`;
-                            target.setAttribute('draggable', 'false');
-                            target.style.pointerEvents = 'none';
-                            target.classList.add('correct');
+                        if (parseInt(label.dataset.correctPos) === parseInt(targetElement.dataset.index)) {
+                            targetElement.style.backgroundColor = label.style.backgroundColor;
+                            label.style.left = `${targetElement.offsetLeft}px`;
+                            label.style.top = `${targetElement.offsetTop}px`;
+                            label.setAttribute('draggable', 'false');
+                            label.style.pointerEvents = 'none';
+                            label.classList.add('correct');
                             targetElement.classList.add('correct');
                             targetElement.textContent = daysOfWeek[labelCorrectPos].name.toUpperCase(); // Afficher le nom dans la zone cible
-
-                            // Retirer l'étiquette de la liste des étiquettes disponibles
-                            target.style.display = 'none';
-
                             checkCompletion();
-                        } else {
-                            target.style.left = '0px';
-                            target.style.top = '0px';
                         }
                     } else {
-                        target.style.left = '0px';
-                        target.style.top = '0px';
+                        // Si l'étiquette est mal placée, la remettre à sa position initiale
+                        const initialLabel = document.querySelector(`.label[data-index="${label.dataset.index}"]`);
+                        label.style.left = `${initialLabel.offsetLeft}px`;
+                        label.style.top = `${initialLabel.offsetTop}px`;
                     }
                 }
             });
