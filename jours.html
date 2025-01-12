@@ -183,6 +183,7 @@
             const targets = document.querySelectorAll('.target');
             let completed = true;
 
+            // Vérifier si toutes les étiquettes sont placées correctement
             labels.forEach((label, index) => {
                 const target = targets[daysOfWeek[index].correctPos];
                 if (!label.classList.contains('correct') || target.style.backgroundColor !== label.style.backgroundColor) {
@@ -190,6 +191,7 @@
                 }
             });
 
+            // Si toutes les étiquettes sont correctement placées, afficher le message de félicitations
             if (completed) {
                 const messageContainer = document.getElementById('message');
                 messageContainer.textContent = 'Félicitations, vous avez bien placé tous les jours !';
