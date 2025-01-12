@@ -185,10 +185,17 @@
 
                             checkCompletion();
                         } else {
+                            // Si l'étiquette est mal placée, la remettre à sa position initiale
                             target.style.left = '0px';
                             target.style.top = '0px';
+
+                            // Réinsérer l'étiquette dans la liste des étiquettes disponibles
+                            const labelsContainer = document.getElementById('labels');
+                            target.style.display = 'block';
+                            labelsContainer.appendChild(target);
                         }
                     } else {
+                        // Si l'étiquette est mal placée, la remettre à sa position initiale
                         target.style.left = '0px';
                         target.style.top = '0px';
                     }
