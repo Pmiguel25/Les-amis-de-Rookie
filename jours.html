@@ -71,6 +71,10 @@
             pointer-events: none;
             opacity: 0.7;
         }
+
+        .target.correct {
+            background-color: #cccccc;
+        }
     </style>
 </head>
 <body>
@@ -115,7 +119,6 @@
             const target = document.createElement('div');
             target.classList.add('target');
             target.dataset.index = index;
-            target.textContent = daysOfWeek[index].name.toUpperCase(); // Afficher les noms des jours dans les zones cibles
             return target;
         }
 
@@ -147,7 +150,7 @@
                 onend(event) {
                     const target = event.target;
                     const labelIndex = parseInt(target.dataset.index);
-                    const targetElement = document.querySelector(`.target[data-index="${labelIndex}"]`);
+                    const targetElement = document.querySelector(`.target[data-index="${daysOfWeek[labelIndex].correctPos}"]`);
 
                     // Vérifier si l'étiquette est placée correctement
                     const targetRect = targetElement.getBoundingClientRect();
@@ -157,6 +160,8 @@
                         target.setAttribute('draggable', 'false');
                         target.style.pointerEvents = 'none';
                         target.classList.add('correct');
+                        targetElement.classList.add('correct');
+                        targetElement.textContent = daysOfWeek[labelIndex].name.toUpperCase(); // Afficher le nom dans la zone cible
                     } else {
                         target.style.transform = `translate(0, 0)`;
                     }
@@ -172,7 +177,7 @@
             let completed = true;
 
             labels.forEach((label, index) => {
-                const target = targets[index];
+                const target = targets[daysOfWeek[index].correctPos];
                 if (!label.classList.contains('correct') || target.style.backgroundColor !== label.style.backgroundColor) {
                     completed = false;
                 }
