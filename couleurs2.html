@@ -122,7 +122,7 @@
     </div>
 
     <script>
-        const colors = ['blue', 'red', 'green', 'yellow', 'orange', 'purple'];
+        const colors = ['blue', 'red', 'green', 'yellow', '#cc5500', 'purple'];
         let correctCount = 0;
         let lastColor = null;
         const shape = document.getElementById('shape');
@@ -140,7 +140,7 @@
 
         function placeShape() {
             const color = getRandomColor();
-            shape.style.backgroundColor = color;
+            shape.style.backgroundColor = color === 'orange' ? '#cc5500' : color;
             shape.dataset.color = color;
             shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
             shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
@@ -205,6 +205,10 @@
                         placeShape();
                     }
                 } else {
+                    shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
+                    shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
+                }
+                } else {
                     placeShape();
                 }
             }
@@ -217,5 +221,4 @@
     </script>
 </body>
 </html>
-
 
