@@ -149,7 +149,7 @@
             const color = getRandomColor();
             shape.style.backgroundColor = color;
             shape.dataset.color = color;
-            shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
+            shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight - 100}px`;
             shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
         }
 
@@ -203,7 +203,8 @@
                 });
 
                 if (!placedCorrectly) {
-                    placeShape();
+                    shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight - 100}px`;
+                    shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
                 }
             }
 
