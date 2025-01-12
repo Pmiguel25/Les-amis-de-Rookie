@@ -105,7 +105,7 @@
         let shuffledDays = [...daysOfWeek];
         shuffledDays.sort(() => Math.random() - 0.5);
 
-        function createDayLabel(day, index) {
+        function createDayLabel(day) {
             const label = document.createElement('div');
             label.classList.add('label');
             label.textContent = day.name.toUpperCase(); // Affichage en majuscules
@@ -166,34 +166,24 @@
 
                             // Retirer l'étiquette de la liste des étiquettes disponibles
                             target.style.display = 'none';
+
+                            checkCompletion();
                         } else {
                             target.style.transform = `translate(0, 0)`;
                         }
                     } else {
                         target.style.transform = `translate(0, 0)`;
                     }
-
-                    checkCompletion();
                 }
             });
         }
 
         function checkCompletion() {
             const labels = document.querySelectorAll('.label');
-            const targets = document.querySelectorAll('.target');
-            let completed = true;
+            const messageContainer = document.getElementById('message');
 
-            // Vérifier si toutes les étiquettes sont placées correctement
-            labels.forEach((label, index) => {
-                const target = targets[daysOfWeek[index].correctPos];
-                if (!label.classList.contains('correct') || target.style.backgroundColor !== label.style.backgroundColor) {
-                    completed = false;
-                }
-            });
-
-            // Si toutes les étiquettes sont correctement placées, afficher le message de félicitations
-            if (completed) {
-                const messageContainer = document.getElementById('message');
+            // Si toutes les étiquettes ont été placées (aucune étiquette visible à gauche)
+            if (labels.length === 0) {
                 messageContainer.textContent = 'Félicitations, vous avez bien placé tous les jours !';
                 const replayButton = document.createElement('button');
                 replayButton.textContent = 'Rejouer';
@@ -207,4 +197,3 @@
     </script>
 </body>
 </html>
-
