@@ -163,6 +163,9 @@
                             target.classList.add('correct');
                             targetElement.classList.add('correct');
                             targetElement.textContent = daysOfWeek[labelCorrectPos].name.toUpperCase(); // Afficher le nom dans la zone cible
+
+                            // Retirer l'étiquette de la liste des étiquettes disponibles
+                            target.style.display = 'none';
                         } else {
                             target.style.transform = `translate(0, 0)`;
                         }
