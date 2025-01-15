@@ -132,6 +132,7 @@
         const colors = ['blue', 'red', 'green', 'yellow', '#cc5500', 'purple'];
         let correctCount = 0;
         let lastColor = null;
+        let initialPosition = { top: 0, left: 0 };
         const shape = document.getElementById('shape');
         const gameContainer = document.getElementById('game-container');
         const endMessage = document.getElementById('end-message');
@@ -151,6 +152,7 @@
             shape.dataset.color = color;
             shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight - 100}px`;
             shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
+            initialPosition = { top: shape.offsetTop, left: shape.offsetLeft };
         }
 
         function showEndMessage() {
@@ -161,7 +163,8 @@
             correctCount = 0;
             endMessage.style.display = 'none';
             shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight / 2}px`;
-    shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
+            shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
+            initialPosition = { top: shape.offsetTop, left: shape.offsetLeft };
         }
 
         shape.addEventListener('pointerdown', (e) => {
@@ -196,17 +199,17 @@
                             correctCount++;
                             if (correctCount >= 20) {
                                 showEndMessage();
-                            } else {
-                                placeShape();
                             }
                         }
                     }
                 });
 
                 if (!placedCorrectly) {
-                    shape.style.top = `${gameContainer.offsetHeight / 2 - shape.offsetHeight - 100}px`;
-                    shape.style.left = `${gameContainer.offsetWidth / 2 - shape.offsetWidth / 2}px`;
+                    shape.style.top = `${initialPosition.top}px`;
+                    shape.style.left = `${initialPosition.left}px`;
                 }
+
+                placeShape(); // Keeps the shape visible even if wrongly placed, for the next move.
             }
 
             document.addEventListener('pointermove', moveShape);
@@ -217,4 +220,5 @@
     </script>
 </body>
 </html>
+
 
