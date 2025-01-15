@@ -20,13 +20,13 @@
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 700px; /* Augmenté pour plus de largeur */
-            max-height: 700px; /* Augmenté pour plus de hauteur */
+            max-width: 700px; /* Taille ajustée pour plus de largeur */
+            max-height: 700px; /* Taille ajustée pour plus de hauteur */
             background-color: black;
             display: grid;
-            grid-template-rows: 1fr 1fr;
-            grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes pour 6 zones */
-            gap: 50px; /* Réduit l'écart pour que les zones restent larges tout en occupant tout l'espace */
+            grid-template-rows: 1fr 1fr; /* 2 lignes */
+            grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes */
+            gap: 50px; /* Espace entre les zones */
         }
 
         .zone {
@@ -38,8 +38,9 @@
             font-size: 40px;
             font-weight: bold;
             color: white;
-            width: 100%; /* Remplissage complet de la zone dans la grille */
-            height: 100%; /* Remplissage complet de la zone dans la grille */
+            width: 100%; /* Remplissage complet de la zone */
+            padding-bottom: 100%; /* Ceci crée une zone carrée (hauteur égale à la largeur) */
+            box-sizing: border-box;
         }
 
         .zone.blue {
