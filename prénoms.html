@@ -61,9 +61,9 @@
             height: 50px;
             line-height: 50px;
             text-align: center;
-            background-color: white; /* Fond blanc */
-            color: black; /* Texte noir */
-            font-weight: bold; /* Texte en gras */
+            background-color: white;
+            color: black;
+            font-weight: bold;
             border-radius: 5px;
             cursor: pointer;
             user-select: none;
@@ -119,15 +119,14 @@
 
 <script>
     let currentWord = '';
-    let selectedWord = '';
     let letters = [];
     let boxElements = [];
     let draggedLetter = null;
 
     function startGame(word) {
         currentWord = word;
-        selectedWord = word.split(' ');
-        letters = [...selectedWord[0], ...selectedWord[1]];  // Merge letters of both words (MERVE and NUR)
+        const wordParts = word.split(' '); // Split words by spaces
+        letters = wordParts.flatMap(part => part.split('')); // Flatten all letters
 
         // Clear previous game
         document.getElementById('letter-container').innerHTML = '';
@@ -136,49 +135,45 @@
         document.getElementById('success-message').style.display = 'none';
 
         // Create the model letters (non-draggable)
-        selectedWord.forEach((word, wordIndex) => {
-            word.split('').forEach((letter, index) => {
+        wordParts.forEach((part, index) => {
+            part.split('').forEach(letter => {
                 const letterElement = document.createElement('div');
                 letterElement.className = 'letter-box';
                 letterElement.innerText = letter;
                 document.getElementById('letter-container').appendChild(letterElement);
-
-                if (wordIndex === 0 && index === 4) {
-                    // Add space between MERVE and NUR (no case or letter mobile for the space)
-                    const spaceElement = document.createElement('div');
-                    spaceElement.style.width = '50px';
-                    spaceElement.style.height = '50px';
-                    spaceElement.style.backgroundColor = 'black';
-                    document.getElementById('letter-container').appendChild(spaceElement);
-                }
             });
+
+            if (index < wordParts.length - 1) {
+                // Add space between words
+                const spaceElement = document.createElement('div');
+                spaceElement.style.width = '50px';
+                document.getElementById('letter-container').appendChild(spaceElement);
+            }
         });
 
         // Generate random letters for draggable options
-        const randomLetters = generateRandomLetters(letters);
+        const randomLetters = shuffleArray([...letters]);
         randomLetters.forEach((letter, index) => {
             const letterElement = document.createElement('div');
             letterElement.className = 'letter';
             letterElement.innerText = letter;
             letterElement.setAttribute('draggable', 'true');
             letterElement.setAttribute('id', 'letter-' + index);
-            letterElement.addEventListener('dragstart', (e) => onDragStart(e));
-            letterElement.addEventListener('dragend', (e) => onDragEnd(e));
+            letterElement.addEventListener('dragstart', onDragStart);
+            letterElement.addEventListener('dragend', onDragEnd);
             document.getElementById('random-letters').appendChild(letterElement);
         });
 
         // Create drop boxes for letters
-        const totalLetters = selectedWord[0].length + selectedWord[1].length;
-        for (let i = 0; i < totalLetters; i++) {
+        letters.forEach(letter => {
             const boxElement = document.createElement('div');
             boxElement.className = 'letter-box';
-            boxElement.setAttribute('id', 'box-' + i);
-            boxElement.setAttribute('data-letter', letters[i]);
-            boxElement.addEventListener('dragover', (e) => onDragOver(e));
-            boxElement.addEventListener('drop', (e) => onDrop(e));
+            boxElement.setAttribute('data-letter', letter);
+            boxElement.addEventListener('dragover', onDragOver);
+            boxElement.addEventListener('drop', onDrop);
             document.getElementById('box-container').appendChild(boxElement);
             boxElements.push(boxElement);
-        }
+        });
 
         document.querySelector('.label-selection').style.display = 'none';
         document.querySelector('.game-area').style.display = 'block';
@@ -206,20 +201,15 @@
         const targetBox = e.target;
         if (targetBox.classList.contains('letter-box') && targetBox.innerHTML === '') {
             targetBox.innerHTML = draggedLetter.innerText;
-            targetBox.style.backgroundColor = '#333';
             draggedLetter.style.display = 'none';
             checkWin();
         }
     }
 
     function checkWin() {
-        let allCorrect = true;
-        for (let i = 0; i < boxElements.length; i++) {
-            if (boxElements[i].innerText !== boxElements[i].getAttribute('data-letter')) {
-                allCorrect = false;
-                break;
-            }
-        }
+        const allCorrect = boxElements.every(
+            (box, i) => box.innerText === box.getAttribute('data-letter')
+        );
         if (allCorrect) {
             document.getElementById('success-message').style.display = 'block';
         }
@@ -228,18 +218,6 @@
     function restartGame() {
         document.querySelector('.label-selection').style.display = 'flex';
         document.querySelector('.game-area').style.display = 'none';
-    }
-
-    function generateRandomLetters(correctLetters) {
-        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-        let randomLetters = [...correctLetters];
-        while (randomLetters.length < 6) {
-            const randomLetter = alphabet[Math.floor(Math.random() * alphabet.length)];
-            if (!randomLetters.includes(randomLetter)) {
-                randomLetters.push(randomLetter);
-            }
-        }
-        return shuffleArray(randomLetters);
     }
 
     function shuffleArray(array) {
