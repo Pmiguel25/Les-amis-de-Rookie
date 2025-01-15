@@ -68,12 +68,12 @@
         <button onclick="restartGame()">Rejouer</button>
     </div>
     <div class="container" id="activity">
-        <div class="column" id="left">
-            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
-        </div>
-        <div class="column" id="center"></div>
         <div class="column" id="right">
             <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
+        </div>
+        <div class="column" id="center"></div>
+        <div class="column" id="left">
+            <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
         </div>
     </div>
 
@@ -112,6 +112,7 @@
         let allImages = [];
         let correctCount = 0;
         let currentImageIndex = 0;
+        let draggedElement = null;
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -125,15 +126,18 @@
             img.src = src;
             img.className = className;
             img.draggable = true;
+
+            // Drag and drop support
             img.ondragstart = (e) => {
                 e.dataTransfer.setData("text/plain", src);
+                draggedElement = img;
                 img.classList.add("dragging");
             };
             img.ondragend = () => img.classList.remove("dragging");
 
             // Touch support
             img.ontouchstart = (e) => {
-                img.dataset.dragSrc = src;
+                draggedElement = img;
                 img.classList.add("dragging");
             };
             img.ontouchend = () => img.classList.remove("dragging");
@@ -157,8 +161,7 @@
 
         function handleDrop(e, column) {
             e.preventDefault();
-            const src = e.dataTransfer?.getData("text/plain") || e.target.dataset.dragSrc;
-            const img = [...centerColumn.children].find(img => img.src === src);
+            const img = draggedElement;
 
             if (!img) return;
 
@@ -201,7 +204,11 @@
         leftColumn.ondrop = (e) => handleDrop(e, leftColumn);
         rightColumn.ondrop = (e) => handleDrop(e, rightColumn);
 
+        leftColumn.ontouchend = () => handleDrop({ preventDefault: () => {} }, leftColumn);
+        rightColumn.ontouchend = () => handleDrop({ preventDefault: () => {} }, rightColumn);
+
         setupGame();
     </script>
 </body>
 </html>
+
