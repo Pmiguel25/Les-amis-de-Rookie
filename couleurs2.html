@@ -24,9 +24,9 @@
             max-height: 600px;
             background-color: black;
             display: grid;
-            grid-template-rows: 1fr 1fr;
-            grid-template-columns: 1fr 1fr;
-            gap: 200px; /* Increased gap for more spacing */
+            grid-template-rows: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* 3 zones par ligne */
+            gap: 10px; /* Espacement plus petit */
         }
 
         .zone {
@@ -34,10 +34,14 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            width: 100%; /* Remplir la cellule de la grille */
+            height: 0;
+            padding-top: 100%; /* Aspect ratio 1:1 pour rendre la zone carrée */
             border: 1px solid #ccc;
             font-size: 40px;
             font-weight: bold;
             color: white;
+            box-sizing: border-box;
         }
 
         .zone.blue {
@@ -208,5 +212,4 @@
     </script>
 </body>
 </html>
-
 
