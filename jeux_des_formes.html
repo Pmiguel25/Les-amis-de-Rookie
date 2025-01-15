@@ -157,10 +157,12 @@
 
             document.body.appendChild(forme);
 
+            // Gestion du drag & drop souris
             forme.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData('text/plain', JSON.stringify({ type, id: index }));
             });
 
+            // Gestion des événements tactiles
             forme.addEventListener('touchstart', (e) => {
                 const touch = e.touches[0];
                 forme.dataset.dragging = true;
@@ -176,8 +178,70 @@
                 }
             });
 
-            forme.addEventListener('touchend', () => {
+            forme.addEventListener('touchend', (e) => {
                 forme.dataset.dragging = false;
+
+                const rectForme = forme.getBoundingClientRect();
+                let validDrop = false;
+
+                zones.forEach((zone) => {
+                    const rectZone = zone.getBoundingClientRect();
+
+                    // Vérifie si la forme est dans la zone
+                    if (
+                        rectForme.left >= rectZone.left &&
+                        rectForme.right <= rectZone.right &&
+                        rectForme.top >= rectZone.top &&
+                        rectForme.bottom <= rectZone.bottom &&
+                        forme.dataset.type === zone.dataset.type
+                    ) {
+                        validDrop = true;
+
+                        // Crée une nouvelle forme verte
+                        const newForme = document.createElement('div');
+                        if (forme.dataset.type === 'triangle') {
+                            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                            svg.setAttribute('viewBox', '0 0 100 100');
+                            svg.setAttribute('class', 'forme triangle');
+
+                            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                            polygon.setAttribute('points', '50,0 100,100 0,100');
+                            polygon.setAttribute('fill', 'green');
+
+                            svg.appendChild(polygon);
+                            newForme.appendChild(svg);
+                            newForme.classList.add('forme', 'triangle');
+                        } else {
+                            newForme.classList.add('forme', forme.dataset.type);
+                            newForme.style.backgroundColor = 'green';
+                        }
+
+                        newForme.style.position = 'absolute';
+                        newForme.style.left = `${rectForme.left}px`;
+                        newForme.style.top = `${rectForme.top}px`;
+                        newForme.style.width = `${rectForme.width}px`;
+                        newForme.style.height = `${rectForme.height}px`;
+
+                        document.body.appendChild(newForme);
+                        forme.remove();
+                        placed++;
+
+                        // Vérifie la victoire
+                        if (placed === formes.length) {
+                            message.style.display = 'block';
+                        }
+                    }
+                });
+
+                if (!validDrop) {
+                    // Rendre la forme rouge et la réinitialiser après un moment
+                    forme.style.backgroundColor = 'red';
+                    setTimeout(() => {
+                        forme.style.backgroundColor = 'blue';
+                        forme.style.top = `${Math.random() * 70 + 10}vh`;
+                        forme.style.left = `${Math.random() * 70 + 10}vw`;
+                    }, 1500);
+                }
             });
         });
 
@@ -219,21 +283,4 @@
                     dropped.remove();
                     placed++;
 
-                    if (placed === formes.length) {
-                        message.style.display = 'block';
-                    }
-                } else {
-                    dropped.style.backgroundColor = 'red';
-                    setTimeout(() => {
-                        dropped.style.backgroundColor = 'blue';
-                    }, 1500);
-                }
-            });
-        });
-
-        rejouerBtn.addEventListener('click', () => {
-            location.reload();
-        });
-    </script>
-</body>
-</html>
+                    if (placed
