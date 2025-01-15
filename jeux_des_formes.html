@@ -283,4 +283,16 @@
                     dropped.remove();
                     placed++;
 
-                    if (placed
+                    if (placed === formes.length) {
+                        message.style.display = 'block';
+                    }
+                }
+            });
+        });
+
+        rejouerBtn.addEventListener('click', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
