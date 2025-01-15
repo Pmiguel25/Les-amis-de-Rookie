@@ -20,13 +20,13 @@
             position: relative;
             width: 100%;
             height: 100%;
-            max-width: 600px; /* Limité pour ne pas trop agrandir */
-            max-height: 600px; /* Limité pour ne pas trop agrandir */
+            max-width: 600px;
+            max-height: 600px;
             background-color: black;
             display: grid;
-            grid-template-rows: 1fr 1fr; /* 2 lignes */
-            grid-template-columns: 1fr 1fr 1fr; /* 3 colonnes */
-            gap: 50px; /* Espacement entre les zones */
+            grid-template-rows: 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
+            gap: 200px; /* Increased gap for more spacing */
         }
 
         .zone {
@@ -38,9 +38,6 @@
             font-size: 40px;
             font-weight: bold;
             color: white;
-            width: 100%; /* Remplissage complet de la zone */
-            padding-bottom: 100%; /* Création de la forme carrée */
-            box-sizing: border-box;
         }
 
         .zone.blue {
@@ -64,7 +61,7 @@
         }
 
         .zone.darkorange {
-            background-color: #8B4513; /* Orange foncé */
+            background-color: darkorange;
         }
 
         #shape {
@@ -110,7 +107,7 @@
     </div>
 
     <div id="end-message">
-        <p>Félicitations ! Vous avez terminé l'activité !</p>
+        <p>Félicitations ! Vous avez terminé l'activité !</p>
         <button onclick="restartGame()">Rejouer</button>
     </div>
 
