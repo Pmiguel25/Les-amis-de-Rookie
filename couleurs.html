@@ -178,14 +178,15 @@
                     }
                 });
 
-                if (placedCorrectly) {
+                // Si la forme n'est pas placée dans une zone
+                if (!placedCorrectly) {
+                    // La forme reste à l'endroit où elle a été lâchée sans revenir au centre
+                } else {
                     if (correctCount >= 20) {
                         showEndMessage();
                     } else {
                         placeShape();
                     }
-                } else {
-                    placeShape();
                 }
             }
 
@@ -197,3 +198,4 @@
     </script>
 </body>
 </html>
+
