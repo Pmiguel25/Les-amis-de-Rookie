@@ -14,12 +14,15 @@
             align-items: center;
             background-color: #000;
             color: white;
+            overflow: hidden;
         }
 
         .label-selection {
             margin-top: 20px;
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .label {
@@ -29,12 +32,14 @@
             font-size: 20px;
             border-radius: 5px;
             cursor: pointer;
+            user-select: none;
         }
 
         .game-area {
             display: none;
             text-align: center;
             margin-top: 40px;
+            width: 90%;
         }
 
         .letter-container {
@@ -67,10 +72,8 @@
             border-radius: 5px;
             cursor: pointer;
             user-select: none;
-        }
-
-        .letter.dragging {
-            opacity: 0.5;
+            position: absolute;
+            touch-action: none;
         }
 
         .success-message {
@@ -89,13 +92,6 @@
             border-radius: 5px;
             cursor: pointer;
         }
-
-        .random-letters {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
     </style>
 </head>
 <body>
@@ -112,7 +108,7 @@
 <div class="game-area">
     <div class="letter-container" id="letter-container"></div>
     <div class="letter-container" id="box-container"></div>
-    <div class="random-letters" id="random-letters"></div>
+    <div id="random-letters"></div>
     <div class="success-message" id="success-message">Félicitations !</div>
     <button class="restart-button" onclick="restartGame()">Rejouer</button>
 </div>
@@ -120,21 +116,18 @@
 <script>
     let currentWord = '';
     let letters = [];
-    let boxElements = [];
     let draggedLetter = null;
 
     function startGame(word) {
         currentWord = word;
-        const wordParts = word.split(' '); // Split words by spaces
-        letters = wordParts.flatMap(part => part.split('')); // Flatten all letters
+        const wordParts = word.split(' '); // Sépare les mots
+        letters = wordParts.flatMap(part => part.split('')); // Liste des lettres
 
-        // Clear previous game
         document.getElementById('letter-container').innerHTML = '';
         document.getElementById('box-container').innerHTML = '';
         document.getElementById('random-letters').innerHTML = '';
         document.getElementById('success-message').style.display = 'none';
 
-        // Create the model letters (non-draggable)
         wordParts.forEach((part, index) => {
             part.split('').forEach(letter => {
                 const letterElement = document.createElement('div');
@@ -144,88 +137,89 @@
             });
 
             if (index < wordParts.length - 1) {
-                // Add space between words
                 const spaceElement = document.createElement('div');
-                spaceElement.style.width = '50px';
+                spaceElement.style.width = '30px';
                 document.getElementById('letter-container').appendChild(spaceElement);
             }
         });
 
-        // Generate random letters for draggable options
-        const randomLetters = shuffleArray([...letters]);
-        randomLetters.forEach((letter, index) => {
+        let shuffledLetters = shuffleArray([...letters]);
+        shuffledLetters.forEach((letter, index) => {
             const letterElement = document.createElement('div');
             letterElement.className = 'letter';
             letterElement.innerText = letter;
-            letterElement.setAttribute('draggable', 'true');
-            letterElement.setAttribute('id', 'letter-' + index);
-            letterElement.addEventListener('dragstart', onDragStart);
-            letterElement.addEventListener('dragend', onDragEnd);
-            document.getElementById('random-letters').appendChild(letterElement);
+            letterElement.style.left = `${50 + index * 60}px`;
+            letterElement.style.top = '400px';
+            letterElement.addEventListener('touchstart', onTouchStart);
+            letterElement.addEventListener('touchmove', onTouchMove);
+            letterElement.addEventListener('touchend', onTouchEnd);
+            document.body.appendChild(letterElement);
         });
 
-        // Create drop boxes for letters
         letters.forEach(letter => {
             const boxElement = document.createElement('div');
             boxElement.className = 'letter-box';
             boxElement.setAttribute('data-letter', letter);
-            boxElement.addEventListener('dragover', onDragOver);
-            boxElement.addEventListener('drop', onDrop);
             document.getElementById('box-container').appendChild(boxElement);
-            boxElements.push(boxElement);
         });
 
         document.querySelector('.label-selection').style.display = 'none';
         document.querySelector('.game-area').style.display = 'block';
     }
 
-    function onDragStart(e) {
+    function onTouchStart(e) {
         draggedLetter = e.target;
-        setTimeout(() => {
-            draggedLetter.classList.add('dragging');
-        }, 0);
     }
 
-    function onDragEnd(e) {
-        draggedLetter.classList.remove('dragging');
+    function onTouchMove(e) {
+        if (!draggedLetter) return;
+        let touch = e.touches[0];
+        draggedLetter.style.left = `${touch.clientX - 25}px`;
+        draggedLetter.style.top = `${touch.clientY - 25}px`;
+    }
+
+    function onTouchEnd(e) {
+        if (!draggedLetter) return;
+
+        let boxes = document.querySelectorAll('.letter-box');
+        let placed = false;
+
+        boxes.forEach(box => {
+            let rectBox = box.getBoundingClientRect();
+            let rectLetter = draggedLetter.getBoundingClientRect();
+
+            if (
+                rectLetter.left > rectBox.left - 20 &&
+                rectLetter.right < rectBox.right + 20 &&
+                rectLetter.top > rectBox.top - 20 &&
+                rectLetter.bottom < rectBox.bottom + 20 &&
+                !box.innerText
+            ) {
+                box.innerText = draggedLetter.innerText;
+                draggedLetter.style.display = 'none';
+                placed = true;
+            }
+        });
+
         draggedLetter = null;
         checkWin();
     }
 
-    function onDragOver(e) {
-        e.preventDefault();
-    }
-
-    function onDrop(e) {
-        e.preventDefault();
-        const targetBox = e.target;
-        if (targetBox.classList.contains('letter-box') && targetBox.innerHTML === '') {
-            targetBox.innerHTML = draggedLetter.innerText;
-            draggedLetter.style.display = 'none';
-            checkWin();
-        }
-    }
-
     function checkWin() {
-        const allCorrect = boxElements.every(
-            (box, i) => box.innerText === box.getAttribute('data-letter')
+        let allCorrect = [...document.querySelectorAll('.letter-box')].every(
+            box => box.innerText === box.getAttribute('data-letter')
         );
-        if (allCorrect) {
-            document.getElementById('success-message').style.display = 'block';
-        }
+        if (allCorrect) document.getElementById('success-message').style.display = 'block';
     }
 
     function restartGame() {
         document.querySelector('.label-selection').style.display = 'flex';
         document.querySelector('.game-area').style.display = 'none';
+        document.querySelectorAll('.letter').forEach(letter => letter.remove());
     }
 
     function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+        return array.sort(() => Math.random() - 0.5);
     }
 </script>
 
