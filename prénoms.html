@@ -57,7 +57,6 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            margin: 5px;
             background-color: #333;
         }
 
@@ -72,7 +71,7 @@
             border-radius: 5px;
             cursor: pointer;
             user-select: none;
-            position: absolute;
+            position: relative;
             touch-action: none;
         }
 
@@ -108,7 +107,7 @@
 <div class="game-area">
     <div class="letter-container" id="letter-container"></div>
     <div class="letter-container" id="box-container"></div>
-    <div id="random-letters"></div>
+    <div class="letter-container" id="random-letters"></div>
     <div class="success-message" id="success-message">Félicitations !</div>
     <button class="restart-button" onclick="restartGame()">Rejouer</button>
 </div>
@@ -120,8 +119,8 @@
 
     function startGame(word) {
         currentWord = word;
-        const wordParts = word.split(' '); // Sépare les mots
-        letters = wordParts.flatMap(part => part.split('')); // Liste des lettres
+        const wordParts = word.split(' '); 
+        letters = wordParts.flatMap(part => part.split(''));
 
         document.getElementById('letter-container').innerHTML = '';
         document.getElementById('box-container').innerHTML = '';
@@ -148,12 +147,11 @@
             const letterElement = document.createElement('div');
             letterElement.className = 'letter';
             letterElement.innerText = letter;
-            letterElement.style.left = `${50 + index * 60}px`;
-            letterElement.style.top = '400px';
+            letterElement.setAttribute('draggable', 'true');
             letterElement.addEventListener('touchstart', onTouchStart);
             letterElement.addEventListener('touchmove', onTouchMove);
             letterElement.addEventListener('touchend', onTouchEnd);
-            document.body.appendChild(letterElement);
+            document.getElementById('random-letters').appendChild(letterElement);
         });
 
         letters.forEach(letter => {
@@ -174,6 +172,7 @@
     function onTouchMove(e) {
         if (!draggedLetter) return;
         let touch = e.touches[0];
+        draggedLetter.style.position = 'absolute';
         draggedLetter.style.left = `${touch.clientX - 25}px`;
         draggedLetter.style.top = `${touch.clientY - 25}px`;
     }
@@ -225,3 +224,4 @@
 
 </body>
 </html>
+
