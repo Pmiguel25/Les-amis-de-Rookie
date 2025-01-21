@@ -14,8 +14,6 @@
             margin: 0;
             padding: 0;
             height: 100vh;
-            background-color: black;
-            color: white;
         }
         .container {
             display: flex;
@@ -36,19 +34,18 @@
             margin: 10px;
         }
         .small {
-            width: 200px;
+            width: 150px;
         }
         .large {
-            width: 350px;
+            width: 300px;
         }
         .symbol {
             margin: 10px;
-            width: 150px;
+            width: 100px;
             height: auto;
         }
         #center img {
             cursor: grab;
-            touch-action: none;
         }
         #message {
             display: none;
@@ -81,63 +78,34 @@
     </div>
 
     <script>
-        let currentImage = null;
-        function createImageElement(src, className) {
-            const img = document.createElement("img");
-            img.src = src;
-            img.className = className;
-            img.draggable = true;
-            img.ontouchstart = (e) => {
-                e.preventDefault();
-                currentImage = img;
-            };
-            img.ontouchmove = (e) => {
-                if (!currentImage) return;
-                let touch = e.touches[0];
-                currentImage.style.position = "absolute";
-                currentImage.style.left = touch.pageX - currentImage.width / 2 + "px";
-                currentImage.style.top = touch.pageY - currentImage.height / 2 + "px";
-            };
-            img.ontouchend = (e) => {
-                if (!currentImage) return;
-                let touch = e.changedTouches[0];
-                let dropTarget = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (dropTarget && (dropTarget.id === "left" || dropTarget.id === "right")) {
-                    handleDrop(currentImage, dropTarget);
-                }
-                currentImage.style.position = "static";
-                currentImage = null;
-            };
-            return img;
-        }
+        const smallAnimals = [
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSCcdsTgaWbDX_pYae8qkk6mm3DzDd79_F9bg&s",
+            "https://s3.animalia.bio/animals/photos/full/original/koreahamsterjpg.webp",
+            "https://s3.animalia.bio/animals/photos/full/original/belinda.webp",
+            "https://images.pexels.com/photos/88512/mole-nature-animals-molehills-88512.jpeg",
+            "https://upload.wikimedia.org/wikipedia/commons/c/c8/Carcassonne_-_M%C3%A9sange_bleue.jpg",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6OteZ5gNDtrJYC6PS-EsIo2BUHwa7vpMYaw&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT29PhlyuuWbLXPyZtmre91bxyfYg7tPeJvFw&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCdN1VgbT4H3AdPky3NAhE79mM9FMg4HzZgQ&s",
+            "https://s3.animalia.bio/animals/photos/full/original/2560px-cepaea-nemoralis-28mad-max29.webp",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQL5efkmSxQLa8ZmyOUeApdE3nPiLGdLUR8sA&s"
+        ];
+        const largeAnimals = [
+            "https://images.pexels.com/photos/4666750/pexels-photo-4666750.jpeg",
+            "https://reporterre.net/IMG/logo/arton31931.jpg?1718024954",
+            "https://images.pexels.com/photos/248337/pexels-photo-248337.jpeg",
+            "https://s3.animalia.bio/animals/photos/full/original/OBdYWcqSUbP0fxx1xPGS.webp",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7iT1-sbdO9An49RutBcxHGsrvqdVbD8VKwQ&s",
+            "https://s3.animalia.bio/animals/photos/full/original/2560px-rothschild27s-giraffe-28751350316829.webp",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTVvUq_pxBUdqftu5TgjNPkx6tWEaEY9m8MXQ&s",
+            "https://s3.animalia.bio/animals/photos/full/original/1619px-002-the-lion-king-snyggve-in-the-serengeti-national-park-photo-by-giles-laurentjpg.webp",
+            "https://upload.wikimedia.org/wikipedia/commons/0/09/Diplodocus_model.jpg",
+            "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg"
+        ];
 
-        function handleDrop(img, column) {
-            const isCorrect =
-                (column.id === "left" && img.classList.contains("small")) ||
-                (column.id === "right" && img.classList.contains("large"));
-
-            img.classList.add("highlight", isCorrect ? "success" : "error");
-
-            if (isCorrect) {
-                column.appendChild(img);
-                setTimeout(() => {
-                    img.remove();
-                    currentImageIndex++;
-                    if (currentImageIndex === allImages.length) {
-                        document.getElementById("activity").style.display = "none";
-                        document.getElementById("message").style.display = "block";
-                    } else {
-                        displayNextImage();
-                    }
-                }, 2000);
-            } else {
-                setTimeout(() => {
-                    img.classList.remove("highlight", "success", "error");
-                    displayNextImage();
-                }, 2000);
-            }
+        function restartGame() {
+            location.reload();
         }
     </script>
 </body>
 </html>
-
