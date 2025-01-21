@@ -34,14 +34,14 @@
             margin: 10px;
         }
         .small {
-            width: 150px;
+            width: 200px;
         }
         .large {
-            width: 300px;
+            width: 350px;
         }
         .symbol {
             margin: 10px;
-            width: 100px;
+            width: 150px;
             height: auto;
         }
         #center img {
@@ -68,11 +68,11 @@
         <button onclick="restartGame()">Rejouer</button>
     </div>
     <div class="container" id="activity">
-        <div class="column" id="left">
+        <div class="column" id="right">
             <img class="symbol" src="https://static.arasaac.org/pictograms/4716/4716_300.png" alt="Petit">
         </div>
         <div class="column" id="center"></div>
-        <div class="column" id="right">
+        <div class="column" id="left">
             <img class="symbol" src="https://static.arasaac.org/pictograms/4658/4658_300.png" alt="Grand">
         </div>
     </div>
@@ -103,9 +103,111 @@
             "https://upload.wikimedia.org/wikipedia/commons/3/38/Rhinoc%C3%A9ros_blanc_JHE.jpg"
         ];
 
-        function restartGame() {
-            location.reload();
+        const centerColumn = document.getElementById("center");
+        const leftColumn = document.getElementById("left");
+        const rightColumn = document.getElementById("right");
+        const messageBox = document.getElementById("message");
+        const activity = document.getElementById("activity");
+
+        let allImages = [];
+        let correctCount = 0;
+        let currentImageIndex = 0;
+        let draggedElement = null;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
         }
+
+        function createImageElement(src, className) {
+            const img = document.createElement("img");
+            img.src = src;
+            img.className = className;
+            img.draggable = true;
+
+            // Drag and drop support
+            img.ondragstart = (e) => {
+                e.dataTransfer.setData("text/plain", src);
+                draggedElement = img;
+                img.classList.add("dragging");
+            };
+            img.ondragend = () => img.classList.remove("dragging");
+
+            // Touch support
+            img.ontouchstart = (e) => {
+                draggedElement = img;
+                img.classList.add("dragging");
+            };
+            img.ontouchend = () => img.classList.remove("dragging");
+
+            return img;
+        }
+
+        function setupGame() {
+            allImages = smallAnimals.map(src => createImageElement(src, "small"))
+                .concat(largeAnimals.map(src => createImageElement(src, "large")));
+            shuffle(allImages);
+            displayNextImage();
+        }
+
+        function displayNextImage() {
+            centerColumn.innerHTML = "";
+            if (currentImageIndex < allImages.length) {
+                centerColumn.appendChild(allImages[currentImageIndex]);
+            }
+        }
+
+        function handleDrop(e, column) {
+            e.preventDefault();
+            const img = draggedElement;
+
+            if (!img) return;
+
+            const isCorrect =
+                (column === leftColumn && img.classList.contains("large")) ||
+                (column === rightColumn && img.classList.contains("small"));
+
+            img.classList.add("highlight", isCorrect ? "success" : "error");
+
+            if (isCorrect) {
+                column.appendChild(img);
+                setTimeout(() => {
+                    img.remove();
+                    correctCount++;
+                    currentImageIndex++;
+                    if (correctCount === allImages.length) {
+                        activity.style.display = "none";
+                        messageBox.style.display = "block";
+                    } else {
+                        displayNextImage();
+                    }
+                }, 2000);
+            } else {
+                setTimeout(() => {
+                    img.classList.remove("highlight", "success", "error");
+                    displayNextImage();
+                }, 2000);
+            }
+        }
+
+        function restartGame() {
+            currentImageIndex = 0;
+            correctCount = 0;
+            messageBox.style.display = "none";
+            activity.style.display = "flex";
+            setupGame();
+        }
+
+        leftColumn.ondragover = rightColumn.ondragover = (e) => e.preventDefault();
+        leftColumn.ondrop = (e) => handleDrop(e, leftColumn);
+        rightColumn.ondrop = (e) => handleDrop(e, rightColumn);
+
+        leftColumn.ontouchend = () => handleDrop({ preventDefault: () => {} }, leftColumn);
+        rightColumn.ontouchend = () => handleDrop({ preventDefault: () => {} }, rightColumn);
+
+        setupGame();
     </script>
 </body>
 </html>
