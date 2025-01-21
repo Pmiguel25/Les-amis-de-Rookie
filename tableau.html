@@ -22,15 +22,18 @@
 
         .grid {
             display: grid;
-            grid-template-columns: 50px repeat(3, 100px);
-            grid-template-rows: 50px repeat(3, 100px);
-            gap: 5px;
+            grid-template-columns: 100px repeat(3, 200px);
+            grid-template-rows: 100px repeat(3, 200px);
+            gap: 10px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 10px;
         }
 
         .cell {
             border: 2px solid black;
-            width: 100px;
-            height: 100px;
+            width: 200px;
+            height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -59,25 +62,25 @@
         }
 
         .col-label {
-            width: 50px;
-            height: 50px;
+            width: 100px;
+            height: 100px;
             display: inline-block;
             background-color: white;
         }
 
         .circle {
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 100px;
+            height: 100px;
             border: 2px solid black;
         }
 
         .triangle {
             width: 0;
             height: 0;
-            border-left: 25px solid transparent;
-            border-right: 25px solid transparent;
-            border-bottom: 50px solid;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 100px solid;
         }
 
         .draggable {
@@ -91,7 +94,7 @@
         .shapes {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 20px;
         }
 
         #message {
@@ -140,21 +143,6 @@
             <div class="cell droppable" data-color="red" data-shape="triangle"></div>
             <div class="cell droppable" data-color="red" data-shape="circle"></div>
         </div>
-
-        <!-- Formes -->
-        <div class="shapes">
-            <div class="circle draggable" style="background-color: blue;" draggable="true" data-color="blue" data-shape="circle"></div>
-            <div class="circle draggable" style="background-color: red;" draggable="true" data-color="red" data-shape="circle"></div>
-            <div class="circle draggable" style="background-color: green;" draggable="true" data-color="green" data-shape="circle"></div>
-
-            <div class="col-label draggable" style="background-color: blue;" draggable="true" data-color="blue" data-shape="square"></div>
-            <div class="col-label draggable" style="background-color: red;" draggable="true" data-color="red" data-shape="square"></div>
-            <div class="col-label draggable" style="background-color: green;" draggable="true" data-color="green" data-shape="square"></div>
-
-            <div class="triangle draggable" style="border-bottom-color: blue;" draggable="true" data-color="blue" data-shape="triangle"></div>
-            <div class="triangle draggable" style="border-bottom-color: red;" draggable="true" data-color="red" data-shape="triangle"></div>
-            <div class="triangle draggable" style="border-bottom-color: green;" draggable="true" data-color="green" data-shape="triangle"></div>
-        </div>
     </div>
 
     <div id="message">
@@ -163,3 +151,4 @@
     </div>
 </body>
 </html>
+
