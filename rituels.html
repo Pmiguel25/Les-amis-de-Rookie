@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Création de Rituels</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            display: flex;
+            height: 100vh;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        .zoneF {
+            width: 33%;
+            background-color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        .validation {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .zone-container {
+            width: 67%;
+            display: flex;
+            flex-direction: column;
+        }
+        .zone-top {
+            flex: 1;
+            display: flex;
+        }
+        .zone-bottom {
+            flex: 1;
+            display: flex;
+        }
+        .zone {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid white;
+        }
+        .zoneA {
+            position: relative;
+        }
+        .zoneA::before {
+            content: "";
+            width: 80px;
+            height: 80px;
+            background-color: red;
+            border-radius: 50%;
+            position: absolute;
+        }
+        .zoneB {
+            position: relative;
+        }
+        .zoneB::before {
+            content: "";
+            width: 120px;
+            height: 60px;
+            background-color: blue;
+            position: absolute;
+        }
+        .draggable {
+            cursor: grab;
+            padding: 10px;
+            background-color: white;
+            color: black;
+            margin: 5px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="zoneF">
+            <button class="validation" onclick="nextStep()">Valider</button>
+            <div class="elements"></div>
+        </div>
+        <div class="zone-container">
+            <div class="zone-top">
+                <div class="zone zoneA" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <div class="zone zoneB" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+            <div class="zone-bottom">
+                <div class="zone zoneC" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <div class="zone zoneD" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <div class="zone zoneE" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        let step = 1;
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+        function drop(event) {
+            event.preventDefault();
+            var data = event.dataTransfer.getData("text");
+            var draggedElement = document.getElementById(data);
+            event.target.appendChild(draggedElement);
+        }
+        function nextStep() {
+            let elementsContainer = document.querySelector(".elements");
+            elementsContainer.innerHTML = "";
+            if (step === 1) {
+                let days = [
+                    { name: "Lundi", color: "purple" }, { name: "Mardi", color: "yellow" }, { name: "Mercredi", color: "green" },
+                    { name: "Jeudi", color: "orange" }, { name: "Vendredi", color: "blue" }, { name: "Samedi", color: "pink" },
+                    { name: "Dimanche", color: "red" }
+                ];
+                days.forEach(d => {
+                    let label = document.createElement("div");
+                    label.textContent = d.name;
+                    label.style.backgroundColor = d.color;
+                    label.classList.add("draggable");
+                    label.draggable = true;
+                    label.ondragstart = drag;
+                    elementsContainer.appendChild(label);
+                });
+                step++;
+            } else if (step === 2) {
+                for (let i = 0; i <= 9; i++) {
+                    let label = document.createElement("div");
+                    label.textContent = i;
+                    label.classList.add("draggable");
+                    label.draggable = true;
+                    label.ondragstart = drag;
+                    elementsContainer.appendChild(label);
+                }
+                step++;
+            } else if (step === 3) {
+                let months = [
+                    { name: "Janvier", color: "blue" }, { name: "Février", color: "blue" }, { name: "Mars", color: "blue" },
+                    { name: "Avril", color: "green" }, { name: "Mai", color: "green" }, { name: "Juin", color: "green" },
+                    { name: "Juillet", color: "yellow" }, { name: "Août", color: "yellow" }, { name: "Septembre", color: "yellow" },
+                    { name: "Octobre", color: "orange" }, { name: "Novembre", color: "orange" }, { name: "Décembre", color: "orange" }
+                ];
+                months.forEach(m => {
+                    let label = document.createElement("div");
+                    label.textContent = m.name;
+                    label.style.backgroundColor = m.color;
+                    label.classList.add("draggable");
+                    label.draggable = true;
+                    label.ondragstart = drag;
+                    elementsContainer.appendChild(label);
+                });
+                step++;
+            }
+        }
+    </script>
+</body>
+</html>
