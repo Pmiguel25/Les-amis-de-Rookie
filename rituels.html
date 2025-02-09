@@ -26,6 +26,26 @@
             align-items: center;
             padding: 10px;
             overflow-y: auto;
+            position: relative;
+        }
+        .buttons {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-annuler {
+            background-color: red;
+        }
+        .btn-valider {
+            background-color: green;
         }
         .zone-container {
             width: 67%;
@@ -59,12 +79,6 @@
         .draggable {
             width: 120px;
             height: 120px;
-            background-color: white;
-            color: black;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2em;
             cursor: grab;
             margin: 5px;
         }
@@ -84,6 +98,10 @@
             </div>
         </div>
         <div class="zoneF">
+            <div class="buttons">
+                <button class="btn btn-annuler" onclick="resetPosition()">ANNULER</button>
+                <button class="btn btn-valider" onclick="validateSelection()">VALIDER</button>
+            </div>
             <div id="numbers-container"></div>
         </div>
     </div>
@@ -107,16 +125,32 @@
                 dropZone.appendChild(draggedElement);
             }
         }
+        function resetPosition() {
+            let container = document.getElementById("numbers-container");
+            document.querySelectorAll(".draggable").forEach(el => container.appendChild(el));
+        }
+        function validateSelection() {
+            alert("Validation effectuée !");
+        }
         document.addEventListener("DOMContentLoaded", function() {
             let container = document.getElementById("numbers-container");
+            let images = {
+                1: "https://static.arasaac.org/pictograms/2627/2627_500.png",
+                2: "https://static.arasaac.org/pictograms/2628/2628_500.png",
+                3: "https://static.arasaac.org/pictograms/2629/2629_500.png",
+                4: "https://static.arasaac.org/pictograms/2630/2630_500.png",
+                5: "https://static.arasaac.org/pictograms/2631/2631_500.png",
+                6: "https://static.arasaac.org/pictograms/2632/2632_500.png",
+                7: "https://static.arasaac.org/pictograms/2633/2633_500.png"
+            };
             for (let i = 1; i <= 7; i++) {
-                let numberDiv = document.createElement("div");
-                numberDiv.textContent = i;
-                numberDiv.classList.add("draggable");
-                numberDiv.id = "num" + i;
-                numberDiv.draggable = true;
-                numberDiv.ondragstart = drag;
-                container.appendChild(numberDiv);
+                let img = document.createElement("img");
+                img.src = images[i];
+                img.classList.add("draggable");
+                img.id = "num" + i;
+                img.draggable = true;
+                img.ondragstart = drag;
+                container.appendChild(img);
             }
         });
     </script>
