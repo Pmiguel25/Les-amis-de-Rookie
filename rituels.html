@@ -82,6 +82,7 @@
             cursor: grab;
             margin: 5px;
             background-color: white;
+            position: absolute;
         }
     </style>
 </head>
@@ -117,14 +118,9 @@
             event.preventDefault();
             var data = event.dataTransfer.getData("text");
             var draggedElement = document.getElementById(data);
-            let dropZone = event.target.closest(".zoneA");
-            if (dropZone) {
-                draggedElement.style.position = "absolute";
-                draggedElement.style.left = "50%";
-                draggedElement.style.top = "50%";
-                draggedElement.style.transform = "translate(-50%, -50%)";
-                dropZone.appendChild(draggedElement);
-            }
+            draggedElement.style.left = event.clientX - 60 + "px";
+            draggedElement.style.top = event.clientY - 60 + "px";
+            document.body.appendChild(draggedElement);
         }
         function resetPosition() {
             let container = document.getElementById("numbers-container");
