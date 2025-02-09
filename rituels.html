@@ -27,14 +27,6 @@
             padding: 10px;
             overflow-y: auto;
         }
-        .validation {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            border: none;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
         .zone-container {
             width: 67%;
             display: flex;
@@ -54,30 +46,27 @@
             align-items: center;
             justify-content: center;
             border: 1px solid white;
+            position: relative;
         }
         .zoneA::before {
             content: "";
-            width: 240px;
-            height: 240px;
+            width: 200px;
+            height: 200px;
             background-color: red;
             border-radius: 50%;
             position: absolute;
         }
-        .zoneB::before {
-            content: "";
-            width: 240px;
-            height: 120px;
-            background-color: blue;
-            position: absolute;
-        }
         .draggable {
-            cursor: grab;
-            padding: 10px;
+            width: 120px;
+            height: 120px;
             background-color: white;
             color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            cursor: grab;
             margin: 5px;
-            border-radius: 5px;
-            text-align: center;
         }
     </style>
 </head>
@@ -86,21 +75,19 @@
         <div class="zone-container">
             <div class="zone-top">
                 <div class="zone zoneA" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-                <div class="zone zoneB" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <div class="zone zoneB"></div>
             </div>
             <div class="zone-bottom">
-                <div class="zone zoneC" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-                <div class="zone zoneD" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-                <div class="zone zoneE" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                <div class="zone zoneC"></div>
+                <div class="zone zoneD"></div>
+                <div class="zone zoneE"></div>
             </div>
         </div>
         <div class="zoneF">
-            <button class="validation" onclick="nextStep()">Valider</button>
-            <div class="elements"></div>
+            <div id="numbers-container"></div>
         </div>
     </div>
     <script>
-        let step = 1;
         function allowDrop(event) {
             event.preventDefault();
         }
@@ -111,49 +98,27 @@
             event.preventDefault();
             var data = event.dataTransfer.getData("text");
             var draggedElement = document.getElementById(data);
-            event.target.appendChild(draggedElement);
-        }
-        function nextStep() {
-            let elementsContainer = document.querySelector(".elements");
-            elementsContainer.innerHTML = "";
-            if (step === 1) {
-                for (let i = 1; i <= 7; i++) {
-                    let label = document.createElement("div");
-                    label.textContent = i;
-                    label.style.width = "240px";
-                    label.style.height = "240px";
-                    label.style.borderRadius = "50%";
-                    label.classList.add("draggable");
-                    label.draggable = true;
-                    label.ondragstart = drag;
-                    elementsContainer.appendChild(label);
-                }
-                step++;
-            } else if (step === 2) {
-                let images = [
-                    { name: "Soleil", url: "https://static.arasaac.org/pictograms/7252/7252_500.png" },
-                    { name: "Éclaircies", url: "https://static.arasaac.org/pictograms/34896/34896_500.png" },
-                    { name: "Nuages", url: "https://static.arasaac.org/pictograms/34383/34383_500.png" },
-                    { name: "Pluie", url: "https://static.arasaac.org/pictograms/7148/7148_500.png" },
-                    { name: "Vent", url: "https://static.arasaac.org/pictograms/7259/7259_500.png" },
-                    { name: "Brouillard", url: "https://static.arasaac.org/pictograms/35049/35049_500.png" },
-                    { name: "Neige", url: "https://static.arasaac.org/pictograms/7172/7172_500.png" }
-                ];
-                images.forEach(img => {
-                    let picto = document.createElement("img");
-                    picto.src = img.url;
-                    picto.alt = img.name;
-                    picto.width = 100;
-                    picto.height = 100;
-                    picto.classList.add("draggable");
-                    picto.draggable = true;
-                    picto.ondragstart = drag;
-                    elementsContainer.appendChild(picto);
-                });
-                step++;
+            let dropZone = event.target;
+            if (dropZone.classList.contains("zoneA")) {
+                draggedElement.style.position = "absolute";
+                draggedElement.style.left = "50%";
+                draggedElement.style.top = "50%";
+                draggedElement.style.transform = "translate(-50%, -50%)";
+                dropZone.appendChild(draggedElement);
             }
         }
+        document.addEventListener("DOMContentLoaded", function() {
+            let container = document.getElementById("numbers-container");
+            for (let i = 1; i <= 7; i++) {
+                let numberDiv = document.createElement("div");
+                numberDiv.textContent = i;
+                numberDiv.classList.add("draggable");
+                numberDiv.id = "num" + i;
+                numberDiv.draggable = true;
+                numberDiv.ondragstart = drag;
+                container.appendChild(numberDiv);
+            }
+        });
     </script>
 </body>
 </html>
-
