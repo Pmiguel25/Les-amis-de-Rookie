@@ -55,24 +55,18 @@
             justify-content: center;
             border: 1px solid white;
         }
-        .zoneA {
-            position: relative;
-        }
         .zoneA::before {
             content: "";
-            width: 80px;
-            height: 80px;
+            width: 240px;
+            height: 240px;
             background-color: red;
             border-radius: 50%;
             position: absolute;
         }
-        .zoneB {
-            position: relative;
-        }
         .zoneB::before {
             content: "";
-            width: 120px;
-            height: 60px;
+            width: 240px;
+            height: 120px;
             background-color: blue;
             position: absolute;
         }
@@ -83,15 +77,12 @@
             color: black;
             margin: 5px;
             border-radius: 5px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="zoneF">
-            <button class="validation" onclick="nextStep()">Valider</button>
-            <div class="elements"></div>
-        </div>
         <div class="zone-container">
             <div class="zone-top">
                 <div class="zone zoneA" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
@@ -102,6 +93,10 @@
                 <div class="zone zoneD" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
                 <div class="zone zoneE" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
             </div>
+        </div>
+        <div class="zoneF">
+            <button class="validation" onclick="nextStep()">Valider</button>
+            <div class="elements"></div>
         </div>
     </div>
     <script>
@@ -122,46 +117,38 @@
             let elementsContainer = document.querySelector(".elements");
             elementsContainer.innerHTML = "";
             if (step === 1) {
-                let days = [
-                    { name: "Lundi", color: "purple" }, { name: "Mardi", color: "yellow" }, { name: "Mercredi", color: "green" },
-                    { name: "Jeudi", color: "orange" }, { name: "Vendredi", color: "blue" }, { name: "Samedi", color: "pink" },
-                    { name: "Dimanche", color: "red" }
-                ];
-                days.forEach(d => {
-                    let label = document.createElement("div");
-                    label.textContent = d.name;
-                    label.style.backgroundColor = d.color;
-                    label.classList.add("draggable");
-                    label.draggable = true;
-                    label.ondragstart = drag;
-                    elementsContainer.appendChild(label);
-                });
-                step++;
-            } else if (step === 2) {
-                for (let i = 0; i <= 9; i++) {
+                for (let i = 1; i <= 7; i++) {
                     let label = document.createElement("div");
                     label.textContent = i;
+                    label.style.width = "240px";
+                    label.style.height = "240px";
+                    label.style.borderRadius = "50%";
                     label.classList.add("draggable");
                     label.draggable = true;
                     label.ondragstart = drag;
                     elementsContainer.appendChild(label);
                 }
                 step++;
-            } else if (step === 3) {
-                let months = [
-                    { name: "Janvier", color: "blue" }, { name: "Février", color: "blue" }, { name: "Mars", color: "blue" },
-                    { name: "Avril", color: "green" }, { name: "Mai", color: "green" }, { name: "Juin", color: "green" },
-                    { name: "Juillet", color: "yellow" }, { name: "Août", color: "yellow" }, { name: "Septembre", color: "yellow" },
-                    { name: "Octobre", color: "orange" }, { name: "Novembre", color: "orange" }, { name: "Décembre", color: "orange" }
+            } else if (step === 2) {
+                let images = [
+                    { name: "Soleil", url: "https://static.arasaac.org/pictograms/7252/7252_500.png" },
+                    { name: "Éclaircies", url: "https://static.arasaac.org/pictograms/34896/34896_500.png" },
+                    { name: "Nuages", url: "https://static.arasaac.org/pictograms/34383/34383_500.png" },
+                    { name: "Pluie", url: "https://static.arasaac.org/pictograms/7148/7148_500.png" },
+                    { name: "Vent", url: "https://static.arasaac.org/pictograms/7259/7259_500.png" },
+                    { name: "Brouillard", url: "https://static.arasaac.org/pictograms/35049/35049_500.png" },
+                    { name: "Neige", url: "https://static.arasaac.org/pictograms/7172/7172_500.png" }
                 ];
-                months.forEach(m => {
-                    let label = document.createElement("div");
-                    label.textContent = m.name;
-                    label.style.backgroundColor = m.color;
-                    label.classList.add("draggable");
-                    label.draggable = true;
-                    label.ondragstart = drag;
-                    elementsContainer.appendChild(label);
+                images.forEach(img => {
+                    let picto = document.createElement("img");
+                    picto.src = img.url;
+                    picto.alt = img.name;
+                    picto.width = 100;
+                    picto.height = 100;
+                    picto.classList.add("draggable");
+                    picto.draggable = true;
+                    picto.ondragstart = drag;
+                    elementsContainer.appendChild(picto);
                 });
                 step++;
             }
@@ -169,3 +156,4 @@
     </script>
 </body>
 </html>
+
