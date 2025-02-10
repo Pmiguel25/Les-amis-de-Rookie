@@ -56,20 +56,31 @@
             position: relative;
         }
 
+        .zone-b {
+            position: relative;
+        }
+
         .target-zone {
             width: 200px;
             height: 200px;
             border-radius: 50%;
-            border: 2px dashed white;
+            background-color: red; /* Cercle rouge plein */
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
+        .target-rectangle {
+            width: 200px;
+            height: 100px;
+            background-color: blue; /* Rectangle bleu */
+            display: none; /* Caché au début */
+        }
+
         .right-side {
             width: 33.33%;
             height: 100%;
-            background-color: white;
+            background-color: black; /* Fond noir pour la zone F */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -84,19 +95,35 @@
         }
 
         .pictogram {
-            width: 50px;
-            height: 50px;
+            width: 120px; /* Taille des pictogrammes */
+            height: 120px;
             cursor: grab;
+            background-color: white; /* Fond blanc pour les pictogrammes */
+            border-radius: 10px; /* Optionnel : pour adoucir les bords */
+        }
+
+        .pictogram-locked {
+            cursor: default; /* Pictogramme verrouillé */
         }
 
         .cancel-button, .validate-button {
             margin-bottom: 10px;
             padding: 10px 20px;
             cursor: pointer;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
         }
 
         .validate-button {
             display: none;
+        }
+
+        .pictogram-label {
+            color: white;
+            font-size: 14px;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -107,7 +134,9 @@
                 <div class="zone-a">
                     <div id="target-zone" class="target-zone"></div>
                 </div>
-                <div class="zone-b"></div>
+                <div class="zone-b">
+                    <div id="target-rectangle" class="target-rectangle"></div>
+                </div>
             </div>
             <div class="bottom-left">
                 <div class="zone-c"></div>
@@ -118,7 +147,7 @@
         <div class="right-side zone-f">
             <button id="cancel-button" class="cancel-button">Annuler</button>
             <button id="validate-button" class="validate-button">Valider</button>
-            <div class="pictograms">
+            <div id="pictograms-step1" class="pictograms">
                 <img src="https://static.arasaac.org/pictograms/2627/2627_500.png" alt="1" class="pictogram" draggable="true">
                 <img src="https://static.arasaac.org/pictograms/2628/2628_500.png" alt="2" class="pictogram" draggable="true">
                 <img src="https://static.arasaac.org/pictograms/2629/2629_500.png" alt="3" class="pictogram" draggable="true">
@@ -127,55 +156,140 @@
                 <img src="https://static.arasaac.org/pictograms/2632/2632_500.png" alt="6" class="pictogram" draggable="true">
                 <img src="https://static.arasaac.org/pictograms/2633/2633_500.png" alt="7" class="pictogram" draggable="true">
             </div>
+            <div id="pictograms-step2" class="pictograms" style="display: none;">
+                <div>
+                    <img src="https://static.arasaac.org/pictograms/7252/7252_500.png" alt="soleil" class="pictogram" draggable="true">
+                    <div class="pictogram-label">soleil</div>
+                </div>
+                <div>
+                    <img src="https://static.arasaac.org/pictograms/34383/34383_500.png" alt="nuages" class="pictogram" draggable="true">
+                    <div class="pictogram-label">nuages</div>
+                </div>
+                <div>
+                    <img src="https://static.arasaac.org/pictograms/34896/34896_500.png" alt="éclaircies" class="pictogram" draggable="true">
+                    <div class="pictogram-label">éclaircies</div>
+                </div>
+                <div>
+                    <img src="https://static.arasaac.org/pictograms/7148/7148_500.png" alt="pluie" class="pictogram" draggable="true">
+                    <div class="pictogram-label">pluie</div>
+                </div>
+                <div>
+                    <img src="https://static.arasaac.org/pictograms/7172/7172_500.png" alt="neige" class="pictogram" draggable="true">
+                    <div class="pictogram-label">neige</div>
+                </div>
+                <div>
+                    <img src="https://static.arasaac.org/pictograms/35049/35049_500.png" alt="brouillard" class="pictogram" draggable="true">
+                    <div class="pictogram-label">brouillard</div>
+                </div>
+                <div>
+                    <img src="https://static.arasaac.org/pictograms/7259/7259_500.png" alt="vent" class="pictogram" draggable="true">
+                    <div class="pictogram-label">vent</div>
+                </div>
+            </div>
         </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const pictograms = document.querySelectorAll('.pictogram');
+            const pictogramsStep1 = document.querySelectorAll('#pictograms-step1 .pictogram');
+            const pictogramsStep2 = document.querySelectorAll('#pictograms-step2 .pictogram');
             const targetZone = document.getElementById('target-zone');
+            const targetRectangle = document.getElementById('target-rectangle');
             const validateButton = document.getElementById('validate-button');
             const cancelButton = document.getElementById('cancel-button');
+            const pictogramsStep1Container = document.getElementById('pictograms-step1');
+            const pictogramsStep2Container = document.getElementById('pictograms-step2');
 
             let draggedPictogram = null;
             let initialPositions = {};
+            let currentStep = 1;
 
-            pictograms.forEach(pictogram => {
+            // Fonction pour calculer la distance entre deux points
+            function calculateDistance(x1, y1, x2, y2) {
+                return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            }
+
+            // Fonction pour centrer le pictogramme dans la zone cible
+            function centerPictogram(pictogram, target) {
+                const targetRect = target.getBoundingClientRect();
+                const pictogramRect = pictogram.getBoundingClientRect();
+
+                pictogram.style.position = 'absolute';
+                pictogram.style.left = `${targetRect.left + (targetRect.width - pictogramRect.width) / 2}px`;
+                pictogram.style.top = `${targetRect.top + (targetRect.height - pictogramRect.height) / 2}px`;
+            }
+
+            // Fonction pour gérer le déplacement des pictogrammes
+            function handleDragEnd(event, target, step) {
+                const targetRect = target.getBoundingClientRect();
+                const targetCenterX = targetRect.left + targetRect.width / 2;
+                const targetCenterY = targetRect.top + targetRect.height / 2;
+
+                const pictogramRect = event.target.getBoundingClientRect();
+                const pictogramCenterX = pictogramRect.left + pictogramRect.width / 2;
+                const pictogramCenterY = pictogramRect.top + pictogramRect.height / 2;
+
+                const distance = calculateDistance(targetCenterX, targetCenterY, pictogramCenterX, pictogramCenterY);
+
+                if (distance <= 160) { // 160px est la moitié de 320px (distance du centre)
+                    centerPictogram(event.target, target);
+                    validateButton.style.display = 'block';
+                } else {
+                    // Le pictogramme reste où il est lâché
+                    event.target.style.position = 'absolute';
+                    event.target.style.left = `${event.clientX - pictogramRect.width / 2}px`;
+                    event.target.style.top = `${event.clientY - pictogramRect.height / 2}px`;
+                    validateButton.style.display = 'none';
+                }
+            }
+
+            // Étape 1 : Gestion des pictogrammes
+            pictogramsStep1.forEach(pictogram => {
                 pictogram.addEventListener('dragstart', function(event) {
                     draggedPictogram = event.target;
                     initialPositions[draggedPictogram.alt] = { x: event.target.offsetLeft, y: event.target.offsetTop };
                 });
 
                 pictogram.addEventListener('dragend', function(event) {
-                    const rect = targetZone.getBoundingClientRect();
-                    const pictogramRect = event.target.getBoundingClientRect();
-
-                    const isNearTarget = (
-                        pictogramRect.left >= rect.left - 50 && pictogramRect.right <= rect.right + 50 &&
-                        pictogramRect.top >= rect.top - 50 && pictogramRect.bottom <= rect.bottom + 50
-                    );
-
-                    if (isNearTarget) {
-                        event.target.style.position = 'absolute';
-                        event.target.style.left = `${rect.left + (rect.width - pictogramRect.width) / 2 - event.target.parentElement.getBoundingClientRect().left}px`;
-                        event.target.style.top = `${rect.top + (rect.height - pictogramRect.height) / 2 - event.target.parentElement.getBoundingClientRect().top}px`;
-                        validateButton.style.display = 'block';
-                    } else {
-                        event.target.style.position = 'static';
-                        validateButton.style.display = 'none';
-                    }
+                    handleDragEnd(event, targetZone, 1);
                 });
             });
 
+            // Étape 2 : Gestion des pictogrammes
+            pictogramsStep2.forEach(pictogram => {
+                pictogram.addEventListener('dragstart', function(event) {
+                    draggedPictogram = event.target;
+                    initialPositions[draggedPictogram.alt] = { x: event.target.offsetLeft, y: event.target.offsetTop };
+                });
+
+                pictogram.addEventListener('dragend', function(event) {
+                    handleDragEnd(event, targetRectangle, 2);
+                });
+            });
+
+            // Bouton Annuler
             cancelButton.addEventListener('click', function() {
-                if (draggedPictogram) {
+                if (draggedPictogram && initialPositions[draggedPictogram.alt]) {
                     draggedPictogram.style.position = 'static';
+                    draggedPictogram.style.left = 'auto';
+                    draggedPictogram.style.top = 'auto';
                     validateButton.style.display = 'none';
                 }
             });
 
+            // Bouton Valider
             validateButton.addEventListener('click', function() {
-                alert('Étape suivante!');
-                // Ajoutez ici le code pour passer à l'étape suivante
+                if (currentStep === 1) {
+                    // Passer à l'étape 2
+                    currentStep = 2;
+                    targetZone.style.display = 'none'; // Masquer le cercle rouge
+                    targetRectangle.style.display = 'flex'; // Afficher le rectangle bleu
+                    pictogramsStep1Container.style.display = 'none'; // Masquer les pictogrammes de l'étape 1
+                    pictogramsStep2Container.style.display = 'flex'; // Afficher les pictogrammes de l'étape 2
+                    validateButton.style.display = 'none'; // Masquer le bouton Valider
+                } else if (currentStep === 2) {
+                    alert('Étape suivante!');
+                    // Ajoutez ici le code pour passer à l'étape suivante
+                }
             });
         });
     </script>
