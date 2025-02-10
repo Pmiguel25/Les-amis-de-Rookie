@@ -5,169 +5,179 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Création de Rituels</title>
     <style>
-        body {
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
             background-color: black;
-            display: flex;
-            height: 100vh;
             color: white;
             font-family: Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         .container {
             display: flex;
             width: 100%;
             height: 100%;
         }
-        .zoneF {
-            width: 33%;
-            background-color: #333;
+
+        .left-side {
+            display: flex;
+            flex-direction: column;
+            width: 66.66%;
+            height: 100%;
+        }
+
+        .top-left {
+            display: flex;
+            height: 50%;
+        }
+
+        .bottom-left {
+            display: flex;
+            height: 50%;
+        }
+
+        .zone-a, .zone-b, .zone-c, .zone-d, .zone-e {
+            flex: 1;
+            border: 1px solid white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .zone-a {
+            position: relative;
+        }
+
+        .target-zone {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2px dashed white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .right-side {
+            width: 33.33%;
+            height: 100%;
+            background-color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 10px;
-            overflow-y: auto;
-            position: relative;
         }
-        .buttons {
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 10px;
-        }
-        .btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            color: white;
-        }
-        .btn-annuler {
-            background-color: red;
-        }
-        .btn-valider {
-            background-color: green;
-        }
-        .zone-container {
-            width: 67%;
+
+        .pictograms {
             display: flex;
             flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
         }
-        .zone-top {
-            flex: 1;
-            display: flex;
-        }
-        .zone-bottom {
-            flex: 1;
-            display: flex;
-        }
-        .zone {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid white;
-            position: relative;
-        }
-        .zoneA::before {
-            content: "";
-            width: 200px;
-            height: 200px;
-            background-color: red;
-            border-radius: 50%;
-            position: absolute;
-        }
-        .draggable {
-            width: 120px;
-            height: 120px;
+
+        .pictogram {
+            width: 50px;
+            height: 50px;
             cursor: grab;
-            margin: 5px;
-            background-color: white;
-            position: absolute;
+        }
+
+        .cancel-button, .validate-button {
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        .validate-button {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="zone-container">
-            <div class="zone-top">
-                <div class="zone zoneA" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-                <div class="zone zoneB"></div>
+        <div class="left-side">
+            <div class="top-left">
+                <div class="zone-a">
+                    <div id="target-zone" class="target-zone"></div>
+                </div>
+                <div class="zone-b"></div>
             </div>
-            <div class="zone-bottom">
-                <div class="zone zoneC"></div>
-                <div class="zone zoneD"></div>
-                <div class="zone zoneE"></div>
+            <div class="bottom-left">
+                <div class="zone-c"></div>
+                <div class="zone-d"></div>
+                <div class="zone-e"></div>
             </div>
         </div>
-        <div class="zoneF">
-            <div class="buttons">
-                <button class="btn btn-annuler" onclick="resetPosition()">ANNULER</button>
-                <button class="btn btn-valider" onclick="validateSelection()">VALIDER</button>
+        <div class="right-side zone-f">
+            <button id="cancel-button" class="cancel-button">Annuler</button>
+            <button id="validate-button" class="validate-button">Valider</button>
+            <div class="pictograms">
+                <img src="https://static.arasaac.org/pictograms/2627/2627_500.png" alt="1" class="pictogram" draggable="true">
+                <img src="https://static.arasaac.org/pictograms/2628/2628_500.png" alt="2" class="pictogram" draggable="true">
+                <img src="https://static.arasaac.org/pictograms/2629/2629_500.png" alt="3" class="pictogram" draggable="true">
+                <img src="https://static.arasaac.org/pictograms/2630/2630_500.png" alt="4" class="pictogram" draggable="true">
+                <img src="https://static.arasaac.org/pictograms/2631/2631_500.png" alt="5" class="pictogram" draggable="true">
+                <img src="https://static.arasaac.org/pictograms/2632/2632_500.png" alt="6" class="pictogram" draggable="true">
+                <img src="https://static.arasaac.org/pictograms/2633/2633_500.png" alt="7" class="pictogram" draggable="true">
             </div>
-            <div id="numbers-container"></div>
         </div>
     </div>
     <script>
-        function allowDrop(event) {
-            event.preventDefault();
-        }
-        function drag(event) {
-            event.dataTransfer.setData("text", event.target.id);
-        }
-        function drop(event) {
-            event.preventDefault();
-            var data = event.dataTransfer.getData("text");
-            var draggedElement = document.getElementById(data);
-            draggedElement.style.left = event.clientX - 60 + "px";
-            draggedElement.style.top = event.clientY - 60 + "px";
-            draggedElement.style.position = "absolute";
-        }
-        function resetPosition() {
-            let container = document.getElementById("numbers-container");
-            document.querySelectorAll(".draggable").forEach(el => {
-                el.style.left = el.dataset.initialLeft;
-                el.style.top = el.dataset.initialTop;
-                container.appendChild(el);
+        document.addEventListener('DOMContentLoaded', function() {
+            const pictograms = document.querySelectorAll('.pictogram');
+            const targetZone = document.getElementById('target-zone');
+            const validateButton = document.getElementById('validate-button');
+            const cancelButton = document.getElementById('cancel-button');
+
+            let draggedPictogram = null;
+            let initialPositions = {};
+
+            pictograms.forEach(pictogram => {
+                pictogram.addEventListener('dragstart', function(event) {
+                    draggedPictogram = event.target;
+                    initialPositions[draggedPictogram.alt] = { x: event.target.offsetLeft, y: event.target.offsetTop };
+                });
+
+                pictogram.addEventListener('dragend', function(event) {
+                    const rect = targetZone.getBoundingClientRect();
+                    const pictogramRect = event.target.getBoundingClientRect();
+
+                    const isNearTarget = (
+                        pictogramRect.left >= rect.left - 50 && pictogramRect.right <= rect.right + 50 &&
+                        pictogramRect.top >= rect.top - 50 && pictogramRect.bottom <= rect.bottom + 50
+                    );
+
+                    if (isNearTarget) {
+                        event.target.style.position = 'absolute';
+                        event.target.style.left = `${rect.left + (rect.width - pictogramRect.width) / 2 - event.target.parentElement.getBoundingClientRect().left}px`;
+                        event.target.style.top = `${rect.top + (rect.height - pictogramRect.height) / 2 - event.target.parentElement.getBoundingClientRect().top}px`;
+                        validateButton.style.display = 'block';
+                    } else {
+                        event.target.style.position = 'static';
+                        validateButton.style.display = 'none';
+                    }
+                });
             });
-        }
-        function validateSelection() {
-            alert("Validation effectuée !");
-        }
-        document.addEventListener("DOMContentLoaded", function() {
-            let container = document.getElementById("numbers-container");
-            let images = {
-                1: "https://static.arasaac.org/pictograms/2627/2627_500.png",
-                2: "https://static.arasaac.org/pictograms/2628/2628_500.png",
-                3: "https://static.arasaac.org/pictograms/2629/2629_500.png",
-                4: "https://static.arasaac.org/pictograms/2630/2630_500.png",
-                5: "https://static.arasaac.org/pictograms/2631/2631_500.png",
-                6: "https://static.arasaac.org/pictograms/2632/2632_500.png",
-                7: "https://static.arasaac.org/pictograms/2633/2633_500.png"
-            };
-            let startX = 10;
-            let startY = 50;
-            for (let i = 1; i <= 7; i++) {
-                let img = document.createElement("img");
-                img.src = images[i];
-                img.classList.add("draggable");
-                img.id = "num" + i;
-                img.draggable = true;
-                img.ondragstart = drag;
-                img.style.backgroundColor = "white";
-                img.style.left = startX + "px";
-                img.style.top = startY + "px";
-                img.dataset.initialLeft = startX + "px";
-                img.dataset.initialTop = startY + "px";
-                img.style.position = "absolute";
-                container.appendChild(img);
-                startY += 130; 
-                if (startY > 600) { 
-                    startY = 50; 
-                    startX += 140; 
+
+            cancelButton.addEventListener('click', function() {
+                if (draggedPictogram) {
+                    draggedPictogram.style.position = 'static';
+                    validateButton.style.display = 'none';
                 }
-            }
+            });
+
+            validateButton.addEventListener('click', function() {
+                alert('Étape suivante!');
+                // Ajoutez ici le code pour passer à l'étape suivante
+            });
         });
     </script>
 </body>
 </html>
-
