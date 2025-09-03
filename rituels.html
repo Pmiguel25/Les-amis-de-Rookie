@@ -159,6 +159,76 @@ function loadDays(){const c=document.getElementById('numbers-container');c.inner
 function loadNumbers(){const c=document.getElementById('numbers-container');c.innerHTML='';let sx=10,sy=20,col=0;for(let i=0;i<=9;i++){const d=document.createElement('div');d.className='draggable';d.id='digit'+i+'-'+Date.now();d.draggable=true;d.dataset.phase='4';d.dataset.origin='numbers-container';d.dataset.initialLeft=sx+'px';d.dataset.initialTop=sy+'px';d.style.left=d.dataset.initialLeft;d.style.top=d.dataset.initialTop;d.textContent=i;d.addEventListener('dragstart',drag);c.appendChild(d);col++;sx+=140;if(col>=3){col=0;sx=10;sy+=140;}}}
 function loadMonths(){const c=document.getElementById('numbers-container');c.innerHTML='';const arr=[{n:'JANVIER',c:'blue'},{n:'FÉVRIER',c:'blue'},{n:'MARS',c:'blue'},{n:'AVRIL',c:'green'},{n:'MAI',c:'green'},{n:'JUIN',c:'green'},{n:'JUILLET',c:'yellow'},{n:'AOÛT',c:'yellow'},{n:'SEPTEMBRE',c:'yellow'},{n:'OCTOBRE',c:'orange'},{n:'NOVEMBRE',c:'orange'},{n:'DÉCEMBRE',c:'orange'}];let sy=30;arr.forEach((m,i)=>{const d=document.createElement('div');d.className='month-label';d.id='month'+i;d.draggable=true;d.dataset.phase='5';d.dataset.origin='numbers-container';d.dataset.initialLeft='10px';d.dataset.initialTop=sy+'px';d.style.left=d.dataset.initialLeft;d.style.top=d.dataset.initialTop;d.style.backgroundColor=m.c;d.textContent=m.n;d.addEventListener('dragstart',drag);c.appendChild(d);sy+=110;});}
 document.addEventListener('DOMContentLoaded',loadPhase1);
+
+/* ================================
+   GESTION DES ÉCRANS TACTILES
+==================================*/
+let touchDrag = null;
+let touchOffsetX = 0;
+let touchOffsetY = 0;
+
+function findDraggableAtTouch(touch) {
+  const elem = document.elementFromPoint(touch.clientX, touch.clientY);
+  return getDraggableAncestor(elem);
+}
+
+// Début du toucher -> équivalent à dragstart
+document.addEventListener('touchstart', function(e) {
+  if (e.targetTouches.length !== 1) return; 
+  const touch = e.targetTouches[0];
+  const target = findDraggableAtTouch(touch);
+  if (!target) return;
+
+  touchDrag = target;
+
+  const rect = target.getBoundingClientRect();
+  touchOffsetX = touch.clientX - rect.left;
+  touchOffsetY = touch.clientY - rect.top;
+
+  const fakeEvent = new DataTransfer();
+  const dragEvent = new DragEvent("dragstart", { dataTransfer: fakeEvent });
+  target.dispatchEvent(dragEvent);
+
+  e.preventDefault();
+}, { passive: false });
+
+// Déplacement -> équivalent à dragover
+document.addEventListener('touchmove', function(e) {
+  if (!touchDrag) return;
+  const touch = e.targetTouches[0];
+
+  touchDrag.style.position = 'absolute';
+  touchDrag.style.left = (touch.clientX - touchOffsetX) + 'px';
+  touchDrag.style.top = (touch.clientY - touchOffsetY) + 'px';
+  touchDrag.style.zIndex = 9999;
+
+  e.preventDefault();
+}, { passive: false });
+
+// Fin du toucher -> équivalent à drop
+document.addEventListener('touchend', function(e) {
+  if (!touchDrag) return;
+
+  const touch = e.changedTouches[0];
+  const dropElem = document.elementFromPoint(touch.clientX, touch.clientY);
+
+  if (dropElem) {
+    const zone = dropElem.closest('.zone');
+    if (zone) {
+      const fakeDropEvent = {
+        preventDefault: () => {},
+        dataTransfer: {
+          getData: () => touchDrag.id
+        },
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      };
+      dropAnywhere(fakeDropEvent, zone.id.replace('zone', ''));
+    }
+  }
+
+  touchDrag = null;
+}, { passive: false });
 </script>
 </body>
 </html>
