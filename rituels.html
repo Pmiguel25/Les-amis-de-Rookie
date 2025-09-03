@@ -1,297 +1,164 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Création de Rituels</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Création de Rituels</title>
+<style>
+  html,body{height:100%;margin:0}
+  body{
+    font-family: Arial, sans-serif;
+    background:#000;
+    color:#fff;
+    height:100vh;
+  }
+  .container{display:flex;height:100%}
+  .zone-container{width:67%;display:flex;flex-direction:column}
+  .zone-top{flex:1;display:flex}
+  .zone-bottom{flex:1;display:flex}
+  .zone{flex:1;border:1px solid #fff;position:relative;display:flex;align-items:center;justify-content:center}
+  .zoneA::before{
+    content:"";position:absolute;width:200px;height:200px;border-radius:50%;background:red;
+    top:50%;left:50%;transform:translate(-50%,-50%);
+  }
+  .zoneB::before{
+    content:"";position:absolute;width:240px;height:120px;background:blue;
+    top:50%;left:50%;transform:translate(-50%,-50%);
+  }
 
-        body {
-            background-color: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+  .zoneF{
+    width:33%;
+    background:#333;
+    padding:10px;
+    box-sizing:border-box;
+    overflow:auto;
+  }
+  .buttons{display:flex;gap:10px;justify-content:space-around;margin-bottom:10px}
+  .btn{padding:10px 16px;border:none;color:#fff;cursor:pointer}
+  .btn-annuler{background:#c62828}
+  .btn-valider{background:#2e7d32}
 
-        .container {
-            display: flex;
-            width: 100%;
-            height: 100%;
-        }
+  #numbers-container{position:relative;min-height:200px}
 
-        .left-side {
-            display: flex;
-            flex-direction: column;
-            width: 66.66%;
-            height: 100%;
-        }
-
-        .top-left {
-            display: flex;
-            height: 50%;
-        }
-
-        .bottom-left {
-            display: flex;
-            height: 50%;
-        }
-
-        .zone-a, .zone-b, .zone-c, .zone-d, .zone-e {
-            flex: 1;
-            border: 1px solid white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .zone-a {
-            position: relative;
-        }
-
-        .zone-b {
-            position: relative;
-        }
-
-        .target-zone {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background-color: red; /* Cercle rouge plein */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .target-rectangle {
-            width: 200px;
-            height: 100px;
-            background-color: blue; /* Rectangle bleu */
-            display: none; /* Caché au début */
-        }
-
-        .right-side {
-            width: 33.33%;
-            height: 100%;
-            background-color: black; /* Fond noir pour la zone F */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-        }
-
-        .pictograms {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .pictogram {
-            width: 120px; /* Taille des pictogrammes */
-            height: 120px;
-            cursor: grab;
-            background-color: white; /* Fond blanc pour les pictogrammes */
-            border-radius: 10px; /* Optionnel : pour adoucir les bords */
-        }
-
-        .pictogram-locked {
-            cursor: default; /* Pictogramme verrouillé */
-        }
-
-        .cancel-button, .validate-button {
-            margin-bottom: 10px;
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #333;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .validate-button {
-            display: none;
-        }
-
-        .pictogram-label {
-            color: white;
-            font-size: 14px;
-            margin-top: 5px;
-        }
-    </style>
+  /* éléments draggable */
+  .draggable{
+    width:120px;height:120px;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;
+    font-size:64px;font-weight:700;position:absolute;cursor:grab;box-sizing:border-box;border-radius:8px;
+  }
+  .draggable-small{
+    width:200px;height:200px;background:#fff;color:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    position:absolute;cursor:grab;border-radius:8px;box-sizing:border-box;padding:8px;
+  }
+  .draggable-small img{max-width:160px;max-height:120px;display:block}
+  .draggable-day{
+    position:absolute;cursor:grab;display:flex;align-items:center;justify-content:center;
+    padding:20px 40px;font-weight:700;font-size:28px;border-radius:8px;color:#fff;box-sizing:border-box;
+  }
+  .month-label{position:absolute;cursor:grab;padding:20px 40px;font-weight:700;font-size:28px;border-radius:8px;color:#fff}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="left-side">
-            <div class="top-left">
-                <div class="zone-a">
-                    <div id="target-zone" class="target-zone"></div>
-                </div>
-                <div class="zone-b">
-                    <div id="target-rectangle" class="target-rectangle"></div>
-                </div>
-            </div>
-            <div class="bottom-left">
-                <div class="zone-c"></div>
-                <div class="zone-d"></div>
-                <div class="zone-e"></div>
-            </div>
-        </div>
-        <div class="right-side zone-f">
-            <button id="cancel-button" class="cancel-button">Annuler</button>
-            <button id="validate-button" class="validate-button">Valider</button>
-            <div id="pictograms-step1" class="pictograms">
-                <img src="https://static.arasaac.org/pictograms/2627/2627_500.png" alt="1" class="pictogram" draggable="true">
-                <img src="https://static.arasaac.org/pictograms/2628/2628_500.png" alt="2" class="pictogram" draggable="true">
-                <img src="https://static.arasaac.org/pictograms/2629/2629_500.png" alt="3" class="pictogram" draggable="true">
-                <img src="https://static.arasaac.org/pictograms/2630/2630_500.png" alt="4" class="pictogram" draggable="true">
-                <img src="https://static.arasaac.org/pictograms/2631/2631_500.png" alt="5" class="pictogram" draggable="true">
-                <img src="https://static.arasaac.org/pictograms/2632/2632_500.png" alt="6" class="pictogram" draggable="true">
-                <img src="https://static.arasaac.org/pictograms/2633/2633_500.png" alt="7" class="pictogram" draggable="true">
-            </div>
-            <div id="pictograms-step2" class="pictograms" style="display: none;">
-                <div>
-                    <img src="https://static.arasaac.org/pictograms/7252/7252_500.png" alt="soleil" class="pictogram" draggable="true">
-                    <div class="pictogram-label">soleil</div>
-                </div>
-                <div>
-                    <img src="https://static.arasaac.org/pictograms/34383/34383_500.png" alt="nuages" class="pictogram" draggable="true">
-                    <div class="pictogram-label">nuages</div>
-                </div>
-                <div>
-                    <img src="https://static.arasaac.org/pictograms/34896/34896_500.png" alt="éclaircies" class="pictogram" draggable="true">
-                    <div class="pictogram-label">éclaircies</div>
-                </div>
-                <div>
-                    <img src="https://static.arasaac.org/pictograms/7148/7148_500.png" alt="pluie" class="pictogram" draggable="true">
-                    <div class="pictogram-label">pluie</div>
-                </div>
-                <div>
-                    <img src="https://static.arasaac.org/pictograms/7172/7172_500.png" alt="neige" class="pictogram" draggable="true">
-                    <div class="pictogram-label">neige</div>
-                </div>
-                <div>
-                    <img src="https://static.arasaac.org/pictograms/35049/35049_500.png" alt="brouillard" class="pictogram" draggable="true">
-                    <div class="pictogram-label">brouillard</div>
-                </div>
-                <div>
-                    <img src="https://static.arasaac.org/pictograms/7259/7259_500.png" alt="vent" class="pictogram" draggable="true">
-                    <div class="pictogram-label">vent</div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="zone-container">
+      <div class="zone-top">
+        <div id="zoneA" class="zone" ondrop="dropAnywhere(event,'A')" ondragover="allowDrop(event)"></div>
+        <div id="zoneB" class="zone" ondrop="dropAnywhere(event,'B')" ondragover="allowDrop(event)"></div>
+      </div>
+      <div class="zone-bottom">
+        <div id="zoneC" class="zone" ondrop="dropAnywhere(event,'C')" ondragover="allowDrop(event)"></div>
+        <div id="zoneD" class="zone" ondrop="dropAnywhere(event,'D')" ondragover="allowDrop(event)"></div>
+        <div id="zoneE" class="zone" ondrop="dropAnywhere(event,'E')" ondragover="allowDrop(event)"></div>
+      </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const pictogramsStep1 = document.querySelectorAll('#pictograms-step1 .pictogram');
-            const pictogramsStep2 = document.querySelectorAll('#pictograms-step2 .pictogram');
-            const targetZone = document.getElementById('target-zone');
-            const targetRectangle = document.getElementById('target-rectangle');
-            const validateButton = document.getElementById('validate-button');
-            const cancelButton = document.getElementById('cancel-button');
-            const pictogramsStep1Container = document.getElementById('pictograms-step1');
-            const pictogramsStep2Container = document.getElementById('pictograms-step2');
 
-            let draggedPictogram = null;
-            let initialPositions = {};
-            let currentStep = 1;
+    <div class="zoneF">
+      <div class="buttons">
+        <button class="btn btn-annuler" onclick="resetPosition()">ANNULER</button>
+        <button id="validateBtn" class="btn btn-valider" onclick="validatePhase1()">VALIDER</button>
+      </div>
+      <div id="numbers-container"></div>
+    </div>
+  </div>
 
-            // Fonction pour calculer la distance entre deux points
-            function calculateDistance(x1, y1, x2, y2) {
-                return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-            }
+<script>
+let currentPhase = 1;
+let phase1Validated=false,phase2Validated=false,phase3Validated=false,phase4Validated=false,phase5Validated=false;
 
-            // Fonction pour centrer le pictogramme dans la zone cible
-            function centerPictogram(pictogram, target) {
-                const targetRect = target.getBoundingClientRect();
-                const pictogramRect = pictogram.getBoundingClientRect();
+function allowDrop(e){ e.preventDefault(); }
+function getDraggableAncestor(el){
+  while(el && el!==document.body){
+    if(el.id && (el.classList.contains('draggable')||el.classList.contains('draggable-small')||el.classList.contains('draggable-day')||el.classList.contains('month-label'))) return el;
+    el=el.parentElement;
+  }return null;
+}
+function drag(e){
+  const anc=getDraggableAncestor(e.target);if(!anc) return;
+  e.dataTransfer.setData('text',anc.id);
+}
+function handleSnapToZone(zoneId,dropX,dropY,dragged,th,xOff,yOff){
+  const rect=document.getElementById(zoneId).getBoundingClientRect();
+  const center={x:rect.left+rect.width/2,y:rect.top+rect.height/2};
+  const d=Math.hypot(center.x-dropX,center.y-dropY);
+  if(d<th){
+    dragged.style.left=(center.x-xOff)+'px';
+    dragged.style.top =(center.y-yOff)+'px';
+  }else{
+    dragged.style.left=(dropX-xOff)+'px';
+    dragged.style.top =(dropY-yOff)+'px';
+  }
+  dragged.style.position='absolute';
+  document.body.appendChild(dragged);
+}
+function dropAnywhere(e,zoneId){
+  e.preventDefault();
+  const id=e.dataTransfer.getData('text');if(!id) return;
+  const dragged=document.getElementById(id);if(!dragged) return;
+  const x=e.clientX,y=e.clientY;
+  if(zoneId==='A'&&currentPhase===1&&!phase1Validated){handleSnapToZone('zoneA',x,y,dragged,100,60,60);return;}
+  if(zoneId==='B'&&currentPhase===2&&!phase2Validated){handleSnapToZone('zoneB',x,y,dragged,120,100,100);return;}
+  if(zoneId==='C'&&currentPhase===3&&!phase3Validated){handleSnapToZone('zoneC',x,y,dragged,200,dragged.offsetWidth/2,dragged.offsetHeight/2);return;}
+  if(zoneId==='D'&&currentPhase===4&&!phase4Validated){
+    dragged.style.left=(x-dragged.offsetWidth/2)+'px';
+    dragged.style.top =(y-dragged.offsetHeight/2)+'px';
+    dragged.style.position='absolute';
+    document.body.appendChild(dragged);
+    if(dragged.dataset.origin==='numbers-container'){
+      const clone=dragged.cloneNode(true);
+      clone.id=dragged.id+'-c'+Date.now();
+      clone.draggable=true;clone.dataset.phase='4';clone.dataset.origin='numbers-container';
+      clone.dataset.initialLeft=dragged.dataset.initialLeft;
+      clone.dataset.initialTop =dragged.dataset.initialTop;
+      clone.style.left=clone.dataset.initialLeft;
+      clone.style.top =clone.dataset.initialTop;
+      clone.addEventListener('dragstart',drag);
+      document.getElementById('numbers-container').appendChild(clone);
+    }
+    return;
+  }
+  if(zoneId==='E'&&currentPhase===5){handleSnapToZone('zoneE',x,y,dragged,150,dragged.offsetWidth/2,dragged.offsetHeight/2);return;}
+}
+function resetPosition(){
+  const c=document.getElementById('numbers-container');
+  document.querySelectorAll('[data-phase]').forEach(el=>{
+    if(el.dataset.phase===String(currentPhase)&&el.dataset.locked!=='true'){
+      if(el.dataset.initialLeft) el.style.left=el.dataset.initialLeft;
+      if(el.dataset.initialTop)  el.style.top =el.dataset.initialTop;
+      if(c && !c.contains(el)&&el.dataset.origin==='numbers-container'){c.appendChild(el);}
+    }
+  });
+}
+function validatePhase1(){document.querySelectorAll('[data-phase="1"]').forEach(el=>el.dataset.locked='true');phase1Validated=true;currentPhase=2;document.getElementById('validateBtn').setAttribute('onclick','validatePhase2()');loadWeather();}
+function validatePhase2(){document.querySelectorAll('[data-phase="2"]').forEach(el=>el.dataset.locked='true');phase2Validated=true;currentPhase=3;document.getElementById('validateBtn').setAttribute('onclick','validatePhase3()');loadDays();}
+function validatePhase3(){document.querySelectorAll('[data-phase="3"]').forEach(el=>el.dataset.locked='true');phase3Validated=true;currentPhase=4;document.getElementById('validateBtn').setAttribute('onclick','validatePhase4()');loadNumbers();}
+function validatePhase4(){document.querySelectorAll('[data-phase="4"]').forEach(el=>el.dataset.locked='true');phase4Validated=true;currentPhase=5;document.getElementById('validateBtn').setAttribute('onclick','validatePhase5()');loadMonths();}
+function validatePhase5(){document.querySelectorAll('[data-phase="5"]').forEach(el=>el.dataset.locked='true');phase5Validated=true;currentPhase=6;}
 
-                pictogram.style.position = 'absolute';
-                pictogram.style.left = `${targetRect.left + (targetRect.width - pictogramRect.width) / 2}px`;
-                pictogram.style.top = `${targetRect.top + (targetRect.height - pictogramRect.height) / 2}px`;
-            }
-
-            // Fonction pour gérer le déplacement des pictogrammes
-            function handleDragEnd(event, target, step) {
-                const targetRect = target.getBoundingClientRect();
-                const targetCenterX = targetRect.left + targetRect.width / 2;
-                const targetCenterY = targetRect.top + targetRect.height / 2;
-
-                const pictogramRect = event.target.getBoundingClientRect();
-                const pictogramCenterX = pictogramRect.left + pictogramRect.width / 2;
-                const pictogramCenterY = pictogramRect.top + pictogramRect.height / 2;
-
-                const distance = calculateDistance(targetCenterX, targetCenterY, pictogramCenterX, pictogramCenterY);
-
-                if (distance <= 160) { // 160px est la moitié de 320px (distance du centre)
-                    centerPictogram(event.target, target);
-                    validateButton.style.display = 'block';
-                } else {
-                    // Le pictogramme reste où il est lâché
-                    event.target.style.position = 'absolute';
-                    event.target.style.left = `${event.clientX - pictogramRect.width / 2}px`;
-                    event.target.style.top = `${event.clientY - pictogramRect.height / 2}px`;
-                    validateButton.style.display = 'none';
-                }
-            }
-
-            // Étape 1 : Gestion des pictogrammes
-            pictogramsStep1.forEach(pictogram => {
-                pictogram.addEventListener('dragstart', function(event) {
-                    draggedPictogram = event.target;
-                    initialPositions[draggedPictogram.alt] = { x: event.target.offsetLeft, y: event.target.offsetTop };
-                });
-
-                pictogram.addEventListener('dragend', function(event) {
-                    handleDragEnd(event, targetZone, 1);
-                });
-            });
-
-            // Étape 2 : Gestion des pictogrammes
-            pictogramsStep2.forEach(pictogram => {
-                pictogram.addEventListener('dragstart', function(event) {
-                    draggedPictogram = event.target;
-                    initialPositions[draggedPictogram.alt] = { x: event.target.offsetLeft, y: event.target.offsetTop };
-                });
-
-                pictogram.addEventListener('dragend', function(event) {
-                    handleDragEnd(event, targetRectangle, 2);
-                });
-            });
-
-            // Bouton Annuler
-            cancelButton.addEventListener('click', function() {
-                if (draggedPictogram && initialPositions[draggedPictogram.alt]) {
-                    draggedPictogram.style.position = 'static';
-                    draggedPictogram.style.left = 'auto';
-                    draggedPictogram.style.top = 'auto';
-                    validateButton.style.display = 'none';
-                }
-            });
-
-            // Bouton Valider
-            validateButton.addEventListener('click', function() {
-                if (currentStep === 1) {
-                    // Passer à l'étape 2
-                    currentStep = 2;
-                    targetZone.style.display = 'none'; // Masquer le cercle rouge
-                    targetRectangle.style.display = 'flex'; // Afficher le rectangle bleu
-                    pictogramsStep1Container.style.display = 'none'; // Masquer les pictogrammes de l'étape 1
-                    pictogramsStep2Container.style.display = 'flex'; // Afficher les pictogrammes de l'étape 2
-                    validateButton.style.display = 'none'; // Masquer le bouton Valider
-                } else if (currentStep === 2) {
-                    alert('Étape suivante!');
-                    // Ajoutez ici le code pour passer à l'étape suivante
-                }
-            });
-        });
-    </script>
+function loadPhase1(){const c=document.getElementById('numbers-container');c.innerHTML='';const imgs={1:"https://static.arasaac.org/pictograms/2627/2627_500.png",2:"https://static.arasaac.org/pictograms/2628/2628_500.png",3:"https://static.arasaac.org/pictograms/2629/2629_500.png",4:"https://static.arasaac.org/pictograms/2630/2630_500.png",5:"https://static.arasaac.org/pictograms/2631/2631_500.png",6:"https://static.arasaac.org/pictograms/2632/2632_500.png",7:"https://static.arasaac.org/pictograms/2633/2633_500.png"};let sx=10,sy=40;for(let i=1;i<=7;i++){const img=document.createElement('img');img.src=imgs[i];img.id='num'+i;img.className='draggable';img.draggable=true;img.dataset.phase='1';img.dataset.origin='numbers-container';img.dataset.initialLeft=sx+'px';img.dataset.initialTop=sy+'px';img.style.left=img.dataset.initialLeft;img.style.top=img.dataset.initialTop;img.addEventListener('dragstart',drag);c.appendChild(img);sy+=130;if(sy>600){sy=40;sx+=140;}}}
+function loadWeather(){const c=document.getElementById('numbers-container');c.innerHTML='';const arr=[{n:'soleil',u:"https://static.arasaac.org/pictograms/7252/7252_500.png"},{n:'éclaircies',u:"https://static.arasaac.org/pictograms/34896/34896_500.png"},{n:'nuages',u:"https://static.arasaac.org/pictograms/34383/34383_500.png"},{n:'pluie',u:"https://static.arasaac.org/pictograms/7148/7148_500.png"},{n:'vent',u:"https://static.arasaac.org/pictograms/7259/7259_500.png"},{n:'brouillard',u:"https://static.arasaac.org/pictograms/35049/35049_500.png"},{n:'neige',u:"https://static.arasaac.org/pictograms/7172/7172_500.png"}];let sx=10,sy=40,i=0;arr.forEach(w=>{const d=document.createElement('div');d.className='draggable-small';d.id='weather'+i;d.draggable=true;d.dataset.phase='2';d.dataset.origin='numbers-container';d.dataset.initialLeft=sx+'px';d.dataset.initialTop=sy+'px';d.style.left=d.dataset.initialLeft;d.style.top=d.dataset.initialTop;const im=document.createElement('img');im.src=w.u;const lab=document.createElement('div');lab.textContent=w.n;lab.style.fontSize='20px';lab.style.marginTop='8px';d.appendChild(im);d.appendChild(lab);d.addEventListener('dragstart',drag);c.appendChild(d);sy+=220;i++;});}
+function loadDays(){const c=document.getElementById('numbers-container');c.innerHTML='';const arr=[{n:'LUNDI',c:'violet'},{n:'MARDI',c:'yellow'},{n:'MERCREDI',c:'green'},{n:'JEUDI',c:'darkorange'},{n:'VENDREDI',c:'blue'},{n:'SAMEDI',c:'pink'},{n:'DIMANCHE',c:'darkred'}];let sy=40;arr.forEach((d,i)=>{const div=document.createElement('div');div.className='draggable-day';div.id='day'+i;div.draggable=true;div.dataset.phase='3';div.dataset.origin='numbers-container';div.dataset.initialLeft='10px';div.dataset.initialTop=sy+'px';div.style.left=div.dataset.initialLeft;div.style.top=div.dataset.initialTop;div.style.backgroundColor=d.c;div.textContent=d.n;div.addEventListener('dragstart',drag);c.appendChild(div);sy+=120;});}
+function loadNumbers(){const c=document.getElementById('numbers-container');c.innerHTML='';let sx=10,sy=20,col=0;for(let i=0;i<=9;i++){const d=document.createElement('div');d.className='draggable';d.id='digit'+i+'-'+Date.now();d.draggable=true;d.dataset.phase='4';d.dataset.origin='numbers-container';d.dataset.initialLeft=sx+'px';d.dataset.initialTop=sy+'px';d.style.left=d.dataset.initialLeft;d.style.top=d.dataset.initialTop;d.textContent=i;d.addEventListener('dragstart',drag);c.appendChild(d);col++;sx+=140;if(col>=3){col=0;sx=10;sy+=140;}}}
+function loadMonths(){const c=document.getElementById('numbers-container');c.innerHTML='';const arr=[{n:'JANVIER',c:'blue'},{n:'FÉVRIER',c:'blue'},{n:'MARS',c:'blue'},{n:'AVRIL',c:'green'},{n:'MAI',c:'green'},{n:'JUIN',c:'green'},{n:'JUILLET',c:'yellow'},{n:'AOÛT',c:'yellow'},{n:'SEPTEMBRE',c:'yellow'},{n:'OCTOBRE',c:'orange'},{n:'NOVEMBRE',c:'orange'},{n:'DÉCEMBRE',c:'orange'}];let sy=30;arr.forEach((m,i)=>{const d=document.createElement('div');d.className='month-label';d.id='month'+i;d.draggable=true;d.dataset.phase='5';d.dataset.origin='numbers-container';d.dataset.initialLeft='10px';d.dataset.initialTop=sy+'px';d.style.left=d.dataset.initialLeft;d.style.top=d.dataset.initialTop;d.style.backgroundColor=m.c;d.textContent=m.n;d.addEventListener('dragstart',drag);c.appendChild(d);sy+=110;});}
+document.addEventListener('DOMContentLoaded',loadPhase1);
+</script>
 </body>
 </html>
