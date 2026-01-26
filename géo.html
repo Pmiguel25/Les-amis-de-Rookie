@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quel est ce drapeau ?</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #f4f4f4;
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 30px;
+}
+
+#flag {
+    width: 240px;
+    height: 160px;
+    margin: 0 auto 30px auto;
+    border: 2px solid #333;
+}
+
+/* ===== DRAPEAUX ===== */
+
+.france { display: flex; }
+.france div { flex: 1; }
+.france .b { background: #0055A4; }
+.france .w { background: #FFFFFF; }
+.france .r { background: #EF4135; }
+
+.germany { display: flex; flex-direction: column; }
+.germany div { flex: 1; }
+.germany .b { background: #000000; }
+.germany .r { background: #DD0000; }
+.germany .y { background: #FFCE00; }
+
+.italy { display: flex; }
+.italy .g { background: #009246; flex: 1; }
+.italy .w { background: #FFFFFF; flex: 1; }
+.italy .r { background: #CE2B37; flex: 1; }
+
+.spain { display: flex; flex-direction: column; }
+.spain .r { background: #AA151B; flex: 1; }
+.spain .y { background: #F1BF00; flex: 2; }
+
+.switzerland {
+    background: #D52B1E;
+    position: relative;
+}
+.switzerland::before,
+.switzerland::after {
+    content: "";
+    position: absolute;
+    background: white;
+}
+.switzerland::before {
+    width: 40%;
+    height: 15%;
+    top: 42%;
+    left: 30%;
+}
+.switzerland::after {
+    width: 15%;
+    height: 40%;
+    top: 30%;
+    left: 42%;
+}
+
+/* ===== UNION JACK ===== */
+
+.uk {
+    position: relative;
+    background: #012169;
+    overflow: hidden;
+}
+
+.uk::before,
+.uk::after {
+    content: "";
+    position: absolute;
+    background: white;
+}
+
+/* Croix blanche */
+.uk::before {
+    width: 100%;
+    height: 20%;
+    top: 40%;
+    left: 0;
+}
+.uk::after {
+    width: 20%;
+    height: 100%;
+    left: 40%;
+    top: 0;
+}
+
+.uk .red-cross-h,
+.uk .red-cross-v {
+    position: absolute;
+    background: #C8102E;
+}
+
+.uk .red-cross-h {
+    height: 10%;
+    width: 100%;
+    top: 45%;
+}
+
+.uk .red-cross-v {
+    width: 10%;
+    height: 100%;
+    left: 45%;
+}
+
+/* ===== BOUTONS ===== */
+
+#choices {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+button {
+    padding: 15px 25px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+button.correct {
+    background: #4CAF50;
+    color: white;
+}
+
+button.wrong {
+    background: #F44336;
+    color: white;
+}
+
+#next {
+    padding: 12px 30px;
+    font-size: 16px;
+    border-radius: 8px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Quel est ce drapeau ?</h1>
+
+<div id="flag"></div>
+
+<div id="choices"></div>
+
+<button id="next" onclick="init()">Suivant</button>
+
+<script>
+const countries = [
+    { name: "France", class: "france", parts: ["b","w","r"] },
+    { name: "Allemagne", class: "germany", parts: ["b","r","y"] },
+    { name: "Italie", class: "italy", parts: ["g","w","r"] },
+    { name: "Espagne", class: "spain", parts: ["r","y","r"] },
+    { name: "Suisse", class: "switzerland", parts: [] },
+    { name: "Royaume-Uni", class: "uk", parts: ["red-cross-h","red-cross-v"] }
+];
+
+function init() {
+    const flag = document.getElementById("flag");
+    const choices = document.getElementById("choices");
+    const nextBtn = document.getElementById("next");
+
+    flag.className = "";
+    flag.innerHTML = "";
+    choices.innerHTML = "";
+    nextBtn.style.display = "none";
+
+    const correct = countries[Math.floor(Math.random() * countries.length)];
+    flag.className = correct.class;
+
+    correct.parts.forEach(p => {
+        const div = document.createElement("div");
+        div.className = p;
+        flag.appendChild(div);
+    });
+
+    let answers = [correct.name];
+    while (answers.length < 3) {
+        const random = countries[Math.floor(Math.random() * countries.length)].name;
+        if (!answers.includes(random)) answers.push(random);
+    }
+    answers.sort(() => Math.random() - 0.5);
+
+    answers.forEach(name => {
+        const btn = document.createElement("button");
+        btn.textContent = name;
+        btn.onclick = () => {
+            if (name === correct.name) {
+                btn.classList.add("correct");
+            } else {
+                btn.classList.add("wrong");
+            }
+            document.querySelectorAll("#choices button").forEach(b => b.disabled = true);
+            nextBtn.style.display = "inline-block";
+        };
+        choices.appendChild(btn);
+    });
+}
+
+init();
+</script>
+
+</body>
+</html>
