@@ -41,6 +41,7 @@
 
     /* ----------------------------
        ZONE DROITE (Cercles)
+       => placement en bas prioritaire
     ---------------------------- */
     #gameArea {
       width: 75%;
@@ -48,37 +49,56 @@
       box-sizing: border-box;
 
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-      gap: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 50px;
 
       justify-items: center;
-      align-items: start;
+
+      /* ⭐ priorité bas */
+      align-content: end;
     }
 
+    /* ----------------------------
+       CASE DE JEU
+       cercle + image superposés
+    ---------------------------- */
     .circleBox {
-      text-align: center;
-      width: 120px;
+      position: relative;
+      width: 100px;
+      height: 100px;
     }
 
+    /* Cercle bleu */
     .circle {
-      width: 90px;
-      height: 90px;
+      position: absolute;
+      inset: 0;
+
       border-radius: 50%;
       background: deepskyblue;
       cursor: pointer;
+
+      /* cercle au-dessus */
+      z-index: 2;
     }
 
-    /* Invisible mais garde la place */
+    /* Invisible mais garde sa place */
     .hidden {
       visibility: hidden;
       pointer-events: none;
     }
 
+    /* Image bonbon/emballage */
     .rewardImg {
-      margin-top: 10px;
-      width: 80px;
-      height: 80px;
+      position: absolute;
+      inset: 0;
+
       display: none;
+
+      /* ⭐ pas de déformation */
+      object-fit: contain;
+
+      /* image en dessous */
+      z-index: 1;
     }
 
     /* ----------------------------
@@ -94,6 +114,7 @@
       border-radius: 20px;
       text-align: center;
       display: none;
+      z-index: 10;
     }
 
     button {
@@ -129,7 +150,7 @@
 
 <script>
 /* ===============================
-   IMAGES (chemins GitHub)
+   IMAGES
 ================================ */
 
 const RoxImages = [
@@ -144,7 +165,7 @@ const bonbonImage = "images/bonbon_entier.png";
 const emballageImage = "images/emballage_vide.png";
 
 /* ===============================
-   VARIABLES DE JEU
+   VARIABLES
 ================================ */
 
 let happiness = 1; // commence niveau 2
@@ -153,7 +174,7 @@ let found = 0;
 let wins = 0;
 
 /* ===============================
-   MISE À JOUR ROX
+   ROX
 ================================ */
 
 function updateRox() {
@@ -170,8 +191,7 @@ function updateScore() {
 }
 
 /* ===============================
-   CRÉATION DES CERCLES
-   => placement en grille = jamais superposé
+   CONSTRUCTION DES CERCLES
 ================================ */
 
 function buildCircles() {
@@ -184,17 +204,18 @@ function buildCircles() {
     const box = document.createElement("div");
     box.className = "circleBox";
 
+    const reward = document.createElement("img");
+    reward.className = "rewardImg";
+
     const circle = document.createElement("div");
     circle.className = "circle";
     circle.dataset.clicked = "0";
 
-    const reward = document.createElement("img");
-    reward.className = "rewardImg";
-
     circle.onclick = () => handleClick(circle, reward);
 
-    box.appendChild(circle);
     box.appendChild(reward);
+    box.appendChild(circle);
+
     area.appendChild(box);
   }
 
@@ -211,7 +232,7 @@ function handleClick(circle, rewardImg) {
 
   if (circle.dataset.clicked === "0") {
 
-    // Premier clic => bonbon trouvé
+    // Premier clic => bonbon
     circle.dataset.clicked = "1";
 
     rewardImg.src = bonbonImage;
@@ -224,18 +245,17 @@ function handleClick(circle, rewardImg) {
 
   } else {
 
-    // Déjà cliqué => emballage vide
+    // Déjà cliqué => emballage
     rewardImg.src = emballageImage;
     rewardImg.style.display = "block";
 
-    // Rox descend d’un niveau
     if (happiness < 4) happiness++;
   }
 
   updateRox();
   updateScore();
 
-  // Réapparition après 3 secondes (sans bouger)
+  // Réapparition cercle au même endroit (recouvre l’image)
   setTimeout(() => {
     circle.classList.remove("hidden");
   }, 3000);
@@ -252,7 +272,6 @@ function handleClick(circle, rewardImg) {
 ================================ */
 
 function nextLevel() {
-
   document.getElementById("successMessage").style.display = "none";
 
   totalCircles++;
@@ -272,3 +291,4 @@ buildCircles();
 
 </body>
 </html>
+
