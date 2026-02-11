@@ -54,7 +54,7 @@
 
       justify-items: center;
 
-      /* ⭐ priorité bas */
+      /* ⭐ Priorité en bas */
       align-content: end;
     }
 
@@ -90,7 +90,15 @@
     /* Image bonbon/emballage */
     .rewardImg {
       position: absolute;
-      inset: 0;
+
+      /* ⭐ centrage parfait */
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      /* ⭐ taille contrôlée */
+      width: 70px;
+      height: 70px;
 
       display: none;
 
@@ -228,6 +236,11 @@ function buildCircles() {
 
 function handleClick(circle, rewardImg) {
 
+  // Toujours afficher l’image
+  rewardImg.style.display = "block";
+  rewardImg.style.visibility = "visible";
+
+  // Cache le cercle
   circle.classList.add("hidden");
 
   if (circle.dataset.clicked === "0") {
@@ -236,8 +249,6 @@ function handleClick(circle, rewardImg) {
     circle.dataset.clicked = "1";
 
     rewardImg.src = bonbonImage;
-    rewardImg.style.display = "block";
-
     found++;
 
     // Rox revient direct au niveau 1
@@ -245,17 +256,17 @@ function handleClick(circle, rewardImg) {
 
   } else {
 
-    // Déjà cliqué => emballage
+    // Déjà cliqué => emballage vide
     rewardImg.src = emballageImage;
-    rewardImg.style.display = "block";
 
+    // Rox descend
     if (happiness < 4) happiness++;
   }
 
   updateRox();
   updateScore();
 
-  // Réapparition cercle au même endroit (recouvre l’image)
+  // Réapparition du cercle après 3 secondes
   setTimeout(() => {
     circle.classList.remove("hidden");
   }, 3000);
