@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Château des nombres – Pavage</title>
+
+<style>
+body {
+    margin: 0;
+    background: #000;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+    touch-action: none;
+}
+
+#container {
+    display: flex;
+    gap: 40px;
+}
+
+#castle-wrapper {
+    display: flex;
+    align-items: flex-end;
+}
+
+.tower {
+    width: 90px;
+    height: 640px;
+    background: #fff;
+    border: 4px solid #000;
+    position: relative;
+}
+
+.tower::before {
+    content: "";
+    position: absolute;
+    top: -28px;
+    left: -4px;
+    right: -4px;
+    height: 28px;
+    background: repeating-linear-gradient(
+        90deg, #000 0 14px, #fff 14px 28px
+    );
+    border: 4px solid #000;
+    border-bottom: none;
+}
+
+#castle {
+    background: #fff;
+    border: 4px solid #000;
+    padding: 10px;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(10, 50px);
+    grid-template-rows: repeat(10, 50px);
+    gap: 2px;
+    background: #000;
+    padding: 4px;
+}
+
+.cell {
+    background: #fff;
+    border: 1px solid #000;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.missing {
+    background: #000;
+    color: transparent;
+}
+
+/* ===== ZONE BLOCS ===== */
+#blocks-zone {
+    width: 260px;
+    min-height: 640px;
+    border: 4px solid #fff;
+    padding: 10px;
+    position: relative;
+}
+
+.block {
+    position: absolute;
+    display: grid;
+    gap: 2px;
+    touch-action: none;
+}
+
+.block-cell {
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border: 2px solid #000;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== UI ===== */
+#ui {
+    color: #fff;
+    font-size: 22px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+#continue {
+    display: none;
+    margin-top: 10px;
+    font-size: 22px;
+    padding: 10px 20px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="container">
+
+    <div id="castle-wrapper">
+        <div class="tower"></div>
+        <div id="castle">
+            <div id="grid"></div>
+        </div>
+        <div class="tower"></div>
+    </div>
+
+    <div id="blocks-zone"></div>
+
+</div>
+
+<div id="ui">
+    <div id="counter"></div>
+    <button id="continue" onclick="location.reload()">Continuer</button>
+</div>
+
+<script>
+const grid = document.getElementById("grid");
+const blocksZone = document.getElementById("blocks-zone");
+const counter = document.getElementById("counter");
+const continueBtn = document.getElementById("continue");
+
+const GRID_SIZE = 10;
+const BLOCK_COUNT = 4;
+const MAX_BLOCK_SIZE = 5;
+const TOLERANCE = 100;
+
+let available = [...Array(100).keys()];
+let blocksPlaced = 0;
+
+/* ===== GRILLE ===== */
+for (let i = 0; i < 100; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.dataset.index = i;
+    cell.textContent = i + 1;
+    grid.appendChild(cell);
+}
+
+/* ===== BLOCS ===== */
+for (let b = 0; b < BLOCK_COUNT; b++) {
+    const size = Math.floor(Math.random() * MAX_BLOCK_SIZE) + 1;
+    const start = available[Math.floor(Math.random() * available.length)];
+    const block = growBlock(start, size);
+
+    block.forEach(i => {
+        document.querySelector(`[data-index='${i}']`).classList.add("missing");
+        available = available.filter(v => v !== i);
+    });
+
+    createBlock(block, b);
+}
+
+updateCounter();
+
+/* ===== ADJACENCE STRICTE ===== */
+function getNeighbors(i) {
+    const x = i % GRID_SIZE;
+    const y = Math.floor(i / GRID_SIZE);
+    const n = [];
+    if (x > 0) n.push(i - 1);
+    if (x < 9) n.push(i + 1);
+    if (y > 0) n.push(i - 10);
+    if (y < 9) n.push(i + 10);
+    return n.filter(v => available.includes(v));
+}
+
+function growBlock(start, size) {
+    const block = [start];
+    while (block.length < size) {
+        const candidates = [];
+        block.forEach(i => getNeighbors(i).forEach(n => {
+            if (!block.includes(n)) candidates.push(n);
+        }));
+        if (!candidates.length) break;
+        block.push(candidates[Math.floor(Math.random() * candidates.length)]);
+    }
+    return block;
+}
+
+/* ===== CRÉATION VISUELLE ===== */
+function createBlock(indices, order) {
+    const block = document.createElement("div");
+    block.className = "block";
+    block.dataset.indices = JSON.stringify(indices);
+
+    const coords = indices.map(i => ({
+        x: i % GRID_SIZE,
+        y: Math.floor(i / GRID_SIZE)
+    }));
+
+    const minX = Math.min(...coords.map(c => c.x));
+    const minY = Math.min(...coords.map(c => c.y));
+
+    coords.forEach((c, idx) => {
+        const cell = document.createElement("div");
+        cell.className = "block-cell";
+        cell.textContent = indices[idx] + 1;
+        cell.style.gridColumn = c.x - minX + 1;
+        cell.style.gridRow = c.y - minY + 1;
+        block.appendChild(cell);
+    });
+
+    block.style.left = "10px";
+    block.style.top = (order * 120 + 10) + "px";
+
+    enableDrag(block);
+    blocksZone.appendChild(block);
+}
+
+/* ===== DRAG ===== */
+function enableDrag(block) {
+    let ox, oy;
+
+    block.addEventListener("pointerdown", e => {
+        const r = block.getBoundingClientRect();
+        ox = e.clientX - r.left;
+        oy = e.clientY - r.top;
+        block.setPointerCapture(e.pointerId);
+
+        block.onpointermove = ev => {
+            block.style.left = ev.clientX - ox - blocksZone.getBoundingClientRect().left + "px";
+            block.style.top = ev.clientY - oy - blocksZone.getBoundingClientRect().top + "px";
+        };
+
+        block.onpointerup = () => {
+            block.onpointermove = null;
+            checkPlacement(block);
+        };
+    });
+}
+
+/* ===== VALIDATION ROBUSTE ===== */
+function checkPlacement(block) {
+    const indices = JSON.parse(block.dataset.indices);
+
+    let cx = 0, cy = 0;
+    indices.forEach(i => {
+        const r = document.querySelector(`[data-index='${i}']`).getBoundingClientRect();
+        cx += r.left + r.width / 2;
+        cy += r.top + r.height / 2;
+    });
+    cx /= indices.length;
+    cy /= indices.length;
+
+    const br = block.getBoundingClientRect();
+    const bx = br.left + br.width / 2;
+    const by = br.top + br.height / 2;
+
+    if (Math.hypot(cx - bx, cy - by) < TOLERANCE) {
+        block.remove();
+        indices.forEach(i => {
+            document.querySelector(`[data-index='${i}']`).classList.remove("missing");
+        });
+        blocksPlaced++;
+        updateCounter();
+    }
+}
+
+function updateCounter() {
+    counter.textContent = `Blocs placés : ${blocksPlaced} / ${BLOCK_COUNT}`;
+    if (blocksPlaced === BLOCK_COUNT) {
+        continueBtn.style.display = "inline-block";
+    }
+}
+</script>
+
+</body>
+</html>
