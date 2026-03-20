@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Le château des nombres</title>
+
+<style>
+body {
+    margin: 0;
+    background: #000;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding-top: 30px;
+}
+
+/* ===== LAYOUT ===== */
+#game-container {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+/* ===== CHÂTEAU ===== */
+#castle-wrapper {
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+}
+
+/* ===== TOURS ===== */
+.tower {
+    width: 90px;
+    height: 640px;
+    background: #fff;
+    border: 4px solid #000;
+    position: relative;
+}
+
+/* Créneaux des tours */
+.tower::before {
+    content: "";
+    position: absolute;
+    top: -28px;
+    left: -4px;
+    right: -4px;
+    height: 28px;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #000 0 14px,
+            #fff 14px 28px
+        );
+    border: 4px solid #000;
+    border-bottom: none;
+}
+
+/* Décor pierres */
+.stone {
+    width: 50px;
+    height: 12px;
+    border: 2px solid #000;
+    margin: 14px auto;
+}
+
+/* ===== CORPS CENTRAL ===== */
+#central {
+    position: relative;
+}
+
+/* Créneaux au-dessus du quadrillage */
+#central::before {
+    content: "";
+    display: block;
+    height: 28px;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            #000 0 16px,
+            #fff 16px 32px
+        );
+    border: 4px solid #000;
+    border-bottom: none;
+}
+
+/* ===== GRILLE ===== */
+#castle {
+    background: #fff;
+    border: 4px solid #000;
+    padding: 10px;
+}
+
+#grid {
+    display: grid;
+    grid-template-columns: repeat(10, 50px);
+    grid-template-rows: repeat(10, 50px);
+    gap: 2px;
+    background: #000;
+    padding: 4px;
+}
+
+.cell {
+    background: #fff;
+    color: #000;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.hidden {
+    background: #000;
+    color: transparent;
+}
+
+.correct {
+    background: #00ff00 !important;
+    color: #000 !important;
+}
+
+.wrong {
+    background: #ff0000 !important;
+    color: #fff !important;
+}
+
+/* ===== PANNEAU ===== */
+#panel {
+    width: 220px;
+    background: #000;
+    border: 4px solid #fff;
+    padding: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+#target-number {
+    font-size: 56px;
+    margin: 20px 0;
+    background: #fff;
+    color: #000;
+    padding: 10px;
+}
+
+#score {
+    font-size: 24px;
+    margin-top: 20px;
+    border-top: 2px solid #fff;
+    padding-top: 10px;
+}
+
+button {
+    margin-top: 20px;
+    padding: 12px 20px;
+    font-size: 18px;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game-container">
+
+    <div id="castle-wrapper">
+
+        <div class="tower">
+            <div class="stone"></div><div class="stone"></div><div class="stone"></div>
+            <div class="stone"></div><div class="stone"></div><div class="stone"></div>
+        </div>
+
+        <div id="central">
+            <div id="castle">
+                <div id="grid"></div>
+            </div>
+        </div>
+
+        <div class="tower">
+            <div class="stone"></div><div class="stone"></div><div class="stone"></div>
+            <div class="stone"></div><div class="stone"></div><div class="stone"></div>
+        </div>
+
+    </div>
+
+    <div id="panel">
+        <h2>Nombre à trouver</h2>
+        <div id="target-number">–</div>
+        <div id="action"></div>
+        <div id="score">Réussites : 0</div>
+    </div>
+
+</div>
+
+<script>
+const grid = document.getElementById("grid");
+const targetDisplay = document.getElementById("target-number");
+const actionDiv = document.getElementById("action");
+const scoreDisplay = document.getElementById("score");
+
+let hiddenCells = [];
+let targetNumber = null;
+let gameActive = true;
+let score = 0;
+
+for (let i = 1; i <= 100; i++) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+    cell.textContent = i;
+    cell.dataset.number = i;
+    cell.addEventListener("click", () => handleClick(cell));
+    grid.appendChild(cell);
+}
+
+function startTurn() {
+    resetGrid();
+    gameActive = true;
+    actionDiv.innerHTML = "";
+
+    const cells = Array.from(document.querySelectorAll(".cell"));
+    hiddenCells = shuffle(cells).slice(0, 5);
+    hiddenCells.forEach(cell => cell.classList.add("hidden"));
+
+    const targetCell = hiddenCells[Math.floor(Math.random() * hiddenCells.length)];
+    targetNumber = targetCell.dataset.number;
+    targetDisplay.textContent = targetNumber;
+}
+
+function handleClick(cell) {
+    if (!gameActive || !cell.classList.contains("hidden")) return;
+
+    if (cell.dataset.number === targetNumber) {
+        cell.classList.remove("hidden");
+        cell.classList.add("correct");
+        gameActive = false;
+        score++;
+        scoreDisplay.textContent = "Réussites : " + score;
+        targetDisplay.textContent = "✔";
+
+        const btn = document.createElement("button");
+        btn.textContent = "Suivant";
+        btn.onclick = startTurn;
+        actionDiv.appendChild(btn);
+    } else {
+        cell.classList.remove("hidden");
+        cell.classList.add("wrong");
+    }
+}
+
+function resetGrid() {
+    document.querySelectorAll(".cell").forEach(cell => {
+        cell.className = "cell";
+    });
+}
+
+function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+startTurn();
+</script>
+
+</body>
+</html>
