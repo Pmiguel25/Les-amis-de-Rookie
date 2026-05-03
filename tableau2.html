@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tableau double entrée - version stable</title>
+
+<style>
+body {
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    background: black;
+    color: white;
+    font-family: Arial;
+}
+
+/* Zones */
+#leftZone {
+    width: 33%;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+#gridZone {
+    width: 67%;
+    display: grid;
+    grid-template-columns: 80px repeat(6, 1fr);
+    grid-template-rows: 80px repeat(6, 1fr);
+}
+
+.cell {
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+/* Couleurs */
+.blue { background: blue; }
+.yellow { background: yellow; color: black; }
+.red { background: red; }
+.green { background: green; }
+.orange { background: orange; color: black; }
+.purple { background: purple; }
+
+/* === CONTENEUR DRAG === */
+.shape {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    touch-action: none;
+}
+
+/* === FORME INTERNE === */
+.inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Formes */
+.square .inner {
+    width: 50px;
+    height: 50px;
+    background: currentColor;
+}
+
+.circle .inner {
+    width: 50px;
+    height: 50px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.rectangle .inner {
+    width: 60px;
+    height: 40px;
+    background: currentColor;
+}
+
+.oval .inner {
+    width: 60px;
+    height: 40px;
+    background: currentColor;
+    border-radius: 50%;
+}
+
+.triangle .inner {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 50px solid currentColor;
+}
+
+.diamond .inner {
+    width: 45px;
+    height: 45px;
+    background: currentColor;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+/* En-têtes formes */
+.outline { border: 3px solid white; }
+
+.circle-outline { border-radius: 50%; width:50px;height:50px;}
+.rectangle-outline { width:60px;height:40px;}
+.oval-outline { width:60px;height:40px;border-radius:50%;}
+.diamond-outline { width:40px;height:40px; transform: rotate(45deg);}
+.triangle-outline {
+    width:0;height:0;
+    border-left:20px solid transparent;
+    border-right:20px solid transparent;
+    border-bottom:40px solid white;
+}
+
+/* Fin */
+#endMessage {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="leftZone"></div>
+<div id="gridZone"></div>
+
+<div id="endMessage">
+    <h1>Bravo 🎉</h1>
+    <button onclick="restart()">Rejouer</button>
+</div>
+
+<script>
+const shapes = ["square","circle","triangle","rectangle","diamond","oval"];
+
+const colors = [
+    {name:"bleu", class:"blue"},
+    {name:"jaune", class:"yellow"},
+    {name:"rouge", class:"red"},
+    {name:"vert", class:"green"},
+    {name:"orange", class:"orange"},
+    {name:"violet", class:"purple"}
+];
+
+const gridZone = document.getElementById("gridZone");
+const leftZone = document.getElementById("leftZone");
+
+let pieces = [];
+let placed = 0;
+let current = null;
+
+/* Grille */
+function createGrid() {
+    gridZone.innerHTML = "";
+    gridZone.appendChild(document.createElement("div"));
+
+    colors.forEach(c=>{
+        let d=document.createElement("div");
+        d.className="cell "+c.class;
+        d.textContent=c.name;
+        gridZone.appendChild(d);
+    });
+
+    shapes.forEach(s=>{
+        let h=document.createElement("div");
+        h.className="cell";
+
+        let o=document.createElement("div");
+
+        if(s==="triangle") o.className="triangle-outline";
+        else{
+            o.className="outline";
+            if(s==="circle") o.classList.add("circle-outline");
+            if(s==="rectangle") o.classList.add("rectangle-outline");
+            if(s==="oval") o.classList.add("oval-outline");
+            if(s==="diamond") o.classList.add("diamond-outline");
+            if(s==="square") {o.style.width="50px";o.style.height="50px";}
+        }
+
+        h.appendChild(o);
+        gridZone.appendChild(h);
+
+        colors.forEach(c=>{
+            let cell=document.createElement("div");
+            cell.className="cell";
+            cell.dataset.shape=s;
+            cell.dataset.color=c.class;
+            gridZone.appendChild(cell);
+        });
+    });
+}
+
+/* Pièces */
+function generatePieces(){
+    pieces=[];
+    shapes.forEach(s=>{
+        colors.forEach(c=>{
+            pieces.push({shape:s,color:c.class});
+        });
+    });
+    pieces.sort(()=>Math.random()-0.5);
+}
+
+/* Tolérance */
+function findClosestCell(x,y,piece){
+    let best=null;
+    let minDist=Infinity;
+
+    document.querySelectorAll(".cell[data-shape]").forEach(cell=>{
+        if(cell.dataset.shape!==piece.shape || cell.dataset.color!==piece.color) return;
+
+        const r=cell.getBoundingClientRect();
+        const cx=r.left+r.width/2;
+        const cy=r.top+r.height/2;
+
+        const dist=Math.hypot(cx-x,cy-y);
+
+        if(dist<minDist){
+            minDist=dist;
+            best=cell;
+        }
+    });
+
+    return (minDist < 120) ? best : null;
+}
+
+/* Forme */
+function createShape(piece){
+    const el=document.createElement("div");
+    el.className="shape "+piece.shape;
+    el.style.color=piece.color;
+
+    const inner=document.createElement("div");
+    inner.className="inner";
+    el.appendChild(inner);
+
+    leftZone.appendChild(el);
+
+    let dx,dy;
+
+    el.onpointerdown=e=>{
+        current=piece;
+        dx=e.offsetX;
+        dy=e.offsetY;
+        el.setPointerCapture(e.pointerId);
+    };
+
+    el.onpointermove=e=>{
+        if(!current) return;
+        el.style.left=(e.clientX-dx)+"px";
+        el.style.top=(e.clientY-dy)+"px";
+    };
+
+    el.onpointerup=e=>{
+        el.releasePointerCapture(e.pointerId);
+
+        let cell=findClosestCell(e.clientX,e.clientY,piece);
+
+        if(cell && cell.children.length===0){
+            cell.appendChild(el);
+
+            el.style.left="50%";
+            el.style.top="50%";
+            el.style.transform="translate(-50%,-50%)";
+
+            placed++;
+            current=null;
+
+            if(placed===36){
+                endMessage.style.display="flex";
+            } else {
+                spawnNext();
+            }
+
+        } else {
+            reset(el);
+        }
+    };
+}
+
+/* Reset */
+function reset(el){
+    el.style.left="50%";
+    el.style.top="50%";
+    el.style.transform="translate(-50%,-50%)";
+    current=null;
+}
+
+/* Spawn */
+function spawnNext(){
+    leftZone.innerHTML="";
+    let p=pieces.pop();
+    createShape(p);
+
+    let el=leftZone.querySelector(".shape");
+    el.style.left="50%";
+    el.style.top="50%";
+    el.style.transform="translate(-50%,-50%)";
+}
+
+/* Restart */
+function restart(){
+    placed=0;
+    endMessage.style.display="none";
+    createGrid();
+    generatePieces();
+    spawnNext();
+}
+
+/* Init */
+createGrid();
+generatePieces();
+spawnNext();
+</script>
+
+</body>
+</html>
