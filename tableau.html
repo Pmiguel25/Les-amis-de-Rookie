@@ -1,154 +1,302 @@
-<!DOCTYPE html>
-<html lang="en">
+!DOCTYPE html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activité Tactile</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #000;
-        }
+<meta charset="UTF-8">
+<title>Tableau double entrée - Formes et couleurs</title>
 
-        .container {
-            display: flex;
-            gap: 20px;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    background: black;
+    color: white;
+}
 
-        .grid {
-            display: grid;
-            grid-template-columns: 100px repeat(3, 200px);
-            grid-template-rows: 100px repeat(3, 200px);
-            gap: 10px;
-            background-color: white;
-            padding: 10px;
-            border-radius: 10px;
-        }
+/* Zone gauche */
+#leftZone {
+    width: 33%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    position: relative;
+}
 
-        .cell {
-            border: 2px solid black;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+/* Zone droite (tableau) */
+#gridZone {
+    width: 67%;
+    display: grid;
+    grid-template-columns: 100px repeat(3, 1fr);
+    grid-template-rows: 100px repeat(3, 1fr);
+    border-left: 3px solid white;
+}
 
-        .row-label {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-            width: 100%;
-            height: 100%;
-        }
+/* Cases */
+.cell {
+    border: 2px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
 
-        .row-label:nth-child(1) {
-            background-color: blue;
-        }
+/* En-têtes */
+.header {
+    font-weight: bold;
+    font-size: 16px;
+}
 
-        .row-label:nth-child(2) {
-            background-color: green;
-        }
+/* Couleurs */
+.blue { background: blue; }
+.yellow { background: yellow; color: black; }
+.red { background: red; }
 
-        .row-label:nth-child(3) {
-            background-color: red;
-        }
+/* Formes (contenu draggable) */
+.shape {
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    touch-action: none;
+}
 
-        .col-label {
-            width: 100px;
-            height: 100px;
-            display: inline-block;
-            background-color: white;
-        }
+/* Carré */
+.square {
+    background: currentColor;
+}
 
-        .circle {
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-            border: 2px solid black;
-        }
+/* Rond */
+.circle {
+    background: currentColor;
+    border-radius: 50%;
+}
 
-        .triangle {
-            width: 0;
-            height: 0;
-            border-left: 50px solid transparent;
-            border-right: 50px solid transparent;
-            border-bottom: 100px solid;
-        }
+/* Triangle */
+.triangle {
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 60px solid currentColor;
+    background: none;
+}
 
-        .draggable {
-            touch-action: none;
-        }
+/* === Formes en contour blanc (en-têtes) === */
+.shape-outline {
+    width: 50px;
+    height: 50px;
+}
 
-        .droppable.valid {
-            border-color: green;
-        }
+/* Carré contour */
+.square-outline {
+    border: 3px solid white;
+}
 
-        .shapes {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+/* Rond contour */
+.circle-outline {
+    border: 3px solid white;
+    border-radius: 50%;
+}
 
-        #message {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            border: 2px solid black;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+/* Triangle contour */
+.triangle-outline {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 50px solid white;
+    background: none;
+}
 
-        #message button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
-    </style>
+/* Message fin */
+#endMessage {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 18px;
+    margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Tableau -->
-        <div class="grid">
-            <!-- Labels colonnes -->
-            <div></div>
-            <div><div class="col-label" style="border: 2px solid black;"></div></div>
-            <div><div class="col-label triangle" style="border-bottom-color: black;"></div></div>
-            <div><div class="col-label circle"></div></div>
 
-            <!-- Labels lignes -->
-            <div class="row-label" style="background-color: blue;">Bleu</div>
-            <div class="cell droppable" data-color="blue" data-shape="square"></div>
-            <div class="cell droppable" data-color="blue" data-shape="triangle"></div>
-            <div class="cell droppable" data-color="blue" data-shape="circle"></div>
+<div id="leftZone"></div>
+<div id="gridZone"></div>
 
-            <div class="row-label" style="background-color: green;">Vert</div>
-            <div class="cell droppable" data-color="green" data-shape="square"></div>
-            <div class="cell droppable" data-color="green" data-shape="triangle"></div>
-            <div class="cell droppable" data-color="green" data-shape="circle"></div>
+<div id="endMessage">
+    <h1>Bravo ! 🎉</h1>
+    <button onclick="restart()">Rejouer</button>
+</div>
 
-            <div class="row-label" style="background-color: red;">Rouge</div>
-            <div class="cell droppable" data-color="red" data-shape="square"></div>
-            <div class="cell droppable" data-color="red" data-shape="triangle"></div>
-            <div class="cell droppable" data-color="red" data-shape="circle"></div>
-        </div>
-    </div>
+<script>
+const shapes = ["square", "triangle", "circle"];
+const colors = [
+    {name: "bleu", class: "blue"},
+    {name: "jaune", class: "yellow"},
+    {name: "rouge", class: "red"}
+];
 
-    <div id="message">
-        <p>Félicitations ! Vous avez terminé l'activité !</p>
-        <button id="replay">Rejouer</button>
-    </div>
+const gridZone = document.getElementById("gridZone");
+const leftZone = document.getElementById("leftZone");
+
+let pieces = [];
+let currentPiece = null;
+let placedCount = 0;
+
+/* Création du tableau */
+function createGrid() {
+    gridZone.innerHTML = "";
+
+    // coin vide
+    gridZone.appendChild(document.createElement("div"));
+
+    // ligne couleurs
+    colors.forEach(c => {
+        const cell = document.createElement("div");
+        cell.className = "cell header " + c.class;
+        cell.textContent = c.name;
+        gridZone.appendChild(cell);
+    });
+
+    // lignes formes
+    shapes.forEach(shape => {
+
+        const header = document.createElement("div");
+        header.className = "cell";
+
+        const shapeEl = document.createElement("div");
+        shapeEl.classList.add("shape-outline");
+
+        if (shape === "square") shapeEl.classList.add("square-outline");
+        if (shape === "circle") shapeEl.classList.add("circle-outline");
+        if (shape === "triangle") shapeEl.classList.add("triangle-outline");
+
+        header.appendChild(shapeEl);
+        gridZone.appendChild(header);
+
+        colors.forEach(c => {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.dataset.shape = shape;
+            cell.dataset.color = c.class;
+            gridZone.appendChild(cell);
+        });
+    });
+}
+
+/* Générer les pièces */
+function generatePieces() {
+    pieces = [];
+    shapes.forEach(s => {
+        colors.forEach(c => {
+            pieces.push({shape: s, color: c.class});
+        });
+    });
+    pieces.sort(() => Math.random() - 0.5);
+}
+
+/* Créer une forme */
+function createShape(piece) {
+    const el = document.createElement("div");
+    el.classList.add("shape", piece.shape);
+    el.style.color = piece.color;
+
+    leftZone.appendChild(el);
+
+    let offsetX, offsetY;
+
+    el.addEventListener("pointerdown", e => {
+        currentPiece = piece;
+        offsetX = e.offsetX;
+        offsetY = e.offsetY;
+        el.setPointerCapture(e.pointerId);
+    });
+
+    el.addEventListener("pointermove", e => {
+        if (!currentPiece) return;
+        el.style.left = (e.clientX - offsetX) + "px";
+        el.style.top = (e.clientY - offsetY) + "px";
+    });
+
+    el.addEventListener("pointerup", e => {
+        el.releasePointerCapture(e.pointerId);
+
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        const cell = target.closest(".cell");
+
+        if (cell &&
+            cell.dataset.shape === piece.shape &&
+            cell.dataset.color === piece.color &&
+            cell.children.length === 0) {
+
+            cell.appendChild(el);
+            el.style.position = "static";
+
+            placedCount++;
+            currentPiece = null;
+
+            if (placedCount === 9) {
+                document.getElementById("endMessage").style.display = "flex";
+            } else {
+                spawnNext();
+            }
+
+        } else {
+            resetPiece(el);
+        }
+    });
+}
+
+/* Reset */
+function resetPiece(el) {
+    el.style.left = "50%";
+    el.style.top = "50%";
+    el.style.transform = "translate(-50%, -50%)";
+    currentPiece = null;
+}
+
+/* Nouvelle pièce */
+function spawnNext() {
+    leftZone.innerHTML = "";
+    const piece = pieces.pop();
+    createShape(piece);
+
+    const el = leftZone.querySelector(".shape");
+    el.style.position = "absolute";
+    el.style.left = "50%";
+    el.style.top = "50%";
+    el.style.transform = "translate(-50%, -50%)";
+}
+
+/* Restart */
+function restart() {
+    placedCount = 0;
+    document.getElementById("endMessage").style.display = "none";
+    createGrid();
+    generatePieces();
+    spawnNext();
+}
+
+/* Init */
+createGrid();
+generatePieces();
+spawnNext();
+
+</script>
+
 </body>
 </html>
-
