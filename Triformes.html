@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Tri de formes - colonnes</title>
+
+<style>
+body {
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    background: black;
+    color: white;
+    font-family: Arial;
+}
+
+/* Zones */
+#leftZone {
+    width: 33%;
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+#gridZone {
+    width: 67%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 100px 1fr;
+}
+
+/* Colonnes */
+.column {
+    border: 2px solid white;
+    position: relative;
+}
+
+/* En-têtes */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Formes */
+.shape {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    touch-action: none;
+}
+
+.inner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Formes */
+.square .inner {
+    width: 50px;
+    height: 50px;
+    background: white;
+}
+
+.circle .inner {
+    width: 50px;
+    height: 50px;
+    background: white;
+    border-radius: 50%;
+}
+
+.triangle .inner {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 50px solid white;
+}
+
+/* Contours */
+.square-outline {
+    width: 50px;
+    height: 50px;
+    border: 3px solid white;
+}
+
+.circle-outline {
+    width: 50px;
+    height: 50px;
+    border: 3px solid white;
+    border-radius: 50%;
+}
+
+.triangle-outline {
+    width: 0;
+    height: 0;
+    border-left: 25px solid transparent;
+    border-right: 25px solid transparent;
+    border-bottom: 50px solid white;
+}
+
+/* Fin */
+#endMessage {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+</style>
+</head>
+
+<body>
+
+<div id="leftZone"></div>
+<div id="gridZone"></div>
+
+<div id="endMessage">
+    <h1>Bravo 🎉</h1>
+    <button onclick="restart()">Rejouer</button>
+</div>
+
+<script>
+const shapes = ["square","circle","triangle"];
+
+const gridZone = document.getElementById("gridZone");
+const leftZone = document.getElementById("leftZone");
+
+let pieces = [];
+let placed = 0;
+let current = null;
+let lastShape = null;
+
+/* Grille */
+function createGrid() {
+    gridZone.innerHTML = "";
+
+    shapes.forEach(s => {
+        const header = document.createElement("div");
+        header.className = "column header";
+
+        const o = document.createElement("div");
+        o.className = s + "-outline";
+
+        header.appendChild(o);
+        gridZone.appendChild(header);
+    });
+
+    shapes.forEach(s => {
+        const col = document.createElement("div");
+        col.className = "column";
+        col.dataset.shape = s;
+        gridZone.appendChild(col);
+    });
+}
+
+/* Génération pièces */
+function generatePieces() {
+    pieces = [];
+    shapes.forEach(s => {
+        for (let i = 0; i < 3; i++) {
+            pieces.push({shape: s});
+        }
+    });
+    pieces.sort(() => Math.random() - 0.5);
+}
+
+/* Trouver colonne */
+function findColumn(x, y) {
+    return document.elementFromPoint(x, y)?.closest(".column[data-shape]");
+}
+
+/* Créer forme */
+function createShape(piece) {
+    const el = document.createElement("div");
+    el.className = "shape " + piece.shape;
+
+    const inner = document.createElement("div");
+    inner.className = "inner";
+    el.appendChild(inner);
+
+    leftZone.appendChild(el);
+
+    let dx, dy;
+
+    el.onpointerdown = e => {
+        current = piece;
+        dx = e.offsetX;
+        dy = e.offsetY;
+        el.setPointerCapture(e.pointerId);
+    };
+
+    el.onpointermove = e => {
+        if (!current) return;
+        el.style.left = (e.clientX - dx) + "px";
+        el.style.top = (e.clientY - dy) + "px";
+    };
+
+    el.onpointerup = e => {
+        el.releasePointerCapture(e.pointerId);
+
+        const col = findColumn(e.clientX, e.clientY);
+
+        if (col && col.dataset.shape === piece.shape) {
+
+            const rect = col.getBoundingClientRect();
+
+            col.appendChild(el);
+
+            // Position exacte dans la colonne (pas centré)
+            el.style.left = (e.clientX - rect.left - dx) + "px";
+            el.style.top = (e.clientY - rect.top - dy) + "px";
+
+            placed++;
+            current = null;
+
+            if (placed === 9) {
+                endMessage.style.display = "flex";
+            } else {
+                spawnNext();
+            }
+
+        } else {
+            reset(el);
+        }
+    };
+}
+
+/* Reset */
+function reset(el) {
+    el.style.left = "50%";
+    el.style.top = "50%";
+    el.style.transform = "translate(-50%, -50%)";
+    current = null;
+}
+
+/* Spawn (évite répétition) */
+function spawnNext() {
+    leftZone.innerHTML = "";
+
+    let next;
+    do {
+        next = pieces.pop();
+    } while (pieces.length > 0 && next.shape === lastShape);
+
+    lastShape = next.shape;
+
+    createShape(next);
+
+    const el = leftZone.querySelector(".shape");
+    el.style.left = "50%";
+    el.style.top = "50%";
+    el.style.transform = "translate(-50%, -50%)";
+}
+
+/* Restart */
+function restart() {
+    placed = 0;
+    lastShape = null;
+    endMessage.style.display = "none";
+    createGrid();
+    generatePieces();
+    spawnNext();
+}
+
+/* Init */
+createGrid();
+generatePieces();
+spawnNext();
+
+</script>
+</body>
+</html>
