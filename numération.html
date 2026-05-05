@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dénombrer - constellations espacées</title>
+
+<style>
+body {
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    background: black;
+    color: white;
+    font-family: Arial;
+}
+
+/* Zones */
+#leftZone, #rightZone {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#leftZone {
+    border-right: 2px solid white;
+    position: relative;
+}
+
+/* === NOUVELLE DISPOSITION === */
+#groupsContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 130px);
+    grid-template-rows: repeat(2, 130px);
+    gap: 30px; /* espace garanti */
+    justify-content: center;
+    align-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Groupe */
+.group {
+    width: 120px;
+    height: 120px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+
+/* Cellule */
+.cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Objet */
+.item {
+    font-size: 40px;
+}
+
+/* Choix */
+.choice {
+    font-size: 40px;
+    margin: 15px;
+    padding: 20px 40px;
+    border: 2px solid white;
+    border-radius: 10px;
+}
+
+.choice:active {
+    background: white;
+    color: black;
+}
+
+/* HUD */
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+/* Feedback */
+#feedback {
+    margin-top: 20px;
+    font-size: 24px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="leftZone">
+    <div id="hud"></div>
+    <div id="groupsContainer"></div>
+</div>
+
+<div id="rightZone">
+    <div id="choices"></div>
+    <div id="feedback"></div>
+</div>
+
+<script>
+const symbols = ["⭐","🍎","❤️","⚪","⬜","🔺","✖️"];
+
+let min = 1;
+let max = 5;
+
+let success = 0;
+let fail = 0;
+let level = 1;
+
+let currentAnswer = null;
+let firstTry = true;
+
+/* Constellations 1 à 5 */
+const patterns = {
+    1: [4],
+    2: [0,8],
+    3: [0,4,8],
+    4: [0,2,6,8],
+    5: [0,2,4,6,8]
+};
+
+/* Nouvelle tâche */
+function newTask() {
+    firstTry = true;
+
+    currentAnswer = random(min, max);
+    const symbol = symbols[random(0, symbols.length - 1)];
+
+    const container = document.getElementById("groupsContainer");
+    container.innerHTML = "";
+
+    let remaining = currentAnswer;
+
+    while (remaining > 0) {
+        let groupSize = Math.min(5, remaining);
+        createGroup(groupSize, symbol, container);
+        remaining -= groupSize;
+    }
+
+    generateChoices();
+    updateHUD();
+    document.getElementById("feedback").textContent = "";
+}
+
+/* Groupe */
+function createGroup(size, symbol, container) {
+    const group = document.createElement("div");
+    group.className = "group";
+
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cell";
+
+        if (patterns[size].includes(i)) {
+            const el = document.createElement("div");
+            el.className = "item";
+            el.textContent = symbol;
+            cell.appendChild(el);
+        }
+
+        group.appendChild(cell);
+    }
+
+    container.appendChild(group);
+}
+
+/* Choix */
+function generateChoices() {
+    let set = new Set();
+    set.add(currentAnswer);
+
+    while (set.size < 3) {
+        let val = currentAnswer + random(-2, 2);
+        if (val > 0) set.add(val);
+    }
+
+    const choices = [...set].sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById("choices");
+    container.innerHTML = "";
+
+    choices.forEach(n => {
+        const btn = document.createElement("div");
+        btn.className = "choice";
+        btn.textContent = n;
+        btn.onclick = () => checkAnswer(n);
+        container.appendChild(btn);
+    });
+}
+
+/* Vérification */
+function checkAnswer(n) {
+    if (n === currentAnswer) {
+        if (firstTry) {
+            success++;
+            level++;
+            min += 2;
+            max += 2;
+        }
+        document.getElementById("feedback").textContent = "✔️ Bravo";
+        setTimeout(newTask, 800);
+    } else {
+        if (firstTry) fail++;
+        firstTry = false;
+        document.getElementById("feedback").textContent = "❌ Essaie encore";
+    }
+    updateHUD();
+}
+
+/* HUD */
+function updateHUD() {
+    document.getElementById("hud").textContent =
+        "Niveau: " + level +
+        " | Réussites: " + success +
+        " | Échecs: " + fail;
+}
+
+/* Utils */
+function random(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/* Init */
+newTask();
+
+</script>
+
+</body>
+</html>
